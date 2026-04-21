@@ -16,7 +16,7 @@ Treat this as a controller skill. Read only the next document you need.
 - Delivery starts only after the manuscript has already passed drafting and review gates.
 - `50-delivery/book.md` is generated output, not the source of truth.
 - Export is not complete when Pandoc exits successfully; output files must also pass post-export verification.
-- Do not mark `delivery_complete` until `scripts/validate-delivery-project.ps1` passes in both preflight and output mode.
+- Do not mark `delivery_complete` until `node scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>` passes in both preflight and output mode.
 
 ## When To Use
 
@@ -35,7 +35,7 @@ Load only the next layer you need:
 4. Read `references/export-workflow.md` before running Pandoc.
 5. Read `references/file-contract.md` when validating metadata, frontmatter, book manuscript, or output files.
 6. Read `references/failure-recovery.md` when export or validation fails.
-7. Run `scripts/validate-delivery-project.ps1` before claiming `delivery_complete`.
+7. Run `node scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>` before claiming `delivery_complete`.
 
 Do not load every export rule into context before the entry gate passes.
 

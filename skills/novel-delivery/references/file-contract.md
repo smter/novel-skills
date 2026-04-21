@@ -41,4 +41,4 @@ The output directory should contain:
 
 ## Pointer
 
-Use `../scripts/validate-delivery-project.ps1` for mechanical checks.
+Use `node ../scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>` for mechanical checks.

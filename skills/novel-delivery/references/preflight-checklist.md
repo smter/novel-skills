@@ -33,4 +33,4 @@ If any check fails:
 
 ## Pointer
 
-Run `../scripts/validate-delivery-project.ps1 -ProjectRoot <path> -Mode Preflight` for the mechanical checks.
+Run `node ../scripts/validate-delivery-project.js --project-root <path> --mode Preflight` for the mechanical checks.

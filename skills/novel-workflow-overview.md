@@ -45,9 +45,9 @@ Delivery consumes those files and adds:
 
 ## Validation Entry Points
 
-- Research: `novel-research/scripts/validate-research-project.ps1`
-- Drafting: `novel-drafting/scripts/validate-drafting-project.ps1`
-- Delivery: `novel-delivery/scripts/validate-delivery-project.ps1`
+- Research: `node novel-research/scripts/validate-research-project.js --project-root <path>`
+- Drafting: `node novel-drafting/scripts/validate-drafting-project.js --project-root <path>`
+- Delivery: `node novel-delivery/scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>`
 
 ## Status Contract
 

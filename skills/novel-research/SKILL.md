@@ -16,7 +16,7 @@ Treat this as a controller skill. Read only the next document you need.
 - One novel project per root directory. Do not mix multiple books in the same scaffold.
 - Ask one question at a time until premise, audience, conflict, ending tendency, and forbidden content are stable enough to write files.
 - Research findings are not done when you have links. They are done only after they are converted into constraints, terminology notes, realism risks, or style rules inside project files.
-- Do not mark `research_complete` until the completion gate passes and `scripts/validate-research-project.ps1` reports success.
+- Do not mark `research_complete` until the completion gate passes and `node scripts/validate-research-project.js --project-root <path>` reports success.
 
 ## When To Use
 
@@ -35,7 +35,7 @@ Load only the next layer you need:
 4. Read `references/research-workflow.md` before using web research or converting findings into story constraints.
 5. Read `references/file-contract.md` when writing or validating required files.
 6. Read `references/completion-gate.md` before changing status to `research_complete`.
-7. Run `scripts/validate-research-project.ps1` before claiming the project is ready for `novel-drafting`.
+7. Run `node scripts/validate-research-project.js --project-root <path>` before claiming the project is ready for `novel-drafting`.
 
 Do not front-load every detail into the initial context or into a single user message.
 

@@ -1,0 +1,7 @@
+{
+  "name": "novel-skills",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}

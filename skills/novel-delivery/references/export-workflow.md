@@ -37,4 +37,4 @@ If either format fails validation:
 
 ## Pointer
 
-Run `../scripts/validate-delivery-project.ps1 -ProjectRoot <path> -Mode Output` after export.
+Run `node ../scripts/validate-delivery-project.js --project-root <path> --mode Output` after export.

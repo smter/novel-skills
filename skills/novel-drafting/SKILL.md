@@ -16,7 +16,7 @@ Treat this as a controller skill. Read only the next document you need.
 - Drafting starts only after research files are strong enough to constrain chapter work.
 - The controller trusts files on disk, not subagent chat summaries.
 - Writer and reviewer each own one output file class and must not silently edit upstream planning documents.
-- Do not mark `draft_complete` until the whole-book gate passes and `scripts/validate-drafting-project.ps1` reports success.
+- Do not mark `draft_complete` until the whole-book gate passes and `node scripts/validate-drafting-project.js --project-root <path>` reports success.
 
 ## When To Use
 
@@ -48,7 +48,7 @@ Load only the next layer you need:
 3. Read `file-contract.md` when validating files or preparing the exact file requirements for a subagent.
 4. Read `writer-subagent.md` only before dispatching the writer.
 5. Read `reviewer-subagent.md` only before dispatching the reviewer.
-6. Run `scripts/validate-drafting-project.ps1` before claiming the project is ready for `novel-delivery`.
+6. Run `node scripts/validate-drafting-project.js --project-root <path>` before claiming the project is ready for `novel-delivery`.
 
 Do not front-load every drafting rule into every subagent dispatch.
 
@@ -76,7 +76,7 @@ The controller must not:
 - If the writer cannot produce the current chapter because required context is missing or contradictory, stop and mark `draft_blocked`.
 - If the reviewer returns `不通过`, keep the workflow on the same chapter and follow the retry rules in `chapter-loop.md`.
 - If the same chapter fails three draft attempts, stop and mark `draft_blocked`.
-- Only set `draft_complete` after the whole-book review gate defined in `chapter-loop.md` passes and `scripts/validate-drafting-project.ps1` reports success.
+- Only set `draft_complete` after the whole-book review gate defined in `chapter-loop.md` passes and `node scripts/validate-drafting-project.js --project-root <path>` reports success.
 
 ## Next Step
 
