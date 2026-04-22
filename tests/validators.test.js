@@ -22,6 +22,85 @@ function runValidator(scriptPath, args) {
   });
 }
 
+function writeDraftingBaseProject(root, overrides = {}) {
+  writeFile(root, '00-project/project-brief.md', overrides.projectBrief ?? '# Brief\n');
+  writeFile(root, '00-project/success-criteria.md', overrides.successCriteria ?? [
+    '# Success Criteria',
+    '',
+    '- Target Audience: web fiction readers',
+    '- Length Tier: novella',
+    '- Planned Chapters: 2',
+    '- Target Total Words: 2400-3200',
+    '- Per-Chapter Word Range: 1200-1600',
+    '- Completion Rule: all planned chapters drafted and approved',
+    '- Review Pass Rule: every planned chapter review must be 通过',
+  ].join('\n'));
+  writeFile(root, '00-project/workflow-status.md', overrides.workflowStatus ?? [
+    '# Workflow Status',
+    '',
+    '- Project: test-book',
+    '- Status: research_complete',
+    '- Current Stage: novel-drafting',
+    '- Planned Chapters: 2',
+    '- Completed Chapters: 0',
+    '- Last Completed Chapter:',
+    '- Blocking Issues:',
+    '  -',
+    '- Next Allowed Skill: novel-drafting',
+    '- Last Updated: 2026-04-22',
+  ].join('\n'));
+  writeFile(root, '20-story/characters.md', overrides.characters ?? '# Characters\n');
+  writeFile(root, '20-story/plot-outline.md', overrides.plotOutline ?? '# Plot Outline\n');
+  writeFile(root, '20-story/foreshadowing.md', overrides.foreshadowing ?? '# Foreshadowing\n');
+  writeFile(root, '30-draft/chapter-plan.md', overrides.chapterPlan ?? [
+    '# Chapter Plan',
+    '',
+    '## Overview',
+    '',
+    '- Total Chapters: 2',
+    '- Target Per Chapter: 1200-1600',
+    '',
+    '## Chapter List',
+    '',
+    '### Chapter 1',
+    '- Title: First Crossing',
+    '- POV: Lin',
+    '- Word Target: 1200-1600',
+    '- Goal: Get Lin onto the river convoy.',
+    '- Key Events: Lin bargains for passage.',
+    '- Characters: Lin, Boatmaster Qiu',
+    '',
+    '### Chapter 2',
+    '- Title: Lantern Wake',
+    '- POV: Lin',
+    '- Word Target: 1200-1600',
+    '- Goal: Reveal the sabotage attempt without solving it.',
+    '- Key Events: Lin spots the cut mooring line.',
+    '- Characters: Lin, Boatmaster Qiu',
+  ].join('\n'));
+
+  fs.mkdirSync(path.join(root, '30-draft', 'chapters'), { recursive: true });
+  fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
+}
+
+function makeChapterContent(text) {
+  return [
+    '# Chapter 1',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Chapter Goal: Get Lin onto the river convoy.',
+    '- Target Word Range: 1200-1600',
+    '- Draft Status: drafted',
+    '',
+    '## Summary',
+    '- Lin secures passage.',
+    '',
+    '## Content',
+    text,
+  ].join('\n');
+}
+
 test('research validator passes for a complete scaffold', () => {
   const root = makeTempProject();
 
