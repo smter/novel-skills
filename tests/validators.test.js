@@ -101,6 +101,31 @@ function makeChapterContent(text) {
   ].join('\n');
 }
 
+test('drafting parser extracts ordered planned chapters and word targets', () => {
+  const { parseChapterPlan } = require('../skills/novel-drafting/scripts/lib/parse-chapter-plan');
+  const plan = parseChapterPlan([
+    '# Chapter Plan',
+    '',
+    '## Overview',
+    '',
+    '## Chapter List',
+    '',
+    '### Chapter 1',
+    '- Title: First Crossing',
+    '- Word Target: 1200-1600',
+    '- Goal: Get Lin onto the river convoy.',
+    '',
+    '### Chapter 2',
+    '- Title: Lantern Wake',
+    '- Word Target: 1200-1600',
+    '- Goal: Reveal the sabotage attempt without solving it.',
+  ].join('\n'));
+
+  assert.deepEqual(plan.chapterNumbers, [1, 2]);
+  assert.equal(plan.chapters[0].wordTarget.raw, '1200-1600');
+  assert.equal(plan.chapters[1].goal, 'Reveal the sabotage attempt without solving it.');
+});
+
 test('research validator passes for a complete scaffold', () => {
   const root = makeTempProject();
 
