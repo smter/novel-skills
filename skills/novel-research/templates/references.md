@@ -4,27 +4,24 @@ template: references
 
 # References
 
-Record verified sources, unresolved questions, and inferences separately. Do not use this file as a raw bookmark dump.
+Use one entry per source, note, or unresolved question. Add more sections as needed.
 
 ## Source Entry
 
-- Source:
-- Type:
-- Reliability:
-- Relevant To:
-- Notes:
+- Source: {{source}}
+- Type: {{type}}
+- Reliability: {{reliability}}
+- Notes: {{notes}}
 
 ## Open Question
 
-- Question:
-- Why It Matters:
-- Status:
-- Notes:
+- Question: {{question}}
+- Status: {{status}}
+- Notes: {{notes}}
 
 ## Inference Note
 
-- Inference:
-- Basis:
-- Confidence:
-- Risk If Wrong:
-- Notes:
+- Inference: {{inference}}
+- Basis: {{basis}}
+- Confidence: {{confidence}}
+- Notes: {{notes}}

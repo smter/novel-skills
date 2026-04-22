@@ -20,6 +20,4 @@
 
 ## Forbidden Content
 
-## Non-Negotiable Constraints
-
 ## Notes

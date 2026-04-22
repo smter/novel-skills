@@ -1,0 +1,12 @@
+from: markdown+smart
+to: html5
+template: ../templates/novel-book.html
+number-sections: false
+toc: true
+toc-depth: 1
+top-level-division: chapter
+standalone: true
+variables:
+  theme-name: latte
+  theme-accent: 1e66f5
+  theme-accent-soft: 7287fd

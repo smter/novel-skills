@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="$theme-name$">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>$if(title)$$title$$else$Novel$endif$</title>
+  <link rel="stylesheet" href="novel-book.css" />
+  <style>
+    :root {
+      --body-font: "$mainfont$";
+      --heading-font: "$sansfont$";
+      --body-font-weight: "$if(mainfontregular)$$mainfontregular$$else$Medium$endif$";
+    }
+  </style>
+</head>
+<body data-theme="$theme-name$">
+  <main class="book-shell">
+    $body$
+  </main>
+</body>
+</html>

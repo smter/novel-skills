@@ -5,78 +5,119 @@ description: Use when a Chinese novel project already has research files and nee
 
 # Novel Drafting
 
-## Summary
+## Overview
 
-This skill coordinates whole-book drafting through a file-backed controller loop. It validates entry conditions, identifies the next chapter, dispatches writer and reviewer subagents, and advances only when disk state proves the chapter has passed review.
+Validate research outputs, resume progress from any point, and loop through chapter writing and review with subagents until the planned novel is complete and all review gates pass.
 
-Treat this as a controller skill. Read only the next document you need.
-
-## Key Decisions
-
-- Drafting starts only after research files are strong enough to constrain chapter work.
-- The controller trusts files on disk, not subagent chat summaries.
-- Writer and reviewer each own one output file class and must not silently edit upstream planning documents.
-- Do not mark `draft_complete` until the whole-book gate passes and `node scripts/validate-drafting-project.js --project-root <path>` reports success.
-
-## When To Use
+## When to Use
 
 - The project status is `research_complete` or `draft_blocked`
-- The novel project already has the required research files
-- The user wants to begin or continue full-book chapter drafting
-- The workflow must stop if a chapter review does not pass
+- All required research files exist and are sufficient
+- The user wants to begin or continue writing chapters
+- Drafting needs to be blocked until review passes
 
 ## Entry Gate
 
-Before drafting, check:
-
-- `00-project/workflow-status.md`
+Before writing, check:
+- `00-project/workflow-status.md` status is `research_complete` or `draft_blocked`
 - `00-project/success-criteria.md`
-- `00-project/project-brief.md`
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
 
-If any file is missing, the project status is wrong, or the content is too weak to support drafting, stop and report the block.
+If any item is missing or weak, stop and report the block.
 
-## Progressive Disclosure
+## Project Root Discovery
 
-Load only the next layer you need:
+Treat all paths in this skill as relative to the novel project root, not automatically the workspace root.
 
-1. Read this file to decide whether the skill applies and whether entry is allowed.
-2. Read `chapter-loop.md` only after entry passes and the controller is ready to run the chapter loop.
-3. Read `file-contract.md` when validating files or preparing the exact file requirements for a subagent.
-4. Read `writer-subagent.md` only before dispatching the writer.
-5. Read `reviewer-subagent.md` only before dispatching the reviewer.
-6. Run `node scripts/validate-drafting-project.js --project-root <path>` before claiming the project is ready for `novel-delivery`.
+Before reading or writing `00-project`, `30-draft`, `40-review`, or `50-delivery`, detect the root with this rule:
+- if the current directory already contains `00-project/workflow-status.md`, use it
+- otherwise, if the current directory contains exactly one child book directory with `00-project/workflow-status.md`, use that child directory
+- otherwise, stop and report that the project root is ambiguous
 
-Do not front-load every drafting rule into every subagent dispatch.
+Do not waste cycles repeatedly searching sibling trees once one valid novel root is identified.
 
-## Controller Rules
+## Resume Logic
 
-The controller must:
+Inspect:
+- `30-draft/chapters/`
+- `40-review/chapter-reviews/`
 
-- decide which chapter needs work
-- dispatch writer and reviewer with only the minimum required context
-- require writer and reviewer to write their primary outputs directly to disk
-- verify file existence and required fields before advancing
-- track retries for the current chapter
-- update `00-project/workflow-status.md`
-- run structural validation before claiming `draft_complete`
+Resume from the first chapter that is missing, failed review, or not yet marked as passed.
 
-The controller must not:
+## Writer Subagent Contract
 
-- manually rewrite or paste chapter prose into chapter files
-- manually rewrite or paste full review content into review files
-- advance based only on chat text without checking the files
-- let either subagent silently change unrelated project files
+Give the writer only:
+- `00-project/project-brief.md`
+- `10-research/style-research.md`
+- `20-story/characters.md`
+- `20-story/plot-outline.md`
+- `20-story/foreshadowing.md`
+- Prior approved chapter summaries or necessary approved text
+- The current chapter target from `30-draft/chapter-plan.md`
 
-## Block and Completion Rules
+The writer outputs only the current chapter draft.
 
-- If the writer cannot produce the current chapter because required context is missing or contradictory, stop and mark `draft_blocked`.
-- If the reviewer returns `不通过`, keep the workflow on the same chapter and follow the retry rules in `chapter-loop.md`.
-- If the same chapter fails three draft attempts, stop and mark `draft_blocked`.
-- Only set `draft_complete` after the whole-book review gate defined in `chapter-loop.md` passes and `node scripts/validate-drafting-project.js --project-root <path>` reports success.
+## Reviewer Subagent Contract
+
+The reviewer checks:
+- Chapter word count against target
+- Alignment with chapter goal
+- Alignment with overall outline
+- Character consistency
+- Forbidden early reveals
+- Continuity with prior chapters
+- Pacing and readability
+
+The reviewer must write a structured review file to `40-review/chapter-reviews/chapter-XX-review.md` and return `通过` or `不通过`.
+The reviewer does not rewrite the chapter.
+
+## Revision Loop
+
+- If review returns `不通过`, send only the review findings back to the writer.
+- Retry up to 3 total draft attempts for the same chapter.
+- If the third attempt still fails, stop and mark `draft_blocked`.
+
+## Status Updates
+
+When drafting starts:
+- Set status to `draft_in_progress`
+
+When a chapter fails too many times:
+- Set status to `draft_blocked`
+- List the blocked chapter and the reason
+
+When all chapters and the final review pass:
+- Set status to `draft_complete`
+
+## Final Manuscript Gate
+
+After the last planned chapter passes, run a book-level review:
+- Compare completed chapters to `30-draft/chapter-plan.md`
+- Compare open setup items in `20-story/foreshadowing.md`
+- Verify each `40-review/chapter-reviews/chapter-XX-review.md` is passed
+- Compare total words to the target range
+
+Only then set `draft_complete`.
+
+## Red Flags
+
+- "The chapter is close enough, continue"
+- "The review found issues, but they can be fixed later"
+- "The reveal is exciting, so early is fine"
+- "The third retry is probably enough to move on"
+
+All of these mean: do not advance.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "A missing file should not block creativity" | Missing files mean the contract is incomplete. |
+| "Review can be soft because later chapters will fix it" | Later chapters compound continuity damage. |
+| "One more retry is harmless" | Unbounded retries hide blocked work. |
 
 ## Next Step
 

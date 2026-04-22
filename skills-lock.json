@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "harness-engineering": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "computedHash": "9b952b78478c8af8c794aeef8ca33ab8b6c053def13381dbd441f95cf7b01192"
+    },
+    "novel-delivery": {
+      "source": "smter/novel-skills",
+      "sourceType": "github",
+      "computedHash": "449e049809edfa8c96f5b621a8d7a025632d5e43faa458632ef898cf58b2d82c"
+    },
+    "novel-drafting": {
+      "source": "smter/novel-skills",
+      "sourceType": "github",
+      "computedHash": "764c152c818a8d731480a497c7d02a0a189a2ae59978876692ca2152dcc7ece5"
+    },
+    "novel-research": {
+      "source": "smter/novel-skills",
+      "sourceType": "github",
+      "computedHash": "c5ebdcb8fec711c2d026a3515c63c3affafd78e01e33cdd8ff473019f5199e59"
+    }
+  }
+}

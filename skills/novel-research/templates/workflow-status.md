@@ -7,7 +7,6 @@ template: workflow-status
 - Project: {{title}}
 - Status: initialized
 - Current Stage: novel-research
-- Research Search Policy: {{search_policy}}
 - Planned Chapters: {{planned_chapters}}
 - Completed Chapters: 0
 - Last Completed Chapter:

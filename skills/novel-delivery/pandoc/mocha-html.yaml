@@ -1,0 +1,12 @@
+from: markdown+smart
+to: html5
+template: ../templates/novel-book.html
+number-sections: false
+toc: true
+toc-depth: 1
+top-level-division: chapter
+standalone: true
+variables:
+  theme-name: mocha
+  theme-accent: 89b4fa
+  theme-accent-soft: b4befe

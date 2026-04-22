@@ -5,74 +5,131 @@ description: Use when starting a new Chinese novel project that needs premise cl
 
 # Novel Research
 
-## Summary
+## Overview
 
-This skill initializes a single-book novel project, interviews the user one question at a time, converts research into file-backed story constraints, and blocks drafting until the knowledge base is complete.
+Create a single-book project, interview the user one question at a time, and build a durable Markdown knowledge base for later drafting.
 
-Treat this as a controller skill. Read only the next document you need.
+Default to web research unless the user explicitly refuses it.
 
-## Key Decisions
+## When to Use
 
-- One novel project per root directory. Do not mix multiple books in the same scaffold.
-- Ask one question at a time until premise, audience, conflict, ending tendency, and forbidden content are stable enough to write files.
-- Research findings are not done when you have links. They are done only after they are converted into constraints, terminology notes, realism risks, or style rules inside project files.
-- Do not mark `research_complete` until the completion gate passes and `node scripts/validate-research-project.js --project-root <path>` reports success.
+- The user wants to start a new novel from scratch
+- The user has only a premise and needs structure
+- The project needs setting, genre, style, or domain research
+- The drafting stage should be blocked until files are complete
 
-## When To Use
+## Required Outputs
 
-- The user is starting a new Chinese novel project from scratch
-- The user has an idea but lacks enough structure to begin drafting
-- The project needs setting research, domain realism, genre calibration, or style guidance
-- The drafting stage must remain blocked until the file set is complete
+The following files must exist and contain sufficient content to mark research as complete:
 
-## Progressive Disclosure
+- `00-project/project-brief.md`
+- `00-project/success-criteria.md`
+- `00-project/workflow-status.md`
+- `10-research/topic-research.md`
+- `10-research/setting-research.md`
+- `10-research/style-research.md`
+- `10-research/references.md`
+- `20-story/characters.md`
+- `20-story/plot-outline.md`
+- `20-story/foreshadowing.md`
+- `30-draft/chapter-plan.md`
 
-Load only the next layer you need:
+## Project Creation Rules
 
-1. Read this file to decide whether the skill applies and whether research can start.
-2. Read `references/project-scaffold.md` before creating or normalizing the project structure.
-3. Read `references/interview-loop.md` when running the user interview and filling project files.
-4. Read `references/research-workflow.md` before using web research or converting findings into story constraints.
-5. Read `references/file-contract.md` when writing or validating required files.
-6. Read `references/completion-gate.md` before changing status to `research_complete`.
-7. Run `node scripts/validate-research-project.js --project-root <path>` before claiming the project is ready for `novel-drafting`.
+When research starts, create a single-book directory using a slug derived from the title or working title.
 
-Do not front-load every detail into the initial context or into a single user message.
+If the agent starts from a workspace root rather than the book root, create and use this layout:
+- `<workspace-root>/<book-slug>/00-project`
+- `<workspace-root>/<book-slug>/10-research`
+- `<workspace-root>/<book-slug>/20-story`
+- `<workspace-root>/<book-slug>/30-draft`
+- `<workspace-root>/<book-slug>/40-review`
+- `<workspace-root>/<book-slug>/50-delivery`
 
-## Entry Gate
+When later skills refer to paths like `00-project/...`, interpret them relative to the detected novel project root, which may be:
+- the current working directory itself
+- exactly one child book directory under the current working directory
 
-Before research begins:
+Create these directories:
+- `00-project`
+- `10-research`
+- `20-story`
+- `30-draft/chapters`
+- `40-review/chapter-reviews`
+- `50-delivery/output`
 
-- confirm the user wants a single-book project, not a multi-book platform
-- identify a working title or temporary slug source
-- decide whether web research is allowed
-- check whether a project root already exists and whether it should be reused or normalized
+Instantiate every template file before declaring progress.
 
-If the project scope is unclear or the book concept is still split across incompatible directions, stay in discovery and do not force file creation prematurely.
+## Discovery Interview
 
-## Controller Rules
+Interview the user around these elements. Do not proceed to outlining until they are clarified:
 
-The controller must:
+1. **Genre and Type** - What kind of story is this?
+2. **Target Audience** - Who is the intended reader?
+3. **Length Target** - Short story, novella, novel? Approximate word count?
+4. **Tone and Mood** - Serious, light, dark, hopeful?
+5. **Core Conflict** - What is the central tension?
+6. **Protagonist Desire** - What does the main character want?
+7. **Ending Tendency** - Happy, tragic, open, bittersweet?
+8. **Forbidden Content** - Any topics, tropes, or elements to avoid?
 
-- create or normalize the required directory structure
-- instantiate the required template files before reporting progress
-- ask one interview question at a time
-- write answers into the correct project files as hard constraints
-- separate verified facts from inference notes
-- keep `00-project/workflow-status.md` current
+Ask one question at a time. Do not batch questions.
 
-The controller must not:
+## Search Policy
 
-- jump to a chapter outline before the core premise and story constraints are stable
-- dump raw search results into project files without synthesis
-- mark thin, contradictory, or placeholder files as complete
-- advance to drafting based only on chat text without checking files
+Default to web research for domain facts, period details, setting realism, profession workflows, regional context, and style references unless the user explicitly forbids search.
+
+If search is forbidden:
+- Do not browse
+- Mark uncertain areas in `references.md`
+- State which details are inferred rather than verified
+
+## Research Conversion
+
+Do not stop at links or excerpts.
+
+Convert every useful finding into one or more of:
+- Setting constraints
+- Terminology notes
+- Realism pitfalls
+- Style rules
+- Taboo or continuity risks
+
+## Completeness Checklist
+
+Before marking research complete, verify:
+
+- [ ] Protagonist, main conflict, and story goal are clearly defined
+- [ ] Target length is determined with chapter count
+- [ ] Chapter plan matches the target length
+- [ ] Foreshadowing appears before its payoff point
+- [ ] Style guidelines are sufficient to constrain later writing
+- [ ] No critical background gaps remain
+
+If any check fails, continue interviewing or researching. Do not mark complete prematurely.
+
+## Red Flags
+
+- Starting an outline before key constraints are clarified
+- Skipping web research even though the user did not forbid it
+- Dumping raw links instead of writing structured knowledge files
+- Marking research complete while core files are still thin or contradictory
+
+All of these mean: stay in `research_in_progress` or move to `research_blocked`.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "The user was vague, so a loose outline is enough" | Drafting needs hard constraints and file outputs. |
+| "I know enough about this genre already" | Research defaults to web-backed verification unless refused. |
+| "A short chapter plan is probably fine" | The drafting skill needs explicit chapter progression. |
 
 ## Status Transitions
 
-- Start: set status to `research_in_progress`
-- Blocked: set status to `research_blocked` and record the specific blocker
-- Complete: set status to `research_complete` only after the completion gate and validation script both pass
+- Start: Set status to `research_in_progress`
+- Blocked: Set status to `research_blocked` with specific blocking issues listed
+- Complete: Set status to `research_complete` only after all files pass completeness check
 
 ## Next Step
 

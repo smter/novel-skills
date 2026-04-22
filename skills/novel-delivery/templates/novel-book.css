@@ -1,0 +1,120 @@
+@page {
+  size: A5;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--body-font), "Source Han Serif SC", "Noto Serif CJK SC", serif;
+  font-weight: var(--body-font-weight, 500);
+  line-height: 1.75;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body[data-theme="latte"] {
+  --page: #eff1f5;
+  --panel: #e6e9ef;
+  --edge: #ccd0da;
+  --text: #4c4f69;
+  --muted: #5c5f77;
+  --accent: #1e66f5;
+  --accent-soft: #7287fd;
+  background: var(--page);
+  color: var(--text);
+}
+
+body[data-theme="mocha"] {
+  --page: #1e1e2e;
+  --panel: #181825;
+  --edge: #313244;
+  --text: #cdd6f4;
+  --muted: #bac2de;
+  --accent: #89b4fa;
+  --accent-soft: #b4befe;
+  background: var(--page);
+  color: var(--text);
+}
+
+.book-shell {
+  padding: 18mm 14mm 20mm 16mm;
+}
+
+h1,
+h2,
+h3,
+.title,
+#TOC::before {
+  font-family: var(--heading-font), "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+}
+
+h1 {
+  break-before: page;
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+h1::before {
+  content: "CHAPTER";
+  display: block;
+  margin-bottom: 0.8rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+h1 + p {
+  break-inside: avoid;
+  margin-top: 0;
+}
+
+p {
+  margin: 0 0 0.95rem;
+}
+
+#TOC {
+  break-after: page;
+  margin: 0 0 2rem;
+  padding: 1.2rem 0 0;
+}
+
+#TOC::before {
+  content: "CONTENTS";
+  display: block;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--accent);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+#TOC ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#TOC li {
+  margin: 0 0 0.95rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--edge);
+}
+
+#TOC a {
+  color: inherit;
+  text-decoration: none;
+}

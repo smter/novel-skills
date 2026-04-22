@@ -1,0 +1,6 @@
+from: markdown+smart
+to: epub
+toc: true
+toc-depth: 1
+standalone: true
+split-level: 1
