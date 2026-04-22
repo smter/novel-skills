@@ -22,12 +22,59 @@ const requiredFiles = [
   '30-draft/chapter-plan.md',
 ];
 
+const validModes = new Set(['Entry', 'Progress', 'Completion']);
+
+function validateChapterStructure(state, number, chapterPath, chapterContent) {
+  if (chapterContent === null) {
+    addError(state, `Missing chapter file for planned chapter ${number}: ${chapterPath}`);
+    return false;
+  }
+
+  for (const heading of ['## Metadata', '## Summary', '## Content', 'Draft Status']) {
+    if (!chapterContent.includes(heading)) {
+      addError(state, `Chapter ${number} is missing section '${heading}'.`);
+    }
+  }
+
+  return true;
+}
+
+function validateReviewStructure(state, number, reviewPath, reviewContent) {
+  if (reviewContent === null) {
+    addError(state, `Missing review file for planned chapter ${number}: ${reviewPath}`);
+    return null;
+  }
+
+  for (const heading of ['## Metadata', '## Checks', '## Findings', '## Required Revisions']) {
+    if (!reviewContent.includes(heading)) {
+      addError(state, `Review ${number} is missing section '${heading}'.`);
+    }
+  }
+
+  if (/Decision:\s*通过/.test(reviewContent)) {
+    return 'pass';
+  }
+
+  if (/Decision:\s*不通过/.test(reviewContent)) {
+    return 'fail';
+  }
+
+  addError(state, `Review ${number} is missing a valid decision.`);
+  return 'invalid';
+}
+
 function main() {
   let args;
   try {
     args = parseArgs(process.argv.slice(2), { required: ['project-root'] });
   } catch (error) {
     console.log(`Drafting validation failed:\n- ${error.message}`);
+    process.exit(1);
+  }
+
+  const mode = args.mode ?? 'Completion';
+  if (!validModes.has(mode)) {
+    console.log(`Drafting validation failed for mode ${mode}:\n- Invalid mode: ${mode}`);
     process.exit(1);
   }
 
@@ -60,34 +107,60 @@ function main() {
     }
   }
 
+  if (mode === 'Entry') {
+    requireWorkflowFields(state, '00-project/workflow-status.md', [
+      'Status:',
+      'Current Stage:',
+      'Completed Chapters:',
+      'Last Completed Chapter:',
+      'Blocking Issues:',
+      'Next Allowed Skill:',
+    ]);
+    finish(state, `Drafting validation passed for mode ${mode}.`, `Drafting validation failed for mode ${mode}:`);
+    return;
+  }
+
+  let progressBoundaryReached = false;
   for (const number of plannedChapterNumbers) {
     const formattedNumber = String(number).padStart(2, '0');
     const chapterPath = `30-draft/chapters/chapter-${formattedNumber}.md`;
     const reviewPath = `40-review/chapter-reviews/chapter-${formattedNumber}-review.md`;
 
     const chapterContent = readFile(state, chapterPath);
-    if (chapterContent !== null) {
-      for (const heading of ['## Metadata', '## Summary', '## Content', 'Draft Status']) {
-        if (!chapterContent.includes(heading)) {
-          addError(state, `Chapter ${number} is missing section '${heading}'.`);
-        }
-      }
-    } else {
-      addError(state, `Missing chapter file for planned chapter ${number}: ${chapterPath}`);
+    if (mode === 'Progress' && progressBoundaryReached) {
+      continue;
+    }
+
+    if (mode === 'Progress' && chapterContent === null) {
+      progressBoundaryReached = true;
+      continue;
+    }
+
+    const chapterIsPresent = validateChapterStructure(state, number, chapterPath, chapterContent);
+    if (!chapterIsPresent) {
+      continue;
     }
 
     const reviewContent = readFile(state, reviewPath);
-    if (reviewContent !== null) {
-      for (const heading of ['## Metadata', '## Checks', '## Findings', '## Required Revisions']) {
-        if (!reviewContent.includes(heading)) {
-          addError(state, `Review ${number} is missing section '${heading}'.`);
-        }
-      }
-      if (!/Decision:\s*通过/.test(reviewContent)) {
+    if (mode === 'Progress' && reviewContent === null) {
+      progressBoundaryReached = true;
+      continue;
+    }
+
+    const reviewDecision = validateReviewStructure(state, number, reviewPath, reviewContent);
+    if (reviewDecision === null || reviewDecision === 'invalid') {
+      continue;
+    }
+
+    if (mode === 'Completion') {
+      if (reviewDecision !== 'pass') {
         addError(state, `Review ${number} does not contain a passing decision.`);
       }
-    } else {
-      addError(state, `Missing review file for planned chapter ${number}: ${reviewPath}`);
+      continue;
+    }
+
+    if (reviewDecision === 'fail') {
+      progressBoundaryReached = true;
     }
   }
 
@@ -100,7 +173,11 @@ function main() {
     'Next Allowed Skill:',
   ]);
 
-  finish(state, 'Drafting validation passed.', 'Drafting validation failed:');
+  finish(
+    state,
+    `Drafting validation passed for mode ${mode}.`,
+    `Drafting validation failed for mode ${mode}:`,
+  );
 }
 
 main();
