@@ -356,8 +356,8 @@ test('drafting validator in entry mode fails when workflow current stage is stil
   );
 
   assert.equal(result.status, 1);
-  assert.match(result.stdout, /Current Stage|workflow/i);
-  assert.match(result.stdout, /novel-drafting|drafting/i);
+  assert.match(result.stdout, /Current Stage/i);
+  assert.match(result.stdout, /novel-research|novel-drafting/i);
 });
 
 test('delivery validator passes in output mode when required themed artifacts exist', () => {
