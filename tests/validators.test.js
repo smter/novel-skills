@@ -302,6 +302,64 @@ test('drafting validator in completion mode fails when later chapters are still 
   assert.match(result.stdout, /Missing chapter file for planned chapter 2/);
 });
 
+test('drafting validator in entry mode fails when workflow status is not research_complete or draft_blocked', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: initialized',
+      '- Current Stage: novel-research',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 0',
+      '- Last Completed Chapter:',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-research',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Entry'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /workflow status/i);
+  assert.match(result.stdout, /research_complete|draft_blocked/i);
+});
+
+test('drafting validator in entry mode fails when workflow current stage is still novel-research', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: research_complete',
+      '- Current Stage: novel-research',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 0',
+      '- Last Completed Chapter:',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Entry'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Current Stage|workflow/i);
+  assert.match(result.stdout, /novel-drafting|drafting/i);
+});
+
 test('delivery validator passes in output mode when required themed artifacts exist', () => {
   const workspace = makeTempProject();
   const root = path.join(workspace, 'book-slug');
