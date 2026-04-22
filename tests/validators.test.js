@@ -200,19 +200,25 @@ test('drafting validator fails when a planned review is not passing', () => {
     '## Chapter List',
     '### Chapter 1',
   ].join('\n\n'));
-  writeFile(root, '30-draft/chapters/chapter-01.md', [
-    '## Metadata',
-    '## Summary',
-    '## Content',
-    'Draft Status',
-  ].join('\n\n'));
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
   writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
     '## Metadata',
+    '- Chapter Number: 1',
+    '- Reviewer Status: completed',
+    '',
     '## Checks',
+    '- Word Count: fail',
+    '',
     '## Findings',
+    '- The chapter is still too short.',
+    '',
     '## Required Revisions',
+    '- Expand the river convoy sequence.',
+    '',
     'Decision: 不通过',
-  ].join('\n\n'));
+  ].join('\n'));
 
   fs.mkdirSync(path.join(root, '30-draft', 'chapters'), { recursive: true });
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
@@ -249,21 +255,25 @@ test('drafting validator passes in progress mode when the current chapter review
     '### Chapter 1',
     '### Chapter 2',
   ].join('\n\n'));
-  writeFile(root, '30-draft/chapters/chapter-01.md', [
-    '# Chapter 1',
-    '## Metadata',
-    '## Summary',
-    '## Content',
-    'Draft Status: drafted',
-  ].join('\n\n'));
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
   writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
     '# Chapter 1 Review',
+    '',
     '## Metadata',
+    '- Chapter Number: 1',
+    '- Reviewer Status: completed',
+    '',
     '## Checks',
+    '- Word Count: fail',
+    '',
     '## Findings',
+    '- The sabotage setup lands too softly.',
+    '',
     '## Required Revisions',
+    '- Strengthen the final beat before the chapter ends.',
+    '',
     'Decision: 不通过',
-  ].join('\n\n'));
+  ].join('\n'));
 
   fs.mkdirSync(path.join(root, '30-draft', 'chapters'), { recursive: true });
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
@@ -299,21 +309,24 @@ test('drafting validator in completion mode fails when later chapters are still 
     '### Chapter 1',
     '### Chapter 2',
   ].join('\n\n'));
-  writeFile(root, '30-draft/chapters/chapter-01.md', [
-    '# Chapter 1',
-    '## Metadata',
-    '## Summary',
-    '## Content',
-    'Draft Status: drafted',
-  ].join('\n\n'));
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
   writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
     '# Chapter 1 Review',
+    '',
     '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
     '## Checks',
+    '- Word Count: pass',
+    '',
     '## Findings',
+    '- None.',
+    '',
     '## Required Revisions',
-    'Decision: 通过',
-  ].join('\n\n'));
+    '- None',
+  ].join('\n'));
 
   fs.mkdirSync(path.join(root, '30-draft', 'chapters'), { recursive: true });
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
@@ -383,6 +396,129 @@ test('drafting validator in entry mode fails when workflow current stage is stil
   assert.equal(result.status, 1);
   assert.match(result.stdout, /Current Stage/i);
   assert.match(result.stdout, /novel-research|novel-drafting/i);
+});
+
+test('drafting validator in progress mode fails when chapter metadata does not match the file name', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', [
+    '# Chapter 1',
+    '',
+    '## Metadata',
+    '- Chapter Number: 2',
+    '- Chapter Goal: Get Lin onto the river convoy.',
+    '- Target Word Range: 1200-1600',
+    '- Draft Status: drafted',
+    '',
+    '## Summary',
+    '- Lin secures passage.',
+    '',
+    '## Content',
+    '江风推着船篷向前。'.repeat(700),
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Chapter Number/i);
+  assert.match(result.stdout, /chapter-01\.md/i);
+});
+
+test('drafting validator in progress mode fails when a failed review has no actionable revisions', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 不通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: fail',
+    '',
+    '## Findings',
+    '- The chapter is too short.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Required Revisions/i);
+  assert.match(result.stdout, /actionable/i);
+});
+
+test('drafting validator in progress mode fails when chapter content is below the planned word range', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('短章。'.repeat(80)));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /word count/i);
+  assert.match(result.stdout, /1200-1600/);
+});
+
+test('drafting validator in completion mode fails when workflow status claims draft_complete before all chapters pass', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_complete',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 1',
+      '- Last Completed Chapter: 1',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-delivery',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    ['--project-root', root, '--mode', 'Completion'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /draft_complete/i);
+  assert.match(result.stdout, /all planned chapters/i);
 });
 
 test('delivery validator passes in output mode when required themed artifacts exist', () => {

@@ -12,6 +12,7 @@ Before dispatching any subagent:
 2. Read `30-draft/chapter-plan.md`.
 3. Inspect `30-draft/chapters/`.
 4. Inspect `40-review/chapter-reviews/`.
+5. Run `validate-drafting-project.js --mode Progress` before advancing.
 
 Determine the first chapter that matches any of these conditions:
 
@@ -39,9 +40,9 @@ After the writer returns:
 
 1. Do not trust the chat text alone.
 2. Check that the chapter file exists at the reported path.
-3. Check that the chapter file satisfies the chapter-file contract.
+3. Run the drafting validator in `Progress` mode.
 4. If the writer returned `BLOCKED`, update `workflow-status.md` to `draft_blocked` and stop.
-5. Only dispatch the reviewer if the chapter file exists and passes structural validation.
+5. Only dispatch the reviewer if the chapter file exists and validator checks pass.
 
 ## Reviewer Dispatch
 
@@ -59,7 +60,7 @@ After the reviewer returns:
 
 1. Do not trust the chat text alone.
 2. Check that the review file exists at the reported path.
-3. Check that the review file satisfies the review-file contract.
+3. Run the drafting validator in `Progress` mode.
 4. Confirm that `Decision` is either `通过` or `不通过`.
 5. If the reviewer returned `BLOCKED`, update `workflow-status.md` to `draft_blocked` and stop.
 
@@ -89,6 +90,7 @@ Advance to the next chapter only if:
 - the chapter file exists
 - the review file exists
 - the review file has `Decision: 通过`
+- `validate-drafting-project.js --mode Progress` passes
 
 When a chapter passes:
 
@@ -102,10 +104,9 @@ After all planned chapters appear to be passed:
 
 1. Compare planned chapter entries in `30-draft/chapter-plan.md` to files in `30-draft/chapters/`.
 2. Confirm each chapter has a corresponding passed review in `40-review/chapter-reviews/`.
-3. Compare unresolved setup items in `20-story/foreshadowing.md` against the completed manuscript and review state.
-4. Compare the manuscript length against `00-project/success-criteria.md`.
+3. Run `validate-drafting-project.js --mode Completion`.
 
-Only after all four checks pass:
+Only after the completion validator passes:
 
 - set `Status` to `draft_complete`
 - set `Next Allowed Skill` to `novel-delivery`

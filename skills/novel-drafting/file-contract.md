@@ -80,4 +80,15 @@ Validation rules:
 - A writer run is not complete until the expected chapter file exists and includes the chapter-file sections above.
 - A reviewer run is not complete until the expected review file exists and includes a valid `Decision`.
 - The controller may advance only when the review file contains `Decision: 通过`.
-- If a file exists but is structurally incomplete, treat that as a failed run and stop or re-dispatch as appropriate.
+- The controller must run `skills/novel-drafting/scripts/validate-drafting-project.js` before advancing status.
+- If a file exists but is structurally incomplete or fails validator checks, treat that as a failed run and stop or re-dispatch as appropriate.
+
+## Validator-Enforced Invariants
+
+The drafting validator currently enforces:
+
+- entry status and stage compatibility
+- chapter file and review file identity consistency
+- actionable required revisions for failed reviews
+- chapter and manuscript word-count gates
+- workflow field consistency for completion state

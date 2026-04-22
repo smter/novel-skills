@@ -9,6 +9,8 @@ description: Use when a Chinese novel project already has research files and nee
 
 Validate research outputs, resume progress from any point, and loop through chapter writing and review with subagents until the planned novel is complete and all review gates pass.
 
+Workflow advancement is lint-supervised. The controller may not advance drafting state on chat claims alone; it must read project artifacts and run the drafting validator.
+
 ## When to Use
 
 - The project status is `research_complete` or `draft_blocked`
@@ -20,6 +22,7 @@ Validate research outputs, resume progress from any point, and loop through chap
 
 Before writing, check:
 - `00-project/workflow-status.md` status is `research_complete` or `draft_blocked`
+- `00-project/workflow-status.md` current stage is drafting-compatible
 - `00-project/success-criteria.md`
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
@@ -27,6 +30,23 @@ Before writing, check:
 - `30-draft/chapter-plan.md`
 
 If any item is missing or weak, stop and report the block.
+
+## Validation Gate
+
+Before advancing workflow state, run the drafting validator against the novel root:
+
+```bash
+node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Entry
+node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Progress
+node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Completion
+```
+
+Use:
+- `Entry` before drafting begins or resumes
+- `Progress` after writer or reviewer output changes the current chapter state
+- `Completion` before setting `draft_complete` or `Next Allowed Skill: novel-delivery`
+
+The validator output is authoritative. If it fails, do not advance.
 
 ## Project Root Discovery
 
@@ -96,7 +116,6 @@ When all chapters and the final review pass:
 
 After the last planned chapter passes, run a book-level review:
 - Compare completed chapters to `30-draft/chapter-plan.md`
-- Compare open setup items in `20-story/foreshadowing.md`
 - Verify each `40-review/chapter-reviews/chapter-XX-review.md` is passed
 - Compare total words to the target range
 
@@ -122,3 +141,5 @@ All of these mean: do not advance.
 ## Next Step
 
 After `draft_complete`, the next allowed skill is `novel-delivery`.
+
+For validator modes and enforced artifact checks, see `lint-contract.md`.

@@ -50,7 +50,7 @@ function parseLabeledList(markdown) {
   let activeField = null;
 
   for (const line of normalized.split('\n')) {
-    const fieldMatch = line.match(/^\s*-\s+([^:]+):\s*(.*)$/);
+    const fieldMatch = line.match(/^\s*(?:-\s+)?([^:\n]+):\s*(.*)$/);
     if (fieldMatch) {
       const label = fieldMatch[1].trim();
       const value = fieldMatch[2].trim();
@@ -63,7 +63,7 @@ function parseLabeledList(markdown) {
       continue;
     }
 
-    const itemMatch = line.match(/^\s+-\s*(.*)$/);
+    const itemMatch = line.match(/^\s{2,}-\s*(.*)$/);
     if (itemMatch && activeField) {
       activeField.items.push(itemMatch[1].trim());
       continue;
