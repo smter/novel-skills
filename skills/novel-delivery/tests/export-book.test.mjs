@@ -20,6 +20,7 @@ import {
   getPdfBrowserInstallPlan,
   getInstalledFontsFromMacSystemProfiler,
   getResolvedFonts,
+  materializePandocDefaultsFile,
   newPandocCommand,
   resolveNovelProjectRoot,
   setWorkflowDeliveryStatus,
@@ -124,6 +125,20 @@ test("builds Pandoc commands with the selected fonts and html defaults file", ()
   assert.equal(command.includes("mainfont=Source Han Serif SC"), true);
   assert.equal(command.includes("mainfontregular=Medium"), true);
   assert.equal(command.includes("sansfont=Source Han Sans SC"), true);
+});
+
+test("materializes html defaults with an absolute template path for Pandoc 3.x", () => {
+  const defaultsPath = path.join(skillRoot, "pandoc", "latte-html.yaml");
+
+  const materializedPath = materializePandocDefaultsFile(defaultsPath);
+  const materializedYaml = fs.readFileSync(materializedPath, "utf8");
+
+  assert.notEqual(materializedPath, defaultsPath);
+  assert.match(
+    materializedYaml,
+    new RegExp(`template:\\s+${path.join(skillRoot, "templates", "novel-book.html").replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`),
+  );
+  assert.equal(materializedYaml.includes("template: ../templates/novel-book.html"), false);
 });
 
 test("sets workflow status to delivery_blocked when export fails", () => {

@@ -87,6 +87,10 @@ interface DeliveryExportOptions {
   installedFonts?: string[];
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function loadPlaywrightModule(): Promise<any> {
   try {
     // @ts-expect-error playwright-core is installed in the skill-local package.
@@ -677,6 +681,33 @@ export function newPandocCommand({
   return command;
 }
 
+export function materializePandocDefaultsFile(defaultsFile: string): string {
+  const resolvedDefaultsFile = path.resolve(defaultsFile);
+  const defaultsDirectory = path.dirname(resolvedDefaultsFile);
+  const defaultsContent = readText(resolvedDefaultsFile);
+  const templateMatch = defaultsContent.match(/^template:\s+(.+)$/m);
+
+  if (!templateMatch) {
+    return resolvedDefaultsFile;
+  }
+
+  const configuredTemplatePath = templateMatch[1].trim();
+  const normalizedTemplatePath = configuredTemplatePath.replace(/^['"]|['"]$/g, '');
+  const absoluteTemplatePath = path.isAbsolute(normalizedTemplatePath)
+    ? normalizedTemplatePath
+    : path.resolve(defaultsDirectory, normalizedTemplatePath);
+
+  const rewrittenContent = defaultsContent.replace(
+    new RegExp(`^template:\\s+${escapeRegExp(configuredTemplatePath)}$`, 'm'),
+    `template: ${absoluteTemplatePath}`,
+  );
+
+  const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'novel-delivery-pandoc-'));
+  const materializedDefaultsPath = path.join(tempDirectory, path.basename(resolvedDefaultsFile));
+  writeText(materializedDefaultsPath, rewrittenContent);
+  return materializedDefaultsPath;
+}
+
 export function copyPrintStyles(outputDirectory: string): string {
   ensureDirectory(outputDirectory);
   const sourcePath = path.resolve(__dirname, '..', 'templates', PRINT_STYLES_FILENAME);
@@ -865,8 +896,12 @@ export async function invokeNovelDeliveryExport({
 
     const coverResult = getMetadataCoverPath(resolvedProjectRoot, preflight.metadataPath);
     const warnings = [...preflight.warnings, ...coverResult.warnings];
-    const latteHtmlDefaults = path.resolve(__dirname, '..', 'pandoc', 'latte-html.yaml');
-    const mochaHtmlDefaults = path.resolve(__dirname, '..', 'pandoc', 'mocha-html.yaml');
+    const latteHtmlDefaults = materializePandocDefaultsFile(
+      path.resolve(__dirname, '..', 'pandoc', 'latte-html.yaml'),
+    );
+    const mochaHtmlDefaults = materializePandocDefaultsFile(
+      path.resolve(__dirname, '..', 'pandoc', 'mocha-html.yaml'),
+    );
     const epubDefaults = path.resolve(__dirname, '..', 'pandoc', 'epub.yaml');
 
     copyPrintStyles(targets.outputDirectory);
