@@ -1,19 +1,19 @@
-# Interview Loop
+# 访谈循环
 
-## Summary
+## 概述
 
-Use this file when the project scaffold exists and you need to turn a rough premise into drafting-ready constraints. The interview is sequential and file-backed.
+当项目脚手架已经存在，而你需要把一个粗略前提转化为可直接支持起草的约束时，使用本文件。访谈必须是顺序式、并以文件为依托的。
 
-## Key Decisions
+## 关键决策
 
 - Ask one question at a time. Do not batch.
 - Prefer questions that unlock file decisions, not abstract brainstorming without a destination.
 - Capture each answer in the correct file before moving too far ahead.
 - If the user is vague, narrow the ambiguity instead of silently filling it in.
 
-## Required Topics
+## 必谈主题
 
-Clarify these areas before writing the final outline:
+在写最终大纲前，必须澄清这些方面：
 
 1. Genre and type
 2. Target audience
@@ -24,9 +24,9 @@ Clarify these areas before writing the final outline:
 7. Ending tendency
 8. Forbidden content
 
-## Interview Order
+## 访谈顺序
 
-Recommended order:
+推荐顺序：
 
 1. premise and genre
 2. audience and length
@@ -39,20 +39,20 @@ Recommended order:
 9. foreshadowing
 10. chapter plan
 
-## Stop Conditions
+## 停止条件
 
-Stop the interview and move to research when:
+在以下情况下，停止访谈并转入调研：
 
 - the user lacks facts needed for realism or setting fidelity
 - the setting implies historical, professional, or regional details that should be verified
 - style references are needed to constrain later drafting
 
-Stop the interview and move to blocking when:
+在以下情况下，停止访谈并转入阻塞状态：
 
 - the project premise remains contradictory after follow-up questions
 - the user cannot choose between incompatible directions and does not want the ambiguity preserved intentionally
 
-## Pointers
+## 指引
 
 - Read `research-workflow.md` when the next step is evidence gathering.
 - Read `completion-gate.md` when the files look complete.

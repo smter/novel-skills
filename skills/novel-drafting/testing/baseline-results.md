@@ -1,27 +1,27 @@
-# Baseline Results
+# 基线结果
 
-## Method
+## 方法
 
 - Review date: 2026-04-21
 - Review type: retrospective baseline reconstruction
 - Evidence basis: pressure scenarios plus comparison against default, non-skill-guided drafting behavior
 - Limitation: no preserved live baseline transcript was found in the repository
 
-## Scenario 1: Missing research outputs
+## 场景 1：调研产物缺失
 
 - Baseline result: Likely fail
 - Drafting started illegally: Likely yes
 - Missing file reported: Likely no
 - Notes: without an explicit entry gate, a general drafting assistant often starts writing from whatever context is available
 
-## Scenario 2: Mid-book continuity stress
+## 场景 2：中后段连续性压力
 
 - Baseline result: Likely fail
 - Continuity caught: Unreliable
 - Review specificity: Likely weak
 - Notes: without a dedicated reviewer contract, momentum tends to win over reveal timing discipline
 
-## Scenario 3: Endless revision loop
+## 场景 3：无限修订循环
 
 - Baseline result: Likely fail
 - Loop bounded: Likely no

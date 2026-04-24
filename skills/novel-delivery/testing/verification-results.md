@@ -1,47 +1,47 @@
-# Verification Results
+# 验证结果
 
-## Method
+## 方法
 
-- Review date: 2026-04-21
-- Review type: document audit of the implemented skill
-- Evidence basis: `SKILL.md`, pressure scenarios, entry gate, metadata contract, export checks, and failure logging rules
-- Limitation: this file records the current audit pass; no archived live replay transcript was found
+- 审查日期：2026-04-21
+- 审查类型：对已实现 skill 的文档审计
+- 证据依据：`SKILL.md`、压力场景、入口闸门、元数据契约、导出检查与失败日志规则
+- 局限：本文件记录的是当前审计通过结果；仓库中未找到存档的实时回放记录
 
-## Verification Run
+## 验证运行
 
-- Reviewer: Codex
-- Date: 2026-04-22
-- Commit or Revision: 655e3a4
-- Overall assessment: Pass in documentation audit
+- 审查者：Codex
+- 日期：2026-04-22
+- 提交或修订：655e3a4
+- 总体评估：文档审计通过
 
-### Scenario 1: Draft not complete
+### 场景 1：草稿未完成
 
-- Result: Pass
-- Evidence: the entry gate requires `draft_complete`, full chapter coverage, and passed reviews before export
-- Notes: this closes the "export once just to see" shortcut
+- 结果：通过
+- 证据：入口闸门要求在导出前达到 `draft_complete`、章节完整覆盖且审查全部通过
+- 说明：这堵住了“先导一次看看”的捷径
 
-### Scenario 2: Pandoc missing
+### 场景 2：缺少 Pandoc
 
-- Result: Pass
-- Evidence: the entry gate explicitly requires local Pandoc availability and the skill requires blocking plus failure reporting when export cannot proceed
-- Notes: this addresses the environment-assumption failure mode
+- 结果：通过
+- 证据：入口闸门明确要求本地 Pandoc 可用，且 skill 要求在无法导出时阻塞并记录失败
+- 说明：这处理了错误环境假设的失败模式
 
-### Scenario 3: Metadata incomplete
+### 场景 3：元数据不完整
 
-- Result: Pass
-- Evidence: the skill defines required metadata fields and blocks delivery when required inputs are missing
-- Notes: metadata is treated as part of the deliverable contract, not optional polish
+- 结果：通过
+- 证据：skill 定义了必需元数据字段，并在必要输入缺失时阻塞交付
+- 说明：元数据被视为交付契约的一部分，而非可有可无的润色
 
-### Rationalizations Covered
+### 已覆盖的自我说服
 
-| Excuse | Reality |
-|--------|---------|
-| "We can export once just to see" | Delivery is blocked until drafting is fully passed. |
-| "Missing metadata only hurts polish" | Metadata is part of the deliverable contract. |
-| "Pandoc probably exists on most machines" | Environment assumptions must be checked explicitly. |
+| 借口 | 现实 |
+|------|------|
+| "先导一次看看再说" | 在起草阶段完全通过之前，交付必须保持阻塞。 |
+| "缺点元数据只会影响美观" | 元数据是交付契约的一部分。 |
+| "大多数机器应该都装了 Pandoc" | 环境假设必须显式检查。 |
 
-### Remaining Gap
+### 剩余缺口
 
-- No preserved live baseline or live verification transcript exists in-repo; this audit records the current state honestly rather than fabricating run output
-- The exporter implementation is now expected to run through `node --import tsx <skill-root>/scripts/export-book.mts`, not PowerShell
-- The default PDF path is now HTML plus Chromium printing rather than XeLaTeX; a fresh live export run is still needed to validate actual browser-print output on a real project
+- 仓库内没有保留实时基线或实时验证转录；本审计诚实记录当前状态，而不是伪造运行结果
+- 导出器实现现在应通过 `node --import tsx <skill-root>/scripts/export-book.mts` 运行，而不是 PowerShell
+- 默认 PDF 路径现在是 HTML 加 Chromium 打印，而不是 XeLaTeX；仍需在真实项目上做一次新的实时导出，以验证实际浏览器打印输出

@@ -1,10 +1,10 @@
-# File Contract
+# 文件契约
 
-## Summary
+## 概述
 
-Use this file to validate whether the research phase has produced the minimum viable knowledge base for drafting. The controller should validate file content, not just file existence.
+使用本文件判断调研阶段是否已经产出可供起草使用的最小可行知识库。控制器应校验文件内容，而不只是文件是否存在。
 
-## Required Files
+## 必需文件
 
 The project must contain:
 
@@ -20,7 +20,7 @@ The project must contain:
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
 
-## Minimum Section Rules
+## 最低章节规则
 
 `00-project/project-brief.md` must contain at least:
 
@@ -67,11 +67,11 @@ The project must contain:
 - target words or range
 - one explicit goal per planned chapter
 
-## Validation Principle
+## 验证原则
 
-A file counts as incomplete if it only contains headings, placeholders, or contradictory statements. Structural completeness is necessary but not sufficient.
+如果文件只包含标题、占位符，或内部说法互相矛盾，则视为不完整。结构完整是必要条件，但不是充分条件。
 
-## Pointers
+## 指引
 
 - Run `node --import tsx ../scripts/validate-research-project.mts --project-root <path>` for the mechanical checks.
 - Read `completion-gate.md` for the qualitative release decision.

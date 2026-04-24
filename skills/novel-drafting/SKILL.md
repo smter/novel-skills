@@ -1,39 +1,39 @@
 ---
 name: novel-drafting
-description: Use when a Chinese novel project already has research files and needs chapter drafting with review gates, continuity checks, or resume-from-blocked drafting work
+description: Use when 中文小说项目已经具备调研文件，并需要按章节起草、经过审查闸门、执行连续性检查或从阻塞状态恢复起草
 ---
 
-# Novel Drafting
+# 小说起草
 
-## Overview
+## 概述
 
-Validate research outputs, resume progress from any point, and loop through chapter writing and review with subagents until the planned novel is complete and all review gates pass.
+验证调研阶段产物，从任意中断点恢复进度，并通过子 agent 循环执行章节写作与审查，直到计划中的整本小说完成且所有审查闸门通过。
 
-Workflow advancement is lint-supervised. The controller may not advance drafting state on chat claims alone; it must read project artifacts and run the drafting validator.
+流程推进受 lint 监督。控制器不能仅凭聊天中的口头声明推进起草状态；它必须读取项目产物并运行起草验证器。
 
-## When to Use
+## 何时使用
 
-- The project status is `research_complete` or `draft_blocked`
-- All required research files exist and are sufficient
-- The user wants to begin or continue writing chapters
-- Drafting needs to be blocked until review passes
+- 项目状态为 `research_complete` 或 `draft_blocked`
+- 所有必需调研文件均存在且内容充分
+- 用户希望开始或继续写章节
+- 在审查通过前，起草流程必须保持阻塞
 
-## Entry Gate
+## 入口闸门
 
-Before writing, check:
-- `00-project/workflow-status.md` status is `research_complete` or `draft_blocked`
-- `00-project/workflow-status.md` current stage is drafting-compatible
+开始写作前，检查：
+- `00-project/workflow-status.md` 的 status 为 `research_complete` 或 `draft_blocked`
+- `00-project/workflow-status.md` 的 current stage 与起草阶段兼容
 - `00-project/success-criteria.md`
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
 
-If any item is missing or weak, stop and report the block.
+如果任一项缺失或内容薄弱，立即停止并报告阻塞。
 
-## Validation Gate
+## 验证闸门
 
-Before advancing workflow state, run the drafting validator against the novel root:
+在推进工作流状态之前，对小说根目录运行起草验证器：
 
 ```bash
 node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Entry
@@ -41,105 +41,110 @@ node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-r
 node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion
 ```
 
-Use:
-- `Entry` before drafting begins or resumes
-- `Progress` after writer or reviewer output changes the current chapter state
-- `Completion` before setting `draft_complete` or `Next Allowed Skill: novel-delivery`
+使用方式：
+- `Entry`：起草开始或恢复前
+- `Progress`：writer 或 reviewer 的输出改变当前章节状态后
+- `Completion`：设置 `draft_complete` 或 `Next Allowed Skill: novel-delivery` 之前
 
-The validator output is authoritative. If it fails, do not advance.
+验证器输出具有最终权威性。只要失败，就不得推进流程。
 
-## Project Root Discovery
+## 项目根目录识别
 
-Treat all paths in this skill as relative to the novel project root, not automatically the workspace root.
+本 skill 中的所有路径都应视为相对于小说项目根目录，而不是默认相对于工作区根目录。
 
-Before reading or writing `00-project`, `30-draft`, `40-review`, or `50-delivery`, detect the root with this rule:
-- if the current directory already contains `00-project/workflow-status.md`, use it
-- otherwise, if the current directory contains exactly one child book directory with `00-project/workflow-status.md`, use that child directory
-- otherwise, stop and report that the project root is ambiguous
+在读写 `00-project`、`30-draft`、`40-review` 或 `50-delivery` 之前，按以下规则识别根目录：
+- 如果当前目录已经包含 `00-project/workflow-status.md`，就使用当前目录
+- 否则，如果当前目录下恰好只有一个子级书籍目录包含 `00-project/workflow-status.md`，就使用那个子目录
+- 否则，停止并报告项目根目录存在歧义
 
-Do not waste cycles repeatedly searching sibling trees once one valid novel root is identified.
+一旦识别出有效的小说根目录，就不要继续在同级目录树中反复搜索。
 
-## Resume Logic
+## 恢复逻辑
 
-Inspect:
+检查：
 - `30-draft/chapters/`
 - `40-review/chapter-reviews/`
 
-Resume from the first chapter that is missing, failed review, or not yet marked as passed.
+从第一个缺失、审查未通过或尚未标记为通过的章节继续。
 
-## Writer Subagent Contract
+## Writer 子 Agent 契约
 
-Give the writer only:
+只向 writer 提供：
 - `00-project/project-brief.md`
 - `10-research/style-research.md`
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
-- Prior approved chapter summaries or necessary approved text
-- The current chapter target from `30-draft/chapter-plan.md`
+- 已批准的前文章节摘要，或为保持连续性所需的已批准正文
+- `30-draft/chapter-plan.md` 中当前章节的目标
 
-The writer outputs only the current chapter draft.
+writer 只输出当前章节草稿。
 
-## Reviewer Subagent Contract
+## Reviewer 子 Agent 契约
 
-The reviewer checks:
-- Chapter word count against target
-- Alignment with chapter goal
-- Alignment with overall outline
-- Character consistency
-- Forbidden early reveals
-- Continuity with prior chapters
-- Pacing and readability
+reviewer 需要检查：
+- 章节字数是否符合目标
+- 是否符合当前章节目标
+- 是否符合整体大纲
+- 人物一致性
+- 是否出现不允许的提前揭示
+- 与前文章节的连续性
+- 节奏与可读性
 
-The reviewer must write a structured review file to `40-review/chapter-reviews/chapter-XX-review.md` and return `通过` or `不通过`.
-The reviewer does not rewrite the chapter.
+reviewer 必须将结构化审查文件写入 `40-review/chapter-reviews/chapter-XX-review.md`，并返回 `通过` 或 `不通过`。
+reviewer 不负责重写章节正文。
 
-## Revision Loop
+## 修订循环
 
-- If review returns `不通过`, send only the review findings back to the writer.
-- Retry up to 3 total draft attempts for the same chapter.
-- If the third attempt still fails, stop and mark `draft_blocked`.
+- 若 review 返回 `不通过`，只把审查结论回传给 writer。
+- 同一章节最多尝试 3 次草稿。
+- 第 3 次仍失败时，停止并标记 `draft_blocked`。
 
-## Status Updates
+对应要求：
+- 若 review 返回 `不通过`，只把审查结论回传给 writer
+- 同一章节最多尝试 3 次草稿
+- 第 3 次仍失败时，停止并标记 `draft_blocked`
 
-When drafting starts:
-- Set status to `draft_in_progress`
+## 状态更新
 
-When a chapter fails too many times:
-- Set status to `draft_blocked`
-- List the blocked chapter and the reason
+起草开始时：
+- 将状态设为 `draft_in_progress`
 
-When all chapters and the final review pass:
-- Set status to `draft_complete`
+某章节失败次数过多时：
+- 将状态设为 `draft_blocked`
+- 列出被阻塞的章节与原因
 
-## Final Manuscript Gate
+当所有章节和最终审查都通过时：
+- 将状态设为 `draft_complete`
 
-After the last planned chapter passes, run a book-level review:
-- Compare completed chapters to `30-draft/chapter-plan.md`
-- Verify each `40-review/chapter-reviews/chapter-XX-review.md` is passed
-- Compare total words to the target range
+## 全书完成闸门
 
-Only then set `draft_complete`.
+最后一个计划章节通过后，执行整书级审查：
+- 将已完成章节与 `30-draft/chapter-plan.md` 对比
+- 验证每个 `40-review/chapter-reviews/chapter-XX-review.md` 都已通过
+- 将总字数与目标区间对比
 
-## Red Flags
+只有在上述检查都通过后，才能设置 `draft_complete`。
 
-- "The chapter is close enough, continue"
-- "The review found issues, but they can be fixed later"
-- "The reveal is exciting, so early is fine"
-- "The third retry is probably enough to move on"
+## 风险信号
 
-All of these mean: do not advance.
+- "这一章差不多了，继续吧"
+- "审查看到了问题，但后面再改也行"
+- "这个揭示很精彩，提前放出来也没关系"
+- "第三次重试应该已经够继续了"
 
-## Common Rationalizations
+出现以上说法都意味着：不要推进流程。
 
-| Excuse | Reality |
-|--------|---------|
-| "A missing file should not block creativity" | Missing files mean the contract is incomplete. |
-| "Review can be soft because later chapters will fix it" | Later chapters compound continuity damage. |
-| "One more retry is harmless" | Unbounded retries hide blocked work. |
+## 常见自我说服
 
-## Next Step
+| 借口 | 现实 |
+|------|------|
+| "缺一个文件不该妨碍创作" | 缺文件就说明契约不完整。 |
+| "审查放松一点没关系，后面章节会补救" | 后续章节只会放大连续性损伤。 |
+| "再多试一次也没坏处" | 无限重试会掩盖真正阻塞的工作。 |
 
-After `draft_complete`, the next allowed skill is `novel-delivery`.
+## 下一步
 
-For validator modes and enforced artifact checks, see `lint-contract.md`.
+在 `draft_complete` 之后，下一个允许使用的 skill 是 `novel-delivery`。
+
+验证器模式和强制产物检查见 `lint-contract.md`。

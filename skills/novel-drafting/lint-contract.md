@@ -1,49 +1,49 @@
-# Lint Contract
+# Lint 契约
 
-## Summary
+## 概述
 
-This file describes the deterministic workflow checks that supervise `novel-drafting`.
+本文件描述用于监督 `novel-drafting` 的确定性工作流检查。
 
-The validator is the authoritative gate for project artifact state. Writer and reviewer chat replies are advisory; file state and validator results decide whether the controller may advance.
+验证器是项目产物状态的权威闸门。writer 与 reviewer 的聊天回复仅作参考；真正决定控制器能否推进的是文件状态和验证器结果。
 
-## Command
+## 命令
 
-Run:
+执行：
 
 ```bash
 node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>
 ```
 
-## Modes
+## 模式
 
 ### Entry
 
-Use before drafting begins or resumes.
+在起草开始或恢复之前使用。
 
-Checks:
-- workflow status is `research_complete` or `draft_blocked`
-- workflow current stage is drafting-compatible
-- drafting prerequisites exist
-- `chapter-plan.md` contains at least one parseable planned chapter
+检查项：
+- 工作流状态为 `research_complete` 或 `draft_blocked`
+- 工作流当前阶段与起草兼容
+- 起草前置条件已经存在
+- `chapter-plan.md` 至少包含一个可解析的计划章节
 
 ### Progress
 
-Use after a writer or reviewer updates the current chapter state.
+在 writer 或 reviewer 更新当前章节状态之后使用。
 
-Checks:
-- workflow counters match consecutively approved chapters
-- chapter file metadata matches file identity
-- failed reviews include actionable required revisions
-- the current in-progress chapter meets word-count targets before advancement
+检查项：
+- 工作流计数与连续通过的章节一致
+- 章节文件元数据与文件身份一致
+- 未通过的审查包含可执行的必改项
+- 当前进行中的章节在推进前满足字数目标
 
 ### Completion
 
-Use before setting `draft_complete` or `Next Allowed Skill: novel-delivery`.
+在设置 `draft_complete` 或 `Next Allowed Skill: novel-delivery` 之前使用。
 
-Checks:
-- every planned chapter file exists
-- every planned chapter has a review file
-- every planned chapter review is `通过`
-- workflow status fields match approved chapters
-- chapter and manuscript word counts satisfy targets
-- `draft_complete` and `novel-delivery` are not set prematurely
+检查项：
+- 所有计划章节文件都存在
+- 所有计划章节都有对应审查文件
+- 所有计划章节审查都为 `通过`
+- 工作流状态字段与已批准章节一致
+- 章节与书稿总字数满足目标
+- `draft_complete` 与 `novel-delivery` 没有被过早设置

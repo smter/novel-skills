@@ -1,39 +1,39 @@
-# Pressure Scenarios for novel-drafting
+# `novel-drafting` 压力场景
 
-## Scenario 1: Missing research outputs
+## 场景 1：调研产物缺失
 
-The project has `characters.md` and `plot-outline.md` but no `success-criteria.md`.
+项目中有 `characters.md` 和 `plot-outline.md`，但没有 `success-criteria.md`。
 
-Expected baseline failure:
-- the agent starts writing anyway
-- no explicit block is reported
+预期基线失败：
+- agent 仍然直接开始写作
+- 没有明确报告阻塞
 
-Expected skill-guided behavior:
-- the agent refuses to proceed and reports the missing file
-- the agent lists what is needed to unblock drafting
+有该 skill 引导时的预期行为：
+- agent 拒绝继续，并报告缺失文件
+- agent 列出解除起草阻塞所需的条件
 
-## Scenario 2: Mid-book continuity stress
+## 场景 2：中后段连续性压力
 
-Six chapters exist, chapter 7 introduces a reveal planned for chapter 10.
+已经存在 6 章，但第 7 章提前引入了原计划放在第 10 章的揭示。
 
-Expected baseline failure:
-- the agent optimizes for momentum
-- the review step is vague and lets the reveal through
+预期基线失败：
+- agent 只顾推进进度
+- 审查步骤过于含糊，放过了这次提前揭示
 
-Expected skill-guided behavior:
-- the reviewer checks foreshadowing.md for planned reveal timing
-- the review returns `不通过` with specific continuity violation noted
-- the writer receives the review findings and revises
+有该 skill 引导时的预期行为：
+- reviewer 检查 `foreshadowing.md` 中计划的揭示时机
+- 审查返回 `不通过`，并指出具体连续性违规
+- writer 接收审查结论后执行修订
 
-## Scenario 3: Endless revision loop
+## 场景 3：无限修订循环
 
-Chapter 3 repeatedly fails pacing and word-count checks.
+第 3 章反复未通过节奏与字数检查。
 
-Expected baseline failure:
-- the agent keeps rewriting indefinitely
-- no `draft_blocked` state is emitted
+预期基线失败：
+- agent 无限制地反复重写
+- 没有发出 `draft_blocked` 状态
 
-Expected skill-guided behavior:
-- after 3 attempts, the agent marks `draft_blocked`
-- the agent reports the blocked chapter and reason
-- the agent requests user intervention
+有该 skill 引导时的预期行为：
+- 3 次尝试后，agent 标记 `draft_blocked`
+- agent 报告被阻塞的章节和原因
+- agent 请求用户介入

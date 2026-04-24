@@ -4,6 +4,8 @@ template: style-research
 
 # Style Research
 
+说明：保留英文标题与字段名以兼容校验脚本；请在字段内容中填写中文。
+
 ## Style Targets
 
 - Reference Works: {{reference_works}}

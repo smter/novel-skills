@@ -4,7 +4,9 @@ template: plot-outline
 
 # Plot Outline
 
-Use as many sections as the story needs. One example entry is provided below.
+说明：保留英文标题与字段名以兼容校验脚本；请在字段内容中填写中文。
+
+按故事需要添加任意数量的段落。下方提供一组示例条目。
 
 ## Story Spine
 

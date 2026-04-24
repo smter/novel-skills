@@ -4,6 +4,8 @@ template: topic-research
 
 # Topic Research
 
+说明：保留英文标题与字段名以兼容校验脚本；请在字段内容中填写中文。
+
 ## Topic Summary
 
 - Topic: {{topic}}
@@ -12,7 +14,7 @@ template: topic-research
 
 ## Findings
 
-Use one entry per finding. Add more sections as needed.
+每条发现使用一条记录，按需要继续添加。
 
 ## Finding Entry
 
@@ -23,7 +25,7 @@ Use one entry per finding. Add more sections as needed.
 
 ## Writing Implications
 
-Use one entry per implication. Add more sections as needed.
+每条写作影响使用一条记录，按需要继续添加。
 
 ## Implication Entry
 

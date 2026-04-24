@@ -1,19 +1,19 @@
-# Project Scaffold
+# 项目脚手架
 
-## Summary
+## 概述
 
-Use this file when creating a new novel project or normalizing an incomplete one. It defines the minimum directory and file scaffold that later skills rely on.
+在创建新小说项目或规范化一个不完整项目时使用本文件。它定义了后续 skill 依赖的最小目录与文件脚手架。
 
-## Key Decisions
+## 关键决策
 
 - Keep one book per root project directory.
 - Create every required directory before writing content.
 - Instantiate every required core file before claiming that research has started.
 - Prefer filling templates incrementally over inventing ad hoc file shapes.
 
-## Required Structure
+## 必需结构
 
-Create these directories:
+创建以下目录：
 
 - `00-project`
 - `10-research`
@@ -22,7 +22,7 @@ Create these directories:
 - `40-review/chapter-reviews`
 - `50-delivery/output`
 
-Create these files from templates:
+根据模板创建以下文件：
 
 - `00-project/project-brief.md`
 - `00-project/success-criteria.md`
@@ -36,7 +36,7 @@ Create these files from templates:
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
 
-## Initialization Order
+## 初始化顺序
 
 1. Derive a slug from the title or working title.
 2. Create the directory structure.
@@ -45,16 +45,16 @@ Create these files from templates:
 5. Record whether web research is allowed.
 6. Begin the interview loop.
 
-## Normalization Rules
+## 规范化规则
 
-If the project already exists:
+如果项目已经存在：
 
 - keep valid user-authored content
 - add any missing required files
 - normalize inconsistent headings only when needed for later validation
 - do not delete user content just because it does not match the newest template exactly
 
-## Pointers
+## 指引
 
 - Read `interview-loop.md` to collect missing story constraints.
 - Read `file-contract.md` to validate whether an existing file is strong enough.

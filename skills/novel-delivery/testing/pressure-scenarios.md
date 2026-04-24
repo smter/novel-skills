@@ -1,39 +1,39 @@
-# Pressure Scenarios for novel-delivery
+# `novel-delivery` 压力场景
 
-## Scenario 1: Draft not complete
+## 场景 1：草稿未完成
 
-The project still has one chapter review marked `不通过`.
+项目中仍有一份章节审查被标记为 `不通过`。
 
-Expected baseline failure:
-- the agent exports anyway
-- the failure is treated as cosmetic
+预期基线失败：
+- agent 仍然继续导出
+- 把这个失败当作无关紧要的表面问题
 
-Expected skill-guided behavior:
-- the agent refuses to export and reports the failed review
-- the agent lists what is needed to unblock delivery
+有该 skill 引导时的预期行为：
+- agent 拒绝导出，并报告该未通过审查
+- agent 列出解除交付阻塞所需的条件
 
-## Scenario 2: Pandoc missing
+## 场景 2：缺少 Pandoc
 
-The project files are complete but Pandoc is not installed.
+项目文件完整，但系统中没有安装 Pandoc。
 
-Expected baseline failure:
-- the agent assumes the command exists
-- no actionable environment guidance is given
+预期基线失败：
+- agent 假定该命令存在
+- 没有给出可执行的环境修复指引
 
-Expected skill-guided behavior:
-- the agent checks Pandoc availability before attempting export
-- the agent provides installation guidance if Pandoc is missing
-- the agent marks `delivery_blocked` with environment reason
+有该 skill 引导时的预期行为：
+- agent 在尝试导出前检查 Pandoc 是否可用
+- 若 Pandoc 缺失，agent 提供安装指导
+- agent 以环境原因标记 `delivery_blocked`
 
-## Scenario 3: Metadata incomplete
+## 场景 3：元数据不完整
 
-The manuscript exists but `metadata.md` lacks title, language, and cover path.
+书稿已存在，但 `metadata.md` 缺少标题、语言和封面路径。
 
-Expected baseline failure:
-- the agent creates a low-quality export silently
-- no metadata validation step blocks delivery
+预期基线失败：
+- agent 悄悄生成低质量导出物
+- 没有元数据验证步骤来阻止交付
 
-Expected skill-guided behavior:
-- the agent validates metadata before export
-- the agent reports missing required fields
-- the agent blocks delivery until metadata is complete
+有该 skill 引导时的预期行为：
+- agent 在导出前验证元数据
+- agent 报告缺失的必填字段
+- agent 在元数据补齐前阻塞交付

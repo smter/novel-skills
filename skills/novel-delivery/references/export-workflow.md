@@ -1,40 +1,40 @@
-# Export Workflow
+# 导出工作流
 
-## Summary
+## 概述
 
-Use this file after `book.md`, `metadata.md`, and `frontmatter.md` are ready. It defines how to export PDF and EPUB and what must be verified after each run.
+在 `book.md`、`metadata.md` 与 `frontmatter.md` 准备就绪后使用本文件。它定义了如何导出 PDF 与 EPUB，以及每次运行后必须验证什么。
 
-## Key Decisions
+## 关键决策
 
-- Pandoc availability is checked before export, not assumed.
-- PDF and EPUB each need output-specific validation.
-- Command success is insufficient without file and structure checks.
+- 导出前必须检查 Pandoc 是否可用，不能想当然。
+- PDF 与 EPUB 都需要各自的输出校验。
+- 仅命令执行成功并不足够，还必须检查文件与结构。
 
-## PDF Validation
+## PDF 验证
 
-After PDF export, verify:
+PDF 导出后，验证：
 
-- the PDF file exists and is non-empty
-- Chinese font assumptions were satisfied or intentionally configured
-- chapter headings appear in the table of contents
+- PDF 文件存在且非空
+- 中文字体假设已满足，或已明确进行配置
+- 章节标题出现在目录中
 
-## EPUB Validation
+## EPUB 验证
 
-After EPUB export, verify:
+EPUB 导出后，验证：
 
-- the EPUB file exists and is non-empty
-- metadata fields are present
-- the table of contents is navigable
-- cover and image paths resolve correctly
+- EPUB 文件存在且非空
+- 元数据字段存在
+- 目录可导航
+- 封面与图片路径可以正确解析
 
-## Output Rule
+## 输出规则
 
-If either format fails validation:
+如果任一格式验证失败：
 
-- keep `Status` as `delivery_blocked` or `delivery_in_progress`, whichever matches the retry state
-- write `50-delivery/output/export-log.md`
-- do not mark `delivery_complete`
+- 将 `Status` 保持为 `delivery_blocked` 或 `delivery_in_progress`，以符合当前重试状态者为准
+- 写入 `50-delivery/output/export-log.md`
+- 不要标记 `delivery_complete`
 
-## Pointer
+## 指引
 
-Run `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Output` after export.
+导出后运行 `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Output`。

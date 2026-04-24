@@ -4,6 +4,8 @@ template: setting-research
 
 # Setting Research
 
+说明：保留英文标题与字段名以兼容校验脚本；请在字段内容中填写中文。
+
 ## Setting Summary
 
 - Time Period: {{time_period}}
@@ -13,7 +15,7 @@ template: setting-research
 
 ## Findings
 
-Use one entry per setting detail. Add more sections as needed.
+每个设定细节使用一条记录，按需要继续添加。
 
 ## Setting Detail Entry
 

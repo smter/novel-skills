@@ -1,13 +1,13 @@
-# Baseline Results
+# 基线结果
 
-## Method
+## 方法
 
 - Review date: 2026-04-21
 - Review type: retrospective baseline reconstruction
 - Evidence basis: pressure scenarios plus comparison against default, non-skill-guided behavior
 - Limitation: no preserved live baseline transcript was found in the repository, so these entries document the missing baseline explicitly instead of pretending a run was captured
 
-## Scenario 1: Vague user intent
+## 场景 1：用户意图模糊
 
 - Baseline result: Likely fail
 - What the agent would likely do: move from premise to loose ideation or outlining after too little clarification
@@ -15,7 +15,7 @@
 - Likely rationalization: "The user only needs a starting direction, so a light outline is enough."
 - Enough files to unblock drafting: No
 
-## Scenario 2: Research-heavy domain
+## 场景 2：重调研领域
 
 - Baseline result: Likely fail
 - What the agent would likely do: answer from memory and provide general notes
@@ -23,7 +23,7 @@
 - Likely rationalization: "This genre is familiar enough to sketch without formal research."
 - Enough files to unblock drafting: No
 
-## Scenario 3: User forbids search
+## 场景 3：用户禁止搜索
 
 - Baseline result: Likely fail
 - What the agent would likely do: continue with unsupported details and under-report uncertainty

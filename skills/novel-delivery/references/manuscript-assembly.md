@@ -1,30 +1,30 @@
-# Manuscript Assembly
+# 书稿组装
 
-## Summary
+## 概述
 
-Use this file when preflight has passed and you are ready to generate `50-delivery/book.md` from approved source files.
+当预检通过，且你已准备好从批准的源文件生成 `50-delivery/book.md` 时，使用本文件。
 
-## Key Decisions
+## 关键决策
 
-- `book.md` is generated from source files every time.
-- Approved chapter files are the only source of chapter prose.
-- Frontmatter goes first, then chapters in planned order.
+- `book.md` 每次都应从源文件重新生成。
+- 已批准的章节文件是章节正文的唯一来源。
+- frontmatter 在前，章节按计划顺序在后。
 
-## Assembly Order
+## 组装顺序
 
-Generate `50-delivery/book.md` using:
+按以下顺序生成 `50-delivery/book.md`：
 
 1. `50-delivery/frontmatter.md`
-2. chapter files from `30-draft/chapters/` in the order defined by `30-draft/chapter-plan.md`
+2. `30-draft/chapters/` 中的章节文件，顺序以 `30-draft/chapter-plan.md` 为准
 
-## Assembly Rules
+## 组装规则
 
-- do not manually rewrite prose during assembly
-- do not reorder chapters based on file timestamps
-- do not include chapters that lack approved review status
-- regenerate the full file instead of patching pieces into an old `book.md`
+- 组装时不要手工重写正文
+- 不要按文件时间戳重排章节顺序
+- 不要包含缺少已批准审查状态的章节
+- 应重新生成完整文件，而不是向旧 `book.md` 打补丁
 
-## Pointers
+## 指引
 
-- Read `file-contract.md` to validate the generated manuscript.
-- Read `export-workflow.md` before converting the manuscript into deliverables.
+- 阅读 `file-contract.md` 以验证生成的书稿。
+- 在把书稿转换为交付物之前，先阅读 `export-workflow.md`。

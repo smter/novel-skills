@@ -1,18 +1,18 @@
-# File Contract
+# 文件契约
 
-## Summary
+## 概述
 
-Use this file to validate whether delivery inputs and outputs are structurally complete. This file covers metadata, frontmatter, generated manuscript, and final output artifacts.
+使用本文件验证交付阶段的输入与输出在结构上是否完整。范围包括 metadata、frontmatter、生成的书稿和最终输出产物。
 
-## Delivery Input Files
+## 交付输入文件
 
-The delivery stage expects:
+交付阶段要求：
 
 - `50-delivery/metadata.md`
 - `50-delivery/frontmatter.md`
 - `50-delivery/book.md` after assembly
 
-## Minimum Section Rules
+## 最低章节规则
 
 `50-delivery/metadata.md` must contain at least:
 
@@ -31,7 +31,7 @@ The delivery stage expects:
 - the frontmatter content
 - at least one chapter heading
 
-## Output Rules
+## 输出规则
 
 The output directory should contain:
 
@@ -39,6 +39,6 @@ The output directory should contain:
 - `<slug>.epub` when EPUB export is requested
 - `export-log.md` when any export or validation step fails
 
-## Pointer
+## 指引
 
 Use `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.

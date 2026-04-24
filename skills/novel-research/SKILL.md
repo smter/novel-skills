@@ -1,26 +1,26 @@
 ---
 name: novel-research
-description: Use when starting a new Chinese novel project that needs premise clarification, background or setting research, style guidance, and a structured pre-drafting project scaffold
+description: Use when 需要为新的中文小说项目完成设定澄清、背景或世界观调研、风格约束与起草前项目脚手架搭建
 ---
 
-# Novel Research
+# 小说调研
 
-## Overview
+## 概述
 
-Create a single-book project, interview the user one question at a time, and build a durable Markdown knowledge base for later drafting.
+创建单本小说项目，一次只向用户提出一个问题，并构建可供后续起草长期使用的 Markdown 知识库。
 
-Default to web research unless the user explicitly refuses it.
+除非用户明确拒绝，否则默认进行联网调研。
 
-## When to Use
+## 何时使用
 
-- The user wants to start a new novel from scratch
-- The user has only a premise and needs structure
-- The project needs setting, genre, style, or domain research
-- The drafting stage should be blocked until files are complete
+- 用户想从零开始一个新小说项目
+- 用户只有一个故事前提，需要进一步结构化
+- 项目需要设定、类型、风格或专业领域调研
+- 在文件补齐前，起草阶段必须保持阻塞
 
-## Required Outputs
+## 必需产物
 
-The following files must exist and contain sufficient content to mark research as complete:
+只有以下文件全部存在且内容充分时，才能将调研标记为完成：
 
 - `00-project/project-brief.md`
 - `00-project/success-criteria.md`
@@ -34,11 +34,11 @@ The following files must exist and contain sufficient content to mark research a
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
 
-## Project Creation Rules
+## 项目创建规则
 
-When research starts, create a single-book directory using a slug derived from the title or working title.
+调研开始时，使用书名或暂定名派生出的 slug 创建单书目录。
 
-If the agent starts from a workspace root rather than the book root, create and use this layout:
+如果 agent 是从工作区根目录启动，而不是从书籍根目录启动，则创建并使用以下结构：
 - `<workspace-root>/<book-slug>/00-project`
 - `<workspace-root>/<book-slug>/10-research`
 - `<workspace-root>/<book-slug>/20-story`
@@ -46,11 +46,15 @@ If the agent starts from a workspace root rather than the book root, create and 
 - `<workspace-root>/<book-slug>/40-review`
 - `<workspace-root>/<book-slug>/50-delivery`
 
-When later skills refer to paths like `00-project/...`, interpret them relative to the detected novel project root, which may be:
+当后续 skill 引用 `00-project/...` 这类路径时，应将其解析为相对于检测出的小说项目根目录。该根目录可能是：
 - the current working directory itself
 - exactly one child book directory under the current working directory
 
-Create these directories:
+对应含义：
+- 当前工作目录本身
+- 当前工作目录下唯一的一个子级书籍目录
+
+创建以下目录：
 - `00-project`
 - `10-research`
 - `20-story`
@@ -58,46 +62,58 @@ Create these directories:
 - `40-review/chapter-reviews`
 - `50-delivery/output`
 
-Instantiate every template file before declaring progress.
+在声明进度之前，必须先实例化所有模板文件。
 
-## Discovery Interview
+## 需求访谈
 
-Interview the user around these elements. Do not proceed to outlining until they are clarified:
+围绕以下要素与用户访谈。在这些内容澄清之前，不得进入大纲阶段：
 
-1. **Genre and Type** - What kind of story is this?
-2. **Target Audience** - Who is the intended reader?
-3. **Length Target** - Short story, novella, novel? Approximate word count?
-4. **Tone and Mood** - Serious, light, dark, hopeful?
-5. **Core Conflict** - What is the central tension?
-6. **Protagonist Desire** - What does the main character want?
-7. **Ending Tendency** - Happy, tragic, open, bittersweet?
-8. **Forbidden Content** - Any topics, tropes, or elements to avoid?
+1. **类型与体裁** - 这是什么样的故事？
+2. **目标读者** - 预期读者是谁？
+3. **篇幅目标** - 短篇、中篇、长篇？大致字数是多少？
+4. **语气与氛围** - 严肃、轻快、黑暗、希望感？
+5. **核心冲突** - 中心张力是什么？
+6. **主角欲望** - 主角最想得到什么？
+7. **结局倾向** - 圆满、悲剧、开放式、苦乐参半？
+8. **禁忌内容** - 有哪些题材、套路或元素必须避免？
 
-Ask one question at a time. Do not batch questions.
+一次只问一个问题。不要批量提问。
 
-## Search Policy
+## 搜索策略
 
-Default to web research for domain facts, period details, setting realism, profession workflows, regional context, and style references unless the user explicitly forbids search.
+对于领域事实、时代细节、设定真实性、职业流程、地域背景和风格参照，除非用户明确禁止，否则默认进行联网调研。
 
-If search is forbidden:
+如果禁止搜索：
 - Do not browse
 - Mark uncertain areas in `references.md`
 - State which details are inferred rather than verified
 
-## Research Conversion
+具体要求：
+- 不要联网浏览
+- 在 `references.md` 中标记不确定区域
+- 明确指出哪些细节是推断而非验证所得
 
-Do not stop at links or excerpts.
+## 调研转化
 
-Convert every useful finding into one or more of:
+不要停留在链接或摘录层面。
+
+把每一个有用发现转化为以下一种或多种内容：
 - Setting constraints
 - Terminology notes
 - Realism pitfalls
 - Style rules
 - Taboo or continuity risks
 
-## Completeness Checklist
+对应含义：
+- 设定约束
+- 术语说明
+- 真实性风险
+- 风格规则
+- 禁忌或连续性风险
 
-Before marking research complete, verify:
+## 完整性清单
+
+在标记调研完成之前，确认：
 
 - [ ] Protagonist, main conflict, and story goal are clearly defined
 - [ ] Target length is determined with chapter count
@@ -106,31 +122,31 @@ Before marking research complete, verify:
 - [ ] Style guidelines are sufficient to constrain later writing
 - [ ] No critical background gaps remain
 
-If any check fails, continue interviewing or researching. Do not mark complete prematurely.
+如果任一项失败，继续访谈或调研。不要过早标记为完成。
 
-## Red Flags
+## 风险信号
 
-- Starting an outline before key constraints are clarified
-- Skipping web research even though the user did not forbid it
-- Dumping raw links instead of writing structured knowledge files
-- Marking research complete while core files are still thin or contradictory
+- 在关键约束未澄清前就开始写大纲
+- 用户没有禁止联网却跳过了调研
+- 只堆原始链接，而不整理成结构化知识文件
+- 核心文件仍然单薄或互相矛盾时就标记调研完成
 
-All of these mean: stay in `research_in_progress` or move to `research_blocked`.
+出现以上任一情况，都意味着应保持在 `research_in_progress`，或转为 `research_blocked`。
 
-## Common Rationalizations
+## 常见自我说服
 
 | Excuse | Reality |
 |--------|---------|
-| "The user was vague, so a loose outline is enough" | Drafting needs hard constraints and file outputs. |
-| "I know enough about this genre already" | Research defaults to web-backed verification unless refused. |
-| "A short chapter plan is probably fine" | The drafting skill needs explicit chapter progression. |
+| "用户说得很模糊，所以给个宽松大纲就够了" | 起草阶段需要明确约束和文件产物。 |
+| "这个类型我已经很熟，不用查了" | 除非被拒绝，否则调研默认需要联网核验。 |
+| "章节计划短一点应该也没问题" | 起草 skill 需要明确的章节推进设计。 |
 
-## Status Transitions
+## 状态流转
 
-- Start: Set status to `research_in_progress`
-- Blocked: Set status to `research_blocked` with specific blocking issues listed
-- Complete: Set status to `research_complete` only after all files pass completeness check
+- 开始：将状态设为 `research_in_progress`
+- 阻塞：将状态设为 `research_blocked`，并列出具体阻塞原因
+- 完成：只有在所有文件通过完整性检查后，才能设为 `research_complete`
 
-## Next Step
+## 下一步
 
-After `research_complete`, the next allowed skill is `novel-drafting`.
+在 `research_complete` 之后，下一个允许使用的 skill 是 `novel-drafting`。

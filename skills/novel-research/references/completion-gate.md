@@ -1,18 +1,18 @@
-# Completion Gate
+# 完成闸门
 
-## Summary
+## 概述
 
-Use this file immediately before changing the project status to `research_complete`. It combines qualitative review with the mechanical validation script.
+在将项目状态改为 `research_complete` 之前立即使用本文件。它把定性审查和机械验证脚本结合在一起。
 
-## Key Decisions
+## 关键决策
 
 - Drafting stays blocked until both the files and the story constraints are strong enough.
 - Contradictions count as incomplete work even if every file exists.
 - A thin outline is not acceptable if later skills cannot infer chapter progression from it.
 
-## Completion Checklist
+## 完整性清单
 
-Before marking research complete, verify:
+在标记调研完成之前，确认：
 
 - protagonist, main conflict, and story goal are clearly defined
 - target length is set and consistent with planned chapter count
@@ -22,17 +22,17 @@ Before marking research complete, verify:
 - no critical setting or realism gaps remain unresolved
 - `node --import tsx scripts/validate-research-project.mts --project-root <path>` reports success
 
-If any check fails, keep the project in `research_in_progress` or `research_blocked`.
+如果任一检查失败，项目应保持在 `research_in_progress` 或 `research_blocked`。
 
-## Exit Rule
+## 退出规则
 
-Only after the checklist passes:
+只有在清单全部通过后，才能：
 
 - set `Status` to `research_complete`
 - set `Next Allowed Skill` to `novel-drafting`
 - update `Last Updated`
 
-## Pointers
+## 指引
 
 - Read `file-contract.md` if the failure is structural.
 - Read `research-workflow.md` if the failure is factual or stylistic.

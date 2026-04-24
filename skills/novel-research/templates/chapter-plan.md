@@ -1,5 +1,7 @@
 # Chapter Plan
 
+说明：本文件的标题与字段名会被脚本解析，必须保留英文键名；请只在冒号后填写中文内容。
+
 ## Overview
 
 - Total Chapters:

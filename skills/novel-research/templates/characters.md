@@ -4,7 +4,9 @@ template: characters
 
 # Characters
 
-Use one subsection per character or relationship note. Add more sections as needed.
+说明：保留英文标题与字段名以兼容校验脚本；请在字段内容中填写中文。
+
+每个角色或关系说明使用一个小节，按需要继续添加。
 
 ## Character Entry
 

@@ -1,18 +1,18 @@
-# Preflight Checklist
+# 预检清单
 
-## Summary
+## 概述
 
-Use this file before assembling the manuscript or running Pandoc. Delivery must stop here if the source manuscript or metadata is incomplete.
+在组装书稿或运行 Pandoc 之前使用本文件。如果源书稿或元数据不完整，交付流程必须在这里停止。
 
-## Key Decisions
+## 关键决策
 
 - Delivery is blocked unless drafting is already complete.
 - Preflight checks must be performed before any export attempt.
 - Missing metadata is a blocking issue, not a polish issue.
 
-## Required Checks
+## 必需检查
 
-Confirm:
+确认：
 
 - `00-project/workflow-status.md` shows `draft_complete` or an intentional delivery retry state
 - `30-draft/chapter-plan.md` exists
@@ -22,15 +22,15 @@ Confirm:
 - `50-delivery/frontmatter.md` exists and is populated
 - Pandoc is installed and callable
 
-## Failure Rule
+## 失败规则
 
-If any check fails:
+如果任一检查失败：
 
 - set `Status` to `delivery_blocked`
 - record the blocker in `workflow-status.md`
 - do not assemble `book.md`
 - do not run Pandoc
 
-## Pointer
+## 指引
 
 Run `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Preflight` for the mechanical checks.
