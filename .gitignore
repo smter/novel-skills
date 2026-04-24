@@ -1,3 +1,4 @@
 .agents/skills/harness-engineering
 .codebuddy/skills/harness-engineering
+node_modules/
 skills-lock.json
