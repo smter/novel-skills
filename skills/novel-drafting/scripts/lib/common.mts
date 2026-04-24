@@ -1,18 +1,32 @@
-const path = require('node:path');
+import path from 'node:path';
 
-function escapeRegExp(value) {
+export interface ParsedField {
+  label: string;
+  value: string;
+  items: string[];
+}
+
+export interface ParsedRange {
+  raw: string;
+  min: number | null;
+  max: number | null;
+}
+
+export type ParsedFields = Record<string, ParsedField>;
+
+function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function normalizeMarkdown(markdown) {
+function normalizeMarkdown(markdown: string): string {
   return String(markdown ?? '').replace(/\r\n?/g, '\n');
 }
 
-function trimSectionContent(content) {
+export function trimSectionContent(content: string): string {
   return normalizeMarkdown(content).replace(/^\n+|\n+$/g, '').trim();
 }
 
-function getHeadingContent(markdown, heading) {
+export function getHeadingContent(markdown: string, heading: string): string {
   const normalized = normalizeMarkdown(markdown);
   const headingLevel = (heading.match(/^#+/) ?? [''])[0].length;
   const startPattern = new RegExp(`^${escapeRegExp(heading)}\\s*$`, 'm');
@@ -25,7 +39,7 @@ function getHeadingContent(markdown, heading) {
   const contentStart = lineEndIndex === -1 ? normalized.length : lineEndIndex + 1;
   const remaining = normalized.slice(contentStart);
   const headingPattern = /^#{1,6}\s+.*$/gm;
-  let nextMatch;
+  let nextMatch: RegExpExecArray | null;
 
   while ((nextMatch = headingPattern.exec(remaining)) !== null) {
     const nextHeading = nextMatch[0];
@@ -38,16 +52,16 @@ function getHeadingContent(markdown, heading) {
   return trimSectionContent(remaining);
 }
 
-function getTitle(markdown) {
+export function getTitle(markdown: string): string {
   const normalized = normalizeMarkdown(markdown);
   const match = normalized.match(/^#\s+(.+)$/m);
   return match ? match[1].trim() : '';
 }
 
-function parseLabeledList(markdown) {
-  const fields = {};
+export function parseLabeledList(markdown: string): ParsedFields {
+  const fields: ParsedFields = {};
   const normalized = normalizeMarkdown(markdown);
-  let activeField = null;
+  let activeField: ParsedField | null = null;
 
   for (const line of normalized.split('\n')) {
     const fieldMatch = line.match(/^\s*(?:-\s+)?([^:\n]+):\s*(.*)$/);
@@ -75,20 +89,20 @@ function parseLabeledList(markdown) {
   return fields;
 }
 
-function fieldValue(fields, label) {
+export function fieldValue(fields: ParsedFields, label: string): string {
   return fields[label] ? fields[label].value : '';
 }
 
-function fieldItems(fields, label) {
+export function fieldItems(fields: ParsedFields, label: string): string[] {
   return fields[label] ? fields[label].items.slice() : [];
 }
 
-function parseInteger(value) {
+export function parseInteger(value: string): number | null {
   const match = String(value ?? '').match(/-?\d+/);
   return match ? Number(match[0]) : null;
 }
 
-function parseRange(value) {
+export function parseRange(value: string): ParsedRange {
   const raw = String(value ?? '').trim();
   if (raw === '') {
     return {
@@ -124,17 +138,23 @@ function parseRange(value) {
   };
 }
 
-function parseChapterSections(markdown) {
+export interface ParsedChapterSection {
+  number: number;
+  heading: string;
+  body: string;
+}
+
+export function parseChapterSections(markdown: string): ParsedChapterSection[] {
   const normalized = normalizeMarkdown(markdown);
-  const sections = [];
+  const sections: ParsedChapterSection[] = [];
   const headingPattern = /^###\s+Chapter\s+(\d+)\s*$/gm;
   const matches = Array.from(normalized.matchAll(headingPattern));
 
   for (let index = 0; index < matches.length; index += 1) {
     const match = matches[index];
     const nextMatch = matches[index + 1];
-    const bodyStart = match.index + match[0].length;
-    const bodyEnd = nextMatch ? nextMatch.index : normalized.length;
+    const bodyStart = (match.index ?? 0) + match[0].length;
+    const bodyEnd = nextMatch?.index ?? normalized.length;
     sections.push({
       number: Number(match[1]),
       heading: match[0].trim(),
@@ -145,23 +165,23 @@ function parseChapterSections(markdown) {
   return sections;
 }
 
-function parseBulletList(markdown) {
+export function parseBulletList(markdown: string): string[] {
   return normalizeMarkdown(markdown)
     .split('\n')
     .map((line) => line.match(/^\s*-\s+(.*)$/))
     .filter(Boolean)
-    .map((match) => match[1].trim())
+    .map((match) => match![1].trim())
     .filter(Boolean);
 }
 
-function splitCommaList(value) {
+export function splitCommaList(value: string): string[] {
   return String(value ?? '')
     .split(',')
     .map((entry) => entry.trim())
     .filter(Boolean);
 }
 
-function inferNumberFromPath(filePath) {
+export function inferNumberFromPath(filePath: string): number | null {
   if (!filePath) {
     return null;
   }
@@ -171,7 +191,7 @@ function inferNumberFromPath(filePath) {
   return match ? Number(match[1]) : null;
 }
 
-function isPlaceholderList(items, rawValue = '') {
+export function isPlaceholderList(items: string[], rawValue = ''): boolean {
   const normalizedItems = items
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
@@ -184,19 +204,3 @@ function isPlaceholderList(items, rawValue = '') {
 
   return normalizedItems.every((item) => placeholderValues.has(item));
 }
-
-module.exports = {
-  fieldItems,
-  fieldValue,
-  getHeadingContent,
-  getTitle,
-  inferNumberFromPath,
-  isPlaceholderList,
-  parseBulletList,
-  parseChapterSections,
-  parseInteger,
-  parseLabeledList,
-  parseRange,
-  splitCommaList,
-  trimSectionContent,
-};

@@ -37,4 +37,4 @@ If either format fails validation:
 
 ## Pointer
 
-Run `node ../scripts/validate-delivery-project.js --project-root <path> --mode Output` after export.
+Run `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Output` after export.

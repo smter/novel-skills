@@ -11,7 +11,7 @@ The validator is the authoritative gate for project artifact state. Writer and r
 Run:
 
 ```bash
-node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode <Entry|Progress|Completion>
+node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>
 ```
 
 ## Modes

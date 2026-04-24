@@ -43,5 +43,5 @@
 ### Remaining Gap
 
 - No preserved live baseline or live verification transcript exists in-repo; this audit records the current state honestly rather than fabricating run output
-- The exporter implementation is now expected to run through `node .agents/skills/novel-delivery/scripts/export-book.mjs`, not PowerShell
+- The exporter implementation is now expected to run through `node --import tsx <skill-root>/scripts/export-book.mts`, not PowerShell
 - The default PDF path is now HTML plus Chromium printing rather than XeLaTeX; a fresh live export run is still needed to validate actual browser-print output on a real project

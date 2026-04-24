@@ -1,4 +1,4 @@
-const {
+import {
   fieldValue,
   getHeadingContent,
   parseChapterSections,
@@ -6,9 +6,30 @@ const {
   parseLabeledList,
   parseRange,
   splitCommaList,
-} = require('./common');
+  type ParsedFields,
+  type ParsedRange,
+} from './common.mts';
 
-function parseChapterPlan(markdown) {
+export interface PlannedChapter {
+  number: number;
+  title: string;
+  pov: string;
+  wordTarget: ParsedRange;
+  goal: string;
+  keyEvents: string[];
+  characters: string[];
+  fields: ParsedFields;
+}
+
+export interface ChapterPlan {
+  totalChapters: number | null;
+  targetPerChapter: ParsedRange;
+  chapterNumbers: number[];
+  chapters: PlannedChapter[];
+  fields: ParsedFields;
+}
+
+export function parseChapterPlan(markdown: string): ChapterPlan {
   const overviewFields = parseLabeledList(getHeadingContent(markdown, '## Overview'));
   const chapterSections = parseChapterSections(markdown);
   const chapters = chapterSections.map((section) => {
@@ -33,7 +54,3 @@ function parseChapterPlan(markdown) {
     fields: overviewFields,
   };
 }
-
-module.exports = {
-  parseChapterPlan,
-};

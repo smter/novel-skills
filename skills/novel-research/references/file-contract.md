@@ -73,5 +73,5 @@ A file counts as incomplete if it only contains headings, placeholders, or contr
 
 ## Pointers
 
-- Run `node ../scripts/validate-research-project.js --project-root <path>` for the mechanical checks.
+- Run `node --import tsx ../scripts/validate-research-project.mts --project-root <path>` for the mechanical checks.
 - Read `completion-gate.md` for the qualitative release decision.

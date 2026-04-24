@@ -80,7 +80,7 @@ Validation rules:
 - A writer run is not complete until the expected chapter file exists and includes the chapter-file sections above.
 - A reviewer run is not complete until the expected review file exists and includes a valid `Decision`.
 - The controller may advance only when the review file contains `Decision: 通过`.
-- The controller must run `skills/novel-drafting/scripts/validate-drafting-project.js` before advancing status.
+- The controller must run `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>` before advancing status.
 - If a file exists but is structurally incomplete or fails validator checks, treat that as a failed run and stop or re-dispatch as appropriate.
 
 ## Validator-Enforced Invariants

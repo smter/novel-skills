@@ -12,7 +12,7 @@ Before dispatching any subagent:
 2. Read `30-draft/chapter-plan.md`.
 3. Inspect `30-draft/chapters/`.
 4. Inspect `40-review/chapter-reviews/`.
-5. Run `validate-drafting-project.js --mode Progress` before advancing.
+5. Run `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress` before advancing.
 
 Determine the first chapter that matches any of these conditions:
 
@@ -90,7 +90,7 @@ Advance to the next chapter only if:
 - the chapter file exists
 - the review file exists
 - the review file has `Decision: 通过`
-- `validate-drafting-project.js --mode Progress` passes
+- `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress` passes
 
 When a chapter passes:
 
@@ -104,7 +104,7 @@ After all planned chapters appear to be passed:
 
 1. Compare planned chapter entries in `30-draft/chapter-plan.md` to files in `30-draft/chapters/`.
 2. Confirm each chapter has a corresponding passed review in `40-review/chapter-reviews/`.
-3. Run `validate-drafting-project.js --mode Completion`.
+3. Run `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion`.
 
 Only after the completion validator passes:
 

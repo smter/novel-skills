@@ -1,11 +1,24 @@
-const {
+import {
   fieldValue,
   parseInteger,
   parseLabeledList,
   parseRange,
-} = require('./common');
+  type ParsedFields,
+  type ParsedRange,
+} from './common.mts';
 
-function parseSuccessCriteria(markdown) {
+export interface SuccessCriteria {
+  targetAudience: string;
+  lengthTier: string;
+  plannedChapters: number | null;
+  targetTotalWords: ParsedRange;
+  perChapterWordRange: ParsedRange;
+  completionRule: string;
+  reviewPassRule: string;
+  fields: ParsedFields;
+}
+
+export function parseSuccessCriteria(markdown: string): SuccessCriteria {
   const fields = parseLabeledList(markdown);
 
   return {
@@ -19,7 +32,3 @@ function parseSuccessCriteria(markdown) {
     fields,
   };
 }
-
-module.exports = {
-  parseSuccessCriteria,
-};

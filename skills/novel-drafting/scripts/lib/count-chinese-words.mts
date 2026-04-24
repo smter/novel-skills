@@ -1,12 +1,12 @@
-function isHanCharacter(character) {
+function isHanCharacter(character: string): boolean {
   return /\p{Script=Han}/u.test(character);
 }
 
-function isAsciiWordCharacter(character) {
+function isAsciiWordCharacter(character: string): boolean {
   return /[A-Za-z0-9]/.test(character);
 }
 
-function countChineseWords(text) {
+export function countChineseWords(text: string): number {
   const input = String(text ?? '').normalize('NFC');
   let count = 0;
   let index = 0;
@@ -43,7 +43,3 @@ function countChineseWords(text) {
 
   return count;
 }
-
-module.exports = {
-  countChineseWords,
-};

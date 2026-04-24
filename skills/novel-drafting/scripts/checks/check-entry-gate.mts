@@ -1,14 +1,13 @@
-function failure(lines) {
-  return lines.join('\n');
-}
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 
-function checkEntryGate({ project }) {
-  const failures = [];
+export function checkEntryGate({ project }: { project: LoadedDraftingProject }): string[] {
+  const failures: string[] = [];
   const workflow = project.workflowStatus;
   const chapterPlan = project.chapterPlan;
 
   if (!workflow) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: Missing parseable workflow status for drafting entry.',
       '',
       'Why it blocks:',
@@ -24,7 +23,7 @@ function checkEntryGate({ project }) {
   }
 
   if (!['research_complete', 'draft_blocked'].includes(workflow.status)) {
-    failures.push(failure([
+    failures.push(formatFailure([
       `Error: workflow status '${workflow.status || '(missing)'}' does not allow drafting entry.`,
       '',
       'Why it blocks:',
@@ -35,12 +34,12 @@ function checkEntryGate({ project }) {
       '',
       'See:',
       '- 00-project/workflow-status.md',
-      '- skills/novel-drafting/SKILL.md',
+      '- SKILL.md',
     ]));
   }
 
   if (!['novel-drafting', 'drafting'].includes(workflow.currentStage)) {
-    failures.push(failure([
+    failures.push(formatFailure([
       `Error: Current Stage '${workflow.currentStage || '(missing)'}' is not valid for drafting entry.`,
       '',
       'Why it blocks:',
@@ -51,12 +50,12 @@ function checkEntryGate({ project }) {
       '',
       'See:',
       '- 00-project/workflow-status.md',
-      '- skills/novel-drafting/SKILL.md',
+      '- SKILL.md',
     ]));
   }
 
   if (!chapterPlan || chapterPlan.chapterNumbers.length === 0) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: No valid planned chapters were found in 30-draft/chapter-plan.md.',
       '',
       'Why it blocks:',
@@ -72,7 +71,3 @@ function checkEntryGate({ project }) {
 
   return failures;
 }
-
-module.exports = {
-  checkEntryGate,
-};

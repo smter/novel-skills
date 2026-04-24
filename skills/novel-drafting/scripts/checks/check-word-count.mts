@@ -1,12 +1,17 @@
-function failure(lines) {
-  return lines.join('\n');
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
+import type { PlannedChapterRecord } from '../lib/load-drafting-project.mts';
+import type { ParsedRange } from '../lib/common.mts';
+import type { DraftingValidationMode } from './check-workflow-state.mts';
+
+function isRangeUsable(range: ParsedRange | null | undefined): boolean {
+  return Boolean(range) && range!.min !== null && range!.max !== null;
 }
 
-function isRangeUsable(range) {
-  return range && range.min !== null && range.max !== null;
-}
-
-function getExpectedRange(plannedChapter, project) {
+function getExpectedRange(
+  plannedChapter: PlannedChapterRecord,
+  project: LoadedDraftingProject,
+): ParsedRange | null {
   if (isRangeUsable(plannedChapter.wordTarget)) {
     return plannedChapter.wordTarget;
   }
@@ -22,8 +27,10 @@ function getExpectedRange(plannedChapter, project) {
   return null;
 }
 
-function checkWordCount({ project, mode }) {
-  const failures = [];
+export function checkWordCount(
+  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+): string[] {
+  const failures: string[] = [];
   let totalWordCount = 0;
 
   for (const plannedChapter of project.plannedChapters ?? []) {
@@ -43,8 +50,8 @@ function checkWordCount({ project, mode }) {
       continue;
     }
 
-    if (chapter.contentWordCount < expectedRange.min || chapter.contentWordCount > expectedRange.max) {
-      failures.push(failure([
+    if (chapter.contentWordCount < expectedRange.min! || chapter.contentWordCount > expectedRange.max!) {
+      failures.push(formatFailure([
         `Error: 30-draft/chapters/chapter-${String(plannedChapter.number).padStart(2, '0')}.md has word count ${chapter.contentWordCount}, outside expected range ${expectedRange.raw}.`,
         '',
         'Why it blocks:',
@@ -63,8 +70,8 @@ function checkWordCount({ project, mode }) {
 
   if (mode === 'Completion' && project.successCriteria && isRangeUsable(project.successCriteria.targetTotalWords)) {
     const expectedTotal = project.successCriteria.targetTotalWords;
-    if (totalWordCount < expectedTotal.min || totalWordCount > expectedTotal.max) {
-      failures.push(failure([
+    if (totalWordCount < expectedTotal.min! || totalWordCount > expectedTotal.max!) {
+      failures.push(formatFailure([
         `Error: Manuscript total word count ${totalWordCount} is outside expected range ${expectedTotal.raw}.`,
         '',
         'Why it blocks:',
@@ -82,7 +89,3 @@ function checkWordCount({ project, mode }) {
 
   return failures;
 }
-
-module.exports = {
-  checkWordCount,
-};

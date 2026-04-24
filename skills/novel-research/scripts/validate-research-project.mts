@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const {
+import {
   createValidator,
   finish,
   parseArgs,
   requireFile,
   requireHeadings,
   requireWorkflowFields,
-} = require('../../../scripts/lib/validator-utils');
+} from './lib/validator-utils.mts';
 
 const requiredFiles = [
   '00-project/project-brief.md',
@@ -23,7 +23,7 @@ const requiredFiles = [
   '30-draft/chapter-plan.md',
 ];
 
-const requiredHeadings = new Map([
+const requiredHeadings = new Map<string, string[]>([
   ['00-project/project-brief.md', [
     '## Working Title',
     '## Genre/Type',
@@ -51,20 +51,22 @@ const requiredHeadings = new Map([
   ]],
 ]);
 
-function main() {
+function main(): void {
   let args;
   try {
     args = parseArgs(process.argv.slice(2), { required: ['project-root'] });
   } catch (error) {
-    console.log(`Research validation failed:\n- ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`Research validation failed:\n- ${message}`);
     process.exit(1);
   }
 
   const state = createValidator(args['project-root']);
 
   for (const relativePath of requiredFiles) {
-    if (requiredHeadings.has(relativePath)) {
-      requireHeadings(state, relativePath, requiredHeadings.get(relativePath));
+    const headings = requiredHeadings.get(relativePath);
+    if (headings) {
+      requireHeadings(state, relativePath, headings);
       continue;
     }
 

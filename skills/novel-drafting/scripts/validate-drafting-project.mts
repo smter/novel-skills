@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-const {
+import {
   createValidator,
   finish,
   parseArgs,
   requireFile,
-} = require('../../../scripts/lib/validator-utils');
-const { loadDraftingProject } = require('./lib/load-drafting-project');
-const { checkEntryGate } = require('./checks/check-entry-gate');
-const { checkWorkflowState } = require('./checks/check-workflow-state');
-const { checkChapterFiles } = require('./checks/check-chapter-files');
-const { checkReviewFiles } = require('./checks/check-review-files');
-const { checkWordCount } = require('./checks/check-word-count');
-const { checkCompletionGate } = require('./checks/check-completion-gate');
+} from './lib/validator-utils.mts';
+import { loadDraftingProject } from './lib/load-drafting-project.mts';
+import { checkEntryGate } from './checks/check-entry-gate.mts';
+import { checkWorkflowState, type DraftingValidationMode } from './checks/check-workflow-state.mts';
+import { checkChapterFiles } from './checks/check-chapter-files.mts';
+import { checkReviewFiles } from './checks/check-review-files.mts';
+import { checkWordCount } from './checks/check-word-count.mts';
+import { checkCompletionGate } from './checks/check-completion-gate.mts';
 
 const requiredFiles = [
   '00-project/project-brief.md',
@@ -24,9 +24,19 @@ const requiredFiles = [
   '30-draft/chapter-plan.md',
 ];
 
-const validModes = new Set(['Entry', 'Progress', 'Completion']);
+const validModes = new Set<DraftingValidationMode>(['Entry', 'Progress', 'Completion']);
 
-function runChecks(state, project, mode, checks) {
+type DraftingCheck = (args: {
+  project: ReturnType<typeof loadDraftingProject>;
+  mode: DraftingValidationMode;
+}) => string[];
+
+function runChecks(
+  state: ReturnType<typeof createValidator>,
+  project: ReturnType<typeof loadDraftingProject>,
+  mode: DraftingValidationMode,
+  checks: DraftingCheck[],
+): void {
   for (const check of checks) {
     for (const error of check({ project, mode })) {
       state.errors.push(error);
@@ -34,16 +44,17 @@ function runChecks(state, project, mode, checks) {
   }
 }
 
-function main() {
+function main(): void {
   let args;
   try {
     args = parseArgs(process.argv.slice(2), { required: ['project-root'] });
   } catch (error) {
-    console.log(`Drafting validation failed:\n- ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`Drafting validation failed:\n- ${message}`);
     process.exit(1);
   }
 
-  const mode = args.mode ?? 'Completion';
+  const mode = (args.mode ?? 'Completion') as DraftingValidationMode;
   if (!validModes.has(mode)) {
     console.log(`Drafting validation failed for mode ${mode}:\n- Invalid mode: ${mode}`);
     process.exit(1);
@@ -56,7 +67,7 @@ function main() {
   }
 
   const project = loadDraftingProject(args['project-root']);
-  const checksByMode = {
+  const checksByMode: Record<DraftingValidationMode, DraftingCheck[]> = {
     Entry: [
       checkEntryGate,
       checkWorkflowState,

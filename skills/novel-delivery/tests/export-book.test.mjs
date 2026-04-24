@@ -18,6 +18,7 @@ import {
   getMetadataCoverPath,
   getPdfBrowserEnvironmentMessage,
   getPdfBrowserInstallPlan,
+  getInstalledFontsFromMacSystemProfiler,
   getResolvedFonts,
   newPandocCommand,
   resolveNovelProjectRoot,
@@ -25,7 +26,7 @@ import {
   testDeliveryPreflight,
   writeExportWarnings,
   writeExportFailureLog,
-} from "../scripts/export-book.mjs";
+} from "../scripts/export-book.mts";
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -149,6 +150,70 @@ test("allows optional metadata fields to be missing while collecting warnings", 
     "metadata.md is missing optional field: publication date",
     "metadata.md is missing optional field: output formats",
   ]);
+});
+
+test("parses macOS system_profiler output into family names usable for font matching", () => {
+  const parsedFonts = getInstalledFontsFromMacSystemProfiler([
+    "Fonts:",
+    "",
+    "    Songti.ttc:",
+    "",
+    "      Kind: TrueType",
+    "      Typefaces:",
+    "        STSongti-SC-Regular:",
+    "          Full Name: Songti SC Regular",
+    "          Family: Songti SC",
+    "          Style: Regular",
+    "        STSongti-SC-Bold:",
+    "          Full Name: Songti SC Bold",
+    "          Family: Songti SC",
+    "          Style: Bold",
+    "    PingFang.ttc:",
+    "",
+    "      Typefaces:",
+    "        PingFangSC-Regular:",
+    "          Full Name: PingFang SC Regular",
+    "          Family: PingFang SC",
+    "          Style: Regular",
+  ].join("\n"));
+
+  assert.equal(parsedFonts.includes("Songti SC"), true);
+  assert.equal(parsedFonts.includes("Songti SC Regular"), true);
+  assert.equal(parsedFonts.includes("PingFang SC"), true);
+});
+
+test("parses localized macOS font names through Unique Name aliases", () => {
+  const parsedFonts = getInstalledFontsFromMacSystemProfiler([
+    "Fonts:",
+    "",
+    "    Songti.ttc:",
+    "      Typefaces:",
+    "        STSongti-SC-Regular:",
+    "          Full Name: 宋体-简 常规体",
+    "          Family: 宋体-简",
+    "          Style: 常规体",
+    "          Unique Name: Songti SC Regular; 17.0d2e3; 2021-06-30",
+    "    PingFang.ttc:",
+    "      Typefaces:",
+    "        PingFangSC-Regular:",
+    "          Full Name: 苹方-简 常规体",
+    "          Family: 苹方-简",
+    "          Style: 常规体",
+    "          Unique Name: PingFang SC Regular; 20.0d1e1; 2024-01-26",
+  ].join("\n"));
+
+  assert.equal(parsedFonts.includes("Songti SC"), true);
+  assert.equal(parsedFonts.includes("PingFang SC"), true);
+});
+
+test("resolves delivery fonts from macOS family names exposed by system_profiler", () => {
+  const resolved = getResolvedFonts([
+    "Songti SC",
+    "PingFang SC",
+  ]);
+
+  assert.equal(resolved.mainFont, "Songti SC");
+  assert.equal(resolved.sansFont, "PingFang SC");
 });
 
 test("does not block export when review files are missing or failed", () => {

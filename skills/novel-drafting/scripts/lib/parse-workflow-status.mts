@@ -1,11 +1,25 @@
-const {
+import {
   fieldItems,
   fieldValue,
   parseInteger,
   parseLabeledList,
-} = require('./common');
+  type ParsedFields,
+} from './common.mts';
 
-function parseWorkflowStatus(markdown) {
+export interface WorkflowStatus {
+  project: string;
+  status: string;
+  currentStage: string;
+  plannedChapters: number | null;
+  completedChapters: number | null;
+  lastCompletedChapter: number | null;
+  blockingIssues: string[];
+  nextAllowedSkill: string;
+  lastUpdated: string;
+  fields: ParsedFields;
+}
+
+export function parseWorkflowStatus(markdown: string): WorkflowStatus {
   const fields = parseLabeledList(markdown);
   const blockingItems = fieldItems(fields, 'Blocking Issues').filter(Boolean);
   const blockingValue = fieldValue(fields, 'Blocking Issues');
@@ -26,7 +40,3 @@ function parseWorkflowStatus(markdown) {
     fields,
   };
 }
-
-module.exports = {
-  parseWorkflowStatus,
-};

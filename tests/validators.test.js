@@ -16,7 +16,7 @@ function writeFile(root, relativePath, content) {
 }
 
 function runValidator(scriptPath, args) {
-  return spawnSync(process.execPath, [scriptPath, ...args], {
+  return spawnSync(process.execPath, ['--import', 'tsx', scriptPath, ...args], {
     encoding: 'utf8',
     cwd: path.resolve(__dirname, '..'),
   });
@@ -83,6 +83,19 @@ function writeDraftingBaseProject(root, overrides = {}) {
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
 }
 
+function collectFiles(root) {
+  const results = [];
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const fullPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectFiles(fullPath));
+      continue;
+    }
+    results.push(fullPath);
+  }
+  return results;
+}
+
 function makeChapterContent(text) {
   return [
     '# Chapter 1',
@@ -101,8 +114,8 @@ function makeChapterContent(text) {
   ].join('\n');
 }
 
-test('drafting parser extracts ordered planned chapters and word targets', () => {
-  const { parseChapterPlan } = require('../skills/novel-drafting/scripts/lib/parse-chapter-plan');
+test('drafting parser extracts ordered planned chapters and word targets', async () => {
+  const { parseChapterPlan } = await import('../skills/novel-drafting/scripts/lib/parse-chapter-plan.mts');
   const plan = parseChapterPlan([
     '# Chapter Plan',
     '',
@@ -124,6 +137,86 @@ test('drafting parser extracts ordered planned chapters and word targets', () =>
   assert.deepEqual(plan.chapterNumbers, [1, 2]);
   assert.equal(plan.chapters[0].wordTarget.raw, '1200-1600');
   assert.equal(plan.chapters[1].goal, 'Reveal the sabotage attempt without solving it.');
+});
+
+test('skill source files do not depend on repo-root shared script paths', () => {
+  const skillsRoot = path.join(__dirname, '..', 'skills');
+  const sourceFiles = collectFiles(skillsRoot).filter((filePath) =>
+    /\.(md|mts)$/u.test(filePath)
+    && !/\/tests?\//u.test(filePath)
+    && !/\/testing\//u.test(filePath),
+  );
+
+  const offenders = [];
+
+  for (const filePath of sourceFiles) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    if (
+      content.includes('../../../scripts/lib/')
+      || content.includes('../../../../scripts/lib/')
+      || content.includes('node --import tsx skills/novel-')
+      || content.includes('skills/novel-drafting/scripts/')
+      || content.includes('skills/novel-delivery/scripts/')
+      || content.includes('skills/novel-research/scripts/')
+    ) {
+      offenders.push(path.relative(path.join(__dirname, '..'), filePath));
+    }
+  }
+
+  assert.deepEqual(offenders, []);
+});
+
+test('research validator is invokable through the TypeScript entrypoint', () => {
+  const root = makeTempProject();
+
+  writeFile(root, '00-project/project-brief.md', [
+    '## Working Title',
+    '## Genre/Type',
+    '## Target Audience',
+    '## Target Length',
+    '## Core Premise',
+    '## Central Conflict',
+    '## Protagonist Goal',
+    '## Forbidden Content',
+  ].join('\n\n'));
+  writeFile(root, '00-project/success-criteria.md', [
+    '## Reader Promise',
+    '## Length and Scope',
+    '## Completion Gates',
+    '## Review Expectations',
+  ].join('\n\n'));
+  writeFile(root, '00-project/workflow-status.md', [
+    'Status: research_complete',
+    'Current Stage: research',
+    'Planned Chapters: 12',
+    'Completed Chapters: 0',
+    'Blocking Issues: none',
+    'Next Allowed Skill: novel-drafting',
+  ].join('\n'));
+  writeFile(root, '10-research/topic-research.md', 'topic');
+  writeFile(root, '10-research/setting-research.md', 'setting');
+  writeFile(root, '10-research/style-research.md', 'style');
+  writeFile(root, '10-research/references.md', [
+    '## Source Entry',
+    '## Open Question',
+    '## Inference Note',
+  ].join('\n\n'));
+  writeFile(root, '20-story/characters.md', 'characters');
+  writeFile(root, '20-story/plot-outline.md', 'plot');
+  writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
+  writeFile(root, '30-draft/chapter-plan.md', [
+    '## Overview',
+    '## Chapter List',
+    '### Chapter 1',
+  ].join('\n\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
+    ['--project-root', root],
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Research validation passed\./);
 });
 
 test('research validator passes for a complete scaffold', () => {
@@ -171,7 +264,7 @@ test('research validator passes for a complete scaffold', () => {
   ].join('\n\n'));
 
   const result = runValidator(
-    path.join('skills', 'novel-research', 'scripts', 'validate-research-project.js'),
+    path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
     ['--project-root', root],
   );
 
@@ -224,7 +317,7 @@ test('drafting validator fails when a planned review is not passing', () => {
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root],
   );
 
@@ -279,7 +372,7 @@ test('drafting validator passes in progress mode when the current chapter review
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Progress'],
   );
 
@@ -332,7 +425,7 @@ test('drafting validator in completion mode fails when later chapters are still 
   fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Completion'],
   );
 
@@ -360,7 +453,7 @@ test('drafting validator in entry mode fails when workflow status is not researc
   });
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Entry'],
   );
 
@@ -389,7 +482,7 @@ test('drafting validator in entry mode fails when workflow current stage is stil
   });
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Entry'],
   );
 
@@ -418,7 +511,7 @@ test('drafting validator in progress mode fails when chapter metadata does not m
   ].join('\n'));
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Progress'],
   );
 
@@ -450,7 +543,7 @@ test('drafting validator in progress mode fails when a failed review has no acti
   ].join('\n'));
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Progress'],
   );
 
@@ -465,7 +558,7 @@ test('drafting validator in progress mode fails when chapter content is below th
   writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('短章。'.repeat(80)));
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Progress'],
   );
 
@@ -512,7 +605,7 @@ test('drafting validator in completion mode fails when workflow status claims dr
   ].join('\n'));
 
   const result = runValidator(
-    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.js'),
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
     ['--project-root', root, '--mode', 'Completion'],
   );
 
@@ -544,7 +637,7 @@ test('delivery validator passes in output mode when required themed artifacts ex
   writeFile(root, '50-delivery/output/book-slug.epub', 'epub');
 
   const result = runValidator(
-    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.js'),
+    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.mts'),
     ['--project-root', root, '--mode', 'Output'],
   );
 
@@ -585,7 +678,7 @@ test('delivery validator in preflight mode fails when workflow, browser, fonts, 
 
   process.env.PATH = `${fakeBin}${pathSeparator}${originalPath}`;
   const result = runValidator(
-    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.js'),
+    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.mts'),
     [
       '--project-root', root,
       '--mode', 'Preflight',
@@ -624,7 +717,7 @@ test('delivery validator in output mode fails when themed artifacts use the wron
   writeFile(root, '50-delivery/output/book.html', 'html');
 
   const result = runValidator(
-    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.js'),
+    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.mts'),
     ['--project-root', root, '--mode', 'Output'],
   );
 

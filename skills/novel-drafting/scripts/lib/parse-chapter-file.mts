@@ -1,5 +1,5 @@
-const { countChineseWords } = require('./count-chinese-words');
-const {
+import { countChineseWords } from './count-chinese-words.mts';
+import {
   fieldValue,
   getHeadingContent,
   getTitle,
@@ -8,9 +8,29 @@ const {
   parseLabeledList,
   parseRange,
   trimSectionContent,
-} = require('./common');
+  type ParsedFields,
+  type ParsedRange,
+} from './common.mts';
 
-function parseChapterFile(markdown, filePath = '') {
+export interface ChapterMetadata {
+  chapterNumber: number | null;
+  chapterGoal: string;
+  targetWordRange: ParsedRange;
+  draftStatus: string;
+  fields: ParsedFields;
+}
+
+export interface ChapterFile {
+  title: string;
+  metadata: ChapterMetadata;
+  summary: string;
+  content: string;
+  contentWordCount: number;
+  fileNumber: number | null;
+  metadataNumber: number | null;
+}
+
+export function parseChapterFile(markdown: string, filePath = ''): ChapterFile {
   const metadataFields = parseLabeledList(getHeadingContent(markdown, '## Metadata'));
   const title = getTitle(markdown);
   const summary = trimSectionContent(getHeadingContent(markdown, '## Summary'));
@@ -33,7 +53,3 @@ function parseChapterFile(markdown, filePath = '') {
     metadataNumber,
   };
 }
-
-module.exports = {
-  parseChapterFile,
-};

@@ -1,13 +1,15 @@
-function failure(lines) {
-  return lines.join('\n');
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
+import type { DraftingValidationMode } from './check-workflow-state.mts';
+
+function hasRequiredSections(chapter: { title: string; summary: string; content: string }): boolean {
+  return Boolean(chapter.title) && chapter.summary !== '' && chapter.content !== '';
 }
 
-function hasRequiredSections(chapter) {
-  return chapter.title && chapter.summary !== '' && chapter.content !== '';
-}
-
-function checkChapterFiles({ project, mode }) {
-  const failures = [];
+export function checkChapterFiles(
+  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+): string[] {
+  const failures: string[] = [];
   const plannedChapters = project.plannedChapters ?? [];
 
   for (const plannedChapter of plannedChapters) {
@@ -24,7 +26,7 @@ function checkChapterFiles({ project, mode }) {
     }
 
     if (chapter.metadataNumber !== null && chapter.fileNumber !== null && chapter.metadataNumber !== chapter.fileNumber) {
-      failures.push(failure([
+      failures.push(formatFailure([
         `Error: 30-draft/chapters/chapter-${String(chapter.fileNumber).padStart(2, '0')}.md declares Chapter Number ${chapter.metadataNumber}.`,
         '',
         'Why it blocks:',
@@ -39,7 +41,7 @@ function checkChapterFiles({ project, mode }) {
     }
 
     if (mode === 'Completion' && !hasRequiredSections(chapter)) {
-      failures.push(failure([
+      failures.push(formatFailure([
         `Error: 30-draft/chapters/chapter-${String(plannedChapter.number).padStart(2, '0')}.md is structurally incomplete.`,
         '',
         'Why it blocks:',
@@ -60,7 +62,3 @@ function checkChapterFiles({ project, mode }) {
 
   return failures;
 }
-
-module.exports = {
-  checkChapterFiles,
-};

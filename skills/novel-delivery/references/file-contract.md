@@ -41,4 +41,4 @@ The output directory should contain:
 
 ## Pointer
 
-Use `node ../scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>` for mechanical checks.
+Use `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.

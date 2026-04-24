@@ -1,9 +1,11 @@
-function failure(lines) {
-  return lines.join('\n');
-}
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
+import type { DraftingValidationMode } from './check-workflow-state.mts';
 
-function checkReviewFiles({ project, mode }) {
-  const failures = [];
+export function checkReviewFiles(
+  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+): string[] {
+  const failures: string[] = [];
 
   for (const plannedChapter of project.plannedChapters ?? []) {
     const review = plannedChapter.reviewFile;
@@ -23,7 +25,7 @@ function checkReviewFiles({ project, mode }) {
     }
 
     if (review.metadataNumber !== null && review.fileNumber !== null && review.metadataNumber !== review.fileNumber) {
-      failures.push(failure([
+      failures.push(formatFailure([
         `Error: 40-review/chapter-reviews/chapter-${String(review.fileNumber).padStart(2, '0')}-review.md declares Chapter Number ${review.metadataNumber}.`,
         '',
         'Why it blocks:',
@@ -38,7 +40,7 @@ function checkReviewFiles({ project, mode }) {
     }
 
     if (review.decision === '不通过' && review.requiredRevisionsIsPlaceholder) {
-      failures.push(failure([
+      failures.push(formatFailure([
         `Error: 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md has Decision: 不通过 but no actionable Required Revisions.`,
         '',
         'Why it blocks:',
@@ -63,7 +65,3 @@ function checkReviewFiles({ project, mode }) {
 
   return failures;
 }
-
-module.exports = {
-  checkReviewFiles,
-};

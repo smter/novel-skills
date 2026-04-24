@@ -1,14 +1,15 @@
-function failure(lines) {
-  return lines.join('\n');
-}
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 
-function getApprovedNumbers(project) {
+export type DraftingValidationMode = 'Entry' | 'Progress' | 'Completion';
+
+function getApprovedNumbers(project: LoadedDraftingProject): number[] {
   return project.plannedChapters
     .filter((chapter) => chapter.reviewFile && chapter.reviewFile.decision === '通过')
     .map((chapter) => chapter.number);
 }
 
-function getConsecutiveApprovedCount(project) {
+function getConsecutiveApprovedCount(project: LoadedDraftingProject): number {
   let count = 0;
   for (const number of project.chapterPlan?.chapterNumbers ?? []) {
     const plannedChapter = project.plannedChapters.find((chapter) => chapter.number === number);
@@ -20,15 +21,13 @@ function getConsecutiveApprovedCount(project) {
   return count;
 }
 
-function checkWorkflowState({ project, mode }) {
-  const failures = [];
+export function checkWorkflowState(
+  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+): string[] {
+  const failures: string[] = [];
   const workflow = project.workflowStatus;
 
-  if (!workflow) {
-    return failures;
-  }
-
-  if (mode === 'Entry') {
+  if (!workflow || mode === 'Entry') {
     return failures;
   }
 
@@ -38,7 +37,7 @@ function checkWorkflowState({ project, mode }) {
   const actualLastCompleted = workflow.lastCompletedChapter ?? 0;
 
   if ((workflow.completedChapters ?? 0) !== consecutiveApprovedCount) {
-    failures.push(failure([
+    failures.push(formatFailure([
       `Error: Completed Chapters is ${workflow.completedChapters ?? '(missing)'} but ${consecutiveApprovedCount} chapters are actually approved.`,
       '',
       'Why it blocks:',
@@ -54,7 +53,7 @@ function checkWorkflowState({ project, mode }) {
   }
 
   if (actualLastCompleted !== expectedLastCompleted) {
-    failures.push(failure([
+    failures.push(formatFailure([
       `Error: Last Completed Chapter is ${actualLastCompleted} but should be ${expectedLastCompleted}.`,
       '',
       'Why it blocks:',
@@ -70,10 +69,10 @@ function checkWorkflowState({ project, mode }) {
   }
 
   const allApproved = (project.chapterPlan?.chapterNumbers?.length ?? 0) > 0
-    && approvedNumbers.length === project.chapterPlan.chapterNumbers.length;
+    && approvedNumbers.length === project.chapterPlan!.chapterNumbers.length;
 
   if (workflow.status === 'draft_complete' && !allApproved) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: Workflow status claims draft_complete before all planned chapters are approved.',
       '',
       'Why it blocks:',
@@ -89,7 +88,7 @@ function checkWorkflowState({ project, mode }) {
   }
 
   if (workflow.nextAllowedSkill === 'novel-delivery' && !allApproved) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: Next Allowed Skill is novel-delivery before drafting completion gate passes.',
       '',
       'Why it blocks:',
@@ -100,13 +99,9 @@ function checkWorkflowState({ project, mode }) {
       '',
       'See:',
       '- 00-project/workflow-status.md',
-      '- skills/novel-drafting/chapter-loop.md',
+      '- chapter-loop.md',
     ]));
   }
 
   return failures;
 }
-
-module.exports = {
-  checkWorkflowState,
-};

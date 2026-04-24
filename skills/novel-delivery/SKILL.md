@@ -104,7 +104,7 @@ Warn but continue when these are missing:
 Run the scripted exporter with Node from the workspace root or the novel project root:
 
 ```bash
-node <skill-root>/scripts/export-book.mjs --project-root <workspace-or-novel-project-path>
+node --import tsx <skill-root>/scripts/export-book.mts --project-root <workspace-or-novel-project-path>
 ```
 
 This command is the required default path for delivery. The agent should trigger it rather than reproducing its assembly steps manually.

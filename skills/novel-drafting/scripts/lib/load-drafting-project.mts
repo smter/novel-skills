@@ -1,12 +1,29 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { parseChapterFile } = require('./parse-chapter-file');
-const { parseChapterPlan } = require('./parse-chapter-plan');
-const { parseReviewFile } = require('./parse-review-file');
-const { parseSuccessCriteria } = require('./parse-success-criteria');
-const { parseWorkflowStatus } = require('./parse-workflow-status');
+import fs from 'node:fs';
+import path from 'node:path';
+import { parseChapterFile, type ChapterFile } from './parse-chapter-file.mts';
+import { parseChapterPlan, type ChapterPlan, type PlannedChapter } from './parse-chapter-plan.mts';
+import { parseReviewFile, type ReviewFile } from './parse-review-file.mts';
+import { parseSuccessCriteria, type SuccessCriteria } from './parse-success-criteria.mts';
+import { parseWorkflowStatus, type WorkflowStatus } from './parse-workflow-status.mts';
 
-function readIfExists(root, relativePath) {
+export interface PlannedChapterRecord extends PlannedChapter {
+  chapterFile: ChapterFile | null;
+  reviewFile: ReviewFile | null;
+}
+
+export interface LoadedDraftingProject {
+  root: string;
+  workflowStatus: WorkflowStatus | null;
+  successCriteria: SuccessCriteria | null;
+  chapterPlan: ChapterPlan | null;
+  chapters: ChapterFile[];
+  reviews: ReviewFile[];
+  chaptersByNumber: Map<number, ChapterFile>;
+  reviewsByNumber: Map<number, ReviewFile>;
+  plannedChapters: PlannedChapterRecord[];
+}
+
+function readIfExists(root: string, relativePath: string): string | null {
   const fullPath = path.join(root, relativePath);
   if (!fs.existsSync(fullPath)) {
     return null;
@@ -15,28 +32,34 @@ function readIfExists(root, relativePath) {
   return fs.readFileSync(fullPath, 'utf8');
 }
 
-function readDirectoryFiles(root, relativeDir, parser) {
+function readDirectoryFiles<T extends { fileNumber?: number | null }>(
+  root: string,
+  relativeDir: string,
+  parser: (content: string, relativePath: string) => T,
+): T[] {
   const fullDir = path.join(root, relativeDir);
   if (!fs.existsSync(fullDir)) {
     return [];
   }
 
-  return fs.readdirSync(fullDir)
-    .filter((entry) => entry.endsWith('.md'))
+  return fs
+    .readdirSync(fullDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
     .map((entry) => {
-      const relativePath = path.join(relativeDir, entry);
+      const relativePath = path.join(relativeDir, entry.name);
       const fullPath = path.join(root, relativePath);
       const content = fs.readFileSync(fullPath, 'utf8');
       return {
         path: relativePath,
         ...parser(content, relativePath),
-      };
+      } as T;
     })
-    .sort((left, right) => (left.fileNumber ?? Number.MAX_SAFE_INTEGER) - (right.fileNumber ?? Number.MAX_SAFE_INTEGER));
+    .sort((left, right) =>
+      (left.fileNumber ?? Number.MAX_SAFE_INTEGER) - (right.fileNumber ?? Number.MAX_SAFE_INTEGER));
 }
 
-function indexByNumber(records) {
-  const map = new Map();
+function indexByNumber<T extends { fileNumber?: number | null }>(records: T[]): Map<number, T> {
+  const map = new Map<number, T>();
   for (const record of records) {
     if (record.fileNumber !== null && record.fileNumber !== undefined) {
       map.set(record.fileNumber, record);
@@ -45,7 +68,7 @@ function indexByNumber(records) {
   return map;
 }
 
-function loadDraftingProject(projectRoot) {
+export function loadDraftingProject(projectRoot: string): LoadedDraftingProject {
   const successCriteriaMarkdown = readIfExists(projectRoot, '00-project/success-criteria.md');
   const workflowStatusMarkdown = readIfExists(projectRoot, '00-project/workflow-status.md');
   const chapterPlanMarkdown = readIfExists(projectRoot, '30-draft/chapter-plan.md');
@@ -72,7 +95,3 @@ function loadDraftingProject(projectRoot) {
     plannedChapters,
   };
 }
-
-module.exports = {
-  loadDraftingProject,
-};

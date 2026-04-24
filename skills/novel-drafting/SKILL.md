@@ -36,9 +36,9 @@ If any item is missing or weak, stop and report the block.
 Before advancing workflow state, run the drafting validator against the novel root:
 
 ```bash
-node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Entry
-node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Progress
-node skills/novel-drafting/scripts/validate-drafting-project.js --project-root <project-root> --mode Completion
+node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Entry
+node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress
+node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion
 ```
 
 Use:

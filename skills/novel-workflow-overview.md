@@ -45,9 +45,9 @@ Delivery consumes those files and adds:
 
 ## Validation Entry Points
 
-- Research: `node novel-research/scripts/validate-research-project.js --project-root <path>`
-- Drafting: `node novel-drafting/scripts/validate-drafting-project.js --project-root <path>`
-- Delivery: `node novel-delivery/scripts/validate-delivery-project.js --project-root <path> --mode <Preflight|Output>`
+- Research: `node --import tsx <skill-root>/scripts/validate-research-project.mts --project-root <path>`
+- Drafting: `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <path>`
+- Delivery: `node --import tsx <skill-root>/scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>`
 
 ## Status Contract
 

@@ -20,7 +20,7 @@ Before marking research complete, verify:
 - foreshadowing appears before planned payoff points
 - style guidance is strong enough to constrain later drafting
 - no critical setting or realism gaps remain unresolved
-- `node scripts/validate-research-project.js --project-root <path>` reports success
+- `node --import tsx scripts/validate-research-project.mts --project-root <path>` reports success
 
 If any check fails, keep the project in `research_in_progress` or `research_blocked`.
 

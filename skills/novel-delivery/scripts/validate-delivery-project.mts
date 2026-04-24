@@ -10,10 +10,9 @@ import {
   getExportTargets,
   getResolvedFonts,
   resolvePdfBrowserPath,
-} from './export-book.mjs';
+} from './export-book.mts';
 
-const require = createRequire(import.meta.url);
-const {
+import {
   addError,
   createValidator,
   finish,
@@ -23,13 +22,17 @@ const {
   readFile,
   requireFile,
   requireHeadings,
-} = require('../../../scripts/lib/validator-utils');
+} from './lib/validator-utils.mts';
 
+const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const skillRoot = path.resolve(__dirname, '..');
 
-function requireNonEmptyFile(state, relativePath) {
+function requireNonEmptyFile(
+  state: ReturnType<typeof createValidator>,
+  relativePath: string,
+): void {
   const content = readFile(state, relativePath);
   if (content === null) {
     addError(state, `Missing required artifact: ${relativePath}`);
@@ -42,7 +45,7 @@ function requireNonEmptyFile(state, relativePath) {
   }
 }
 
-function parseInstalledFontsArg(value) {
+function parseInstalledFontsArg(value?: string): string[] | undefined {
   if (!value) {
     return undefined;
   }
@@ -57,7 +60,10 @@ function parseInstalledFontsArg(value) {
     .filter(Boolean);
 }
 
-function validatePreflight(state, options = {}) {
+function validatePreflight(
+  state: ReturnType<typeof createValidator>,
+  options: { pdfBrowserPath?: string | null; installedFonts?: string } = {},
+): void {
   for (const relativePath of [
     '00-project/workflow-status.md',
     '30-draft/chapter-plan.md',
@@ -105,21 +111,22 @@ function validatePreflight(state, options = {}) {
   try {
     resolvePdfBrowserPath(options.pdfBrowserPath ?? null);
   } catch (error) {
-    addError(state, error.message);
+    addError(state, error instanceof Error ? error.message : String(error));
   }
 
   try {
     getResolvedFonts(parseInstalledFontsArg(options.installedFonts));
   } catch (error) {
     const platform = getCurrentPlatform();
+    const message = error instanceof Error ? error.message : String(error);
     addError(
       state,
-      `Chinese font availability check failed on ${platform}: ${error.message}`,
+      `Chinese font availability check failed on ${platform}: ${message}`,
     );
   }
 }
 
-function validateOutput(state) {
+function validateOutput(state: ReturnType<typeof createValidator>): void {
   const metadataContent = readFile(state, '50-delivery/metadata.md') ?? '';
   let needsPdf = /^(yes|true|1|y)$/i.test(getMetadataFlag(metadataContent, 'Produce PDF:') ?? '');
   let needsEpub = /^(yes|true|1|y)$/i.test(getMetadataFlag(metadataContent, 'Produce EPUB:') ?? '');
@@ -153,12 +160,13 @@ function validateOutput(state) {
   }
 }
 
-function main() {
+function main(): void {
   let args;
   try {
     args = parseArgs(process.argv.slice(2), { required: ['project-root'] });
   } catch (error) {
-    console.log(`Delivery validation failed for mode Preflight:\n- ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`Delivery validation failed for mode Preflight:\n- ${message}`);
     process.exit(1);
   }
 

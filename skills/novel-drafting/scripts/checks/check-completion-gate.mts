@@ -1,13 +1,15 @@
-function failure(lines) {
-  return lines.join('\n');
-}
+import { formatFailure } from '../lib/validator-utils.mts';
+import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
+import type { DraftingValidationMode } from './check-workflow-state.mts';
 
-function checkCompletionGate({ project, mode }) {
+export function checkCompletionGate(
+  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+): string[] {
   if (mode !== 'Completion') {
     return [];
   }
 
-  const failures = [];
+  const failures: string[] = [];
   const allApproved = (project.plannedChapters ?? []).every((plannedChapter) => (
     plannedChapter.chapterFile
     && plannedChapter.reviewFile
@@ -15,7 +17,7 @@ function checkCompletionGate({ project, mode }) {
   ));
 
   if (project.workflowStatus?.status === 'draft_complete' && !allApproved) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: Workflow status claims draft_complete before all planned chapters pass.',
       '',
       'Why it blocks:',
@@ -31,7 +33,7 @@ function checkCompletionGate({ project, mode }) {
   }
 
   if (project.workflowStatus?.nextAllowedSkill === 'novel-delivery' && !allApproved) {
-    failures.push(failure([
+    failures.push(formatFailure([
       'Error: Next Allowed Skill is novel-delivery before all planned chapters pass.',
       '',
       'Why it blocks:',
@@ -42,13 +44,9 @@ function checkCompletionGate({ project, mode }) {
       '',
       'See:',
       '- 00-project/workflow-status.md',
-      '- skills/novel-drafting/chapter-loop.md',
+      '- chapter-loop.md',
     ]));
   }
 
   return failures;
 }
-
-module.exports = {
-  checkCompletionGate,
-};
