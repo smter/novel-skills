@@ -39,12 +39,20 @@ description: Use when 中文小说项目已经具备调研文件，并需要按�
 node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Entry
 node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress
 node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount --chapter chapter-03
 ```
 
 使用方式：
 - `Entry`：起草开始或恢复前
 - `Progress`：writer 或 reviewer 的输出改变当前章节状态后
 - `Completion`：设置 `draft_complete` 或 `Next Allowed Skill: novel-delivery` 之前
+- `WordCount`：只做字数检查，不推进工作流，也不检查 review / completion gate
+
+`WordCount` 规则：
+- 不带 `--chapter` 时，检查所有已有章节文件的章节字数是否落在目标区间内
+- 带 `--chapter chapter-XX` 或 `--chapter 3` 时，只检查指定章节
+- `WordCount` 不检查全书完成状态；全书总字数仍由 `Completion` 负责
 
 验证器输出具有最终权威性。只要失败，就不得推进流程。
 

@@ -47,6 +47,7 @@ Delivery consumes those files and adds:
 
 - Research: `node --experimental-strip-types <skill-root>/scripts/validate-research-project.mts --project-root <path>`
 - Drafting: `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <path>`
+- Drafting word count only: `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <path> --mode WordCount [--chapter chapter-03]`
 - Delivery: `node --experimental-strip-types <skill-root>/scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>`
 
 ## Status Contract

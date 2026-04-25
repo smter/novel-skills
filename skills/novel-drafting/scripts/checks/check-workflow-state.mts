@@ -1,7 +1,7 @@
 import { formatFailure } from '../lib/validator-utils.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 
-export type DraftingValidationMode = 'Entry' | 'Progress' | 'Completion';
+export type DraftingValidationMode = 'Entry' | 'Progress' | 'Completion' | 'WordCount';
 
 function getApprovedNumbers(project: LoadedDraftingProject): number[] {
   return project.plannedChapters

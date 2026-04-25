@@ -11,7 +11,7 @@
 执行：
 
 ```bash
-node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion|WordCount>
 ```
 
 ## 模式
@@ -47,3 +47,14 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - 工作流状态字段与已批准章节一致
 - 章节与书稿总字数满足目标
 - `draft_complete` 与 `novel-delivery` 没有被过早设置
+
+### WordCount
+
+在 agent 只需要做字数检查，而不需要触发工作流、审查或完成闸门时使用。
+
+检查项：
+- 所有已有章节，或 `--chapter` 指定章节，是否落在目标字数区间内
+- 不检查工作流状态
+- 不检查 review 文件
+- 不检查 completion gate
+- 不检查全书总字数

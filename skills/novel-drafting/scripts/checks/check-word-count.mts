@@ -28,14 +28,59 @@ function getExpectedRange(
 }
 
 export function checkWordCount(
-  { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
+  {
+    project,
+    mode,
+    chapterNumber,
+  }: {
+    project: LoadedDraftingProject;
+    mode: DraftingValidationMode;
+    chapterNumber?: number | null;
+  },
 ): string[] {
   const failures: string[] = [];
   let totalWordCount = 0;
+  const selectedChapter = chapterNumber === null || chapterNumber === undefined
+    ? null
+    : project.plannedChapters.find((plannedChapter) => plannedChapter.number === chapterNumber) ?? null;
+
+  if (mode === 'WordCount' && chapterNumber !== null && chapterNumber !== undefined && !selectedChapter) {
+    return [formatFailure([
+      `Error: Chapter ${chapterNumber} is not defined in 30-draft/chapter-plan.md.`,
+      '',
+      'Why it blocks:',
+      'Word-count-only validation can only target chapters that exist in the chapter plan.',
+      '',
+      'How to fix:',
+      'Use a planned chapter number, or update 30-draft/chapter-plan.md before running targeted word-count validation.',
+      '',
+      'See:',
+      '- 30-draft/chapter-plan.md',
+    ])];
+  }
 
   for (const plannedChapter of project.plannedChapters ?? []) {
+    if (selectedChapter && plannedChapter.number !== selectedChapter.number) {
+      continue;
+    }
+
     const chapter = plannedChapter.chapterFile;
     if (!chapter) {
+      if (mode === 'WordCount' && selectedChapter) {
+        failures.push(formatFailure([
+          `Error: 30-draft/chapters/chapter-${String(plannedChapter.number).padStart(2, '0')}.md does not exist.`,
+          '',
+          'Why it blocks:',
+          'Targeted word-count validation needs the chapter file to measure its current content length.',
+          '',
+          'How to fix:',
+          'Create the chapter file first, or run word-count validation against a chapter that already has draft content.',
+          '',
+          'See:',
+          `- 30-draft/chapters/chapter-${String(plannedChapter.number).padStart(2, '0')}.md`,
+          '- 30-draft/chapter-plan.md',
+        ]));
+      }
       continue;
     }
 
@@ -45,7 +90,10 @@ export function checkWordCount(
       continue;
     }
 
-    const shouldCheckChapter = mode === 'Completion' || (mode === 'Progress' && !plannedChapter.reviewFile);
+    const shouldCheckChapter =
+      mode === 'WordCount'
+      || mode === 'Completion'
+      || (mode === 'Progress' && !plannedChapter.reviewFile);
     if (!shouldCheckChapter) {
       continue;
     }
@@ -85,6 +133,22 @@ export function checkWordCount(
         '- 30-draft/chapters/',
       ]));
     }
+  }
+
+  if (mode === 'WordCount' && !selectedChapter && totalWordCount === 0) {
+    failures.push(formatFailure([
+      'Error: No drafted chapter files were found for word-count validation.',
+      '',
+      'Why it blocks:',
+      'Word-count-only validation needs at least one existing chapter file under 30-draft/chapters/.',
+      '',
+      'How to fix:',
+      'Create or save a chapter draft first, or pass --chapter for a specific existing chapter file.',
+      '',
+      'See:',
+      '- 30-draft/chapters/',
+      '- 30-draft/chapter-plan.md',
+    ]));
   }
 
   return failures;

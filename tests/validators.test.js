@@ -96,18 +96,21 @@ function collectFiles(root) {
   return results;
 }
 
-function makeChapterContent(text) {
+function makeChapterContent(text, options = {}) {
+  const chapterNumber = options.chapterNumber ?? 1;
+  const title = options.title ?? `Chapter ${chapterNumber}`;
+  const goal = options.goal ?? 'Get Lin onto the river convoy.';
   return [
-    '# Chapter 1',
+    `# ${title}`,
     '',
     '## Metadata',
-    '- Chapter Number: 1',
-    '- Chapter Goal: Get Lin onto the river convoy.',
+    `- Chapter Number: ${chapterNumber}`,
+    `- Chapter Goal: ${goal}`,
     '- Target Word Range: 1200-1600',
     '- Draft Status: drafted',
     '',
     '## Summary',
-    '- Lin secures passage.',
+    `- Summary for chapter ${chapterNumber}.`,
     '',
     '## Content',
     text,
@@ -584,6 +587,60 @@ test('drafting validator in progress mode fails when chapter content is below th
   assert.equal(result.status, 1);
   assert.match(result.stdout, /word count/i);
   assert.match(result.stdout, /1200-1600/);
+});
+
+test('drafting validator supports word-count-only mode without workflow gates', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: research_in_progress',
+      '- Current Stage: novel-research',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 0',
+      '- Last Completed Chapter:',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-research',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('短章。'.repeat(80)));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'WordCount'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Drafting validation failed for mode WordCount:/);
+  assert.match(result.stdout, /word count/i);
+  assert.doesNotMatch(result.stdout, /Current Stage|Completed Chapters|Next Allowed Skill/);
+});
+
+test('drafting validator supports targeting one chapter in word-count-only mode', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('短章。'.repeat(80)));
+  writeFile(
+    root,
+    '30-draft/chapters/chapter-02.md',
+    makeChapterContent('江风推着船篷向前。'.repeat(180), {
+      chapterNumber: 2,
+      title: 'Chapter 2',
+      goal: 'Reveal the sabotage attempt without solving it.',
+    }),
+  );
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'WordCount', '--chapter', 'chapter-02'],
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Drafting validation passed for mode WordCount\./);
 });
 
 test('drafting validator in completion mode fails when workflow status claims draft_complete before all chapters pass', () => {

@@ -24,24 +24,39 @@ const requiredFiles = [
   '30-draft/chapter-plan.md',
 ];
 
-const validModes = new Set<DraftingValidationMode>(['Entry', 'Progress', 'Completion']);
+const validModes = new Set<DraftingValidationMode>(['Entry', 'Progress', 'Completion', 'WordCount']);
 
 type DraftingCheck = (args: {
   project: ReturnType<typeof loadDraftingProject>;
   mode: DraftingValidationMode;
+  chapterNumber?: number | null;
 }) => string[];
 
 function runChecks(
   state: ReturnType<typeof createValidator>,
   project: ReturnType<typeof loadDraftingProject>,
   mode: DraftingValidationMode,
+  chapterNumber: number | null,
   checks: DraftingCheck[],
 ): void {
   for (const check of checks) {
-    for (const error of check({ project, mode })) {
+    for (const error of check({ project, mode, chapterNumber })) {
       state.errors.push(error);
     }
   }
+}
+
+function parseChapterSelector(rawValue: string | undefined): number | null {
+  if (!rawValue) {
+    return null;
+  }
+
+  const match = rawValue.match(/^(?:chapter-)?0*([1-9]\d*)$/i);
+  if (!match) {
+    throw new Error(`Invalid value for --chapter: ${rawValue}`);
+  }
+
+  return Number(match[1]);
 }
 
 function main(): void {
@@ -60,9 +75,27 @@ function main(): void {
     process.exit(1);
   }
 
+  let chapterNumber: number | null = null;
+  try {
+    chapterNumber = parseChapterSelector(args.chapter);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`Drafting validation failed for mode ${mode}:\n- ${message}`);
+    process.exit(1);
+  }
+
+  if (mode !== 'WordCount' && chapterNumber !== null) {
+    console.log(`Drafting validation failed for mode ${mode}:\n- --chapter is only supported when --mode WordCount.`);
+    process.exit(1);
+  }
+
   const state = createValidator(args['project-root']);
 
-  for (const relativePath of requiredFiles) {
+  const requiredFilesForMode = mode === 'WordCount'
+    ? ['30-draft/chapter-plan.md']
+    : requiredFiles;
+
+  for (const relativePath of requiredFilesForMode) {
     requireFile(state, relativePath);
   }
 
@@ -85,9 +118,12 @@ function main(): void {
       checkWordCount,
       checkCompletionGate,
     ],
+    WordCount: [
+      checkWordCount,
+    ],
   };
 
-  runChecks(state, project, mode, checksByMode[mode]);
+  runChecks(state, project, mode, chapterNumber, checksByMode[mode]);
 
   finish(
     state,
