@@ -37,4 +37,4 @@ EPUB 导出后，验证：
 
 ## 指引
 
-导出后运行 `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Output`。
+导出后运行 `node --experimental-strip-types ../scripts/validate-delivery-project.mts --project-root <path> --mode Output`。

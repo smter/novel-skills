@@ -12,7 +12,7 @@
 2. 读取 `30-draft/chapter-plan.md`。
 3. 检查 `30-draft/chapters/`。
 4. 检查 `40-review/chapter-reviews/`。
-5. 在推进前运行 `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress`。
+5. 在推进前运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress`。
 
 找到第一个满足以下任一条件的章节：
 
@@ -90,7 +90,7 @@ reviewer 返回后：
 - 章节文件存在
 - 审查文件存在
 - 审查文件包含 `Decision: 通过`
-- `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress` 通过
+- `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress` 通过
 
 当某章节通过时：
 
@@ -104,7 +104,7 @@ reviewer 返回后：
 
 1. 对比 `30-draft/chapter-plan.md` 中的计划章节与 `30-draft/chapters/` 中的文件。
 2. 确认每个章节在 `40-review/chapter-reviews/` 中都有对应且已通过的审查。
-3. 运行 `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion`。
+3. 运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion`。
 
 只有在完成验证器通过之后：
 

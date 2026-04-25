@@ -33,4 +33,4 @@
 
 ## 指引
 
-Run `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode Preflight` for the mechanical checks.
+Run `node --experimental-strip-types ../scripts/validate-delivery-project.mts --project-root <path> --mode Preflight` for the mechanical checks.

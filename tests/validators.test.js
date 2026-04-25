@@ -16,7 +16,7 @@ function writeFile(root, relativePath, content) {
 }
 
 function runValidator(scriptPath, args) {
-  return spawnSync(process.execPath, ['--import', 'tsx', scriptPath, ...args], {
+  return spawnSync(process.execPath, ['--experimental-strip-types', scriptPath, ...args], {
     encoding: 'utf8',
     cwd: path.resolve(__dirname, '..'),
   });
@@ -166,7 +166,26 @@ test('skill source files do not depend on repo-root shared script paths', () => 
   assert.deepEqual(offenders, []);
 });
 
-test('research validator is invokable through the TypeScript entrypoint', () => {
+test('skill runtime docs do not require tsx module resolution from the caller cwd', () => {
+  const skillsRoot = path.join(__dirname, '..', 'skills');
+  const markdownFiles = collectFiles(skillsRoot).filter((filePath) => /\.md$/u.test(filePath));
+  const offenders = [];
+
+  for (const filePath of markdownFiles) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    if (
+      content.includes('node --import tsx <skill-root>/scripts/')
+      || content.includes('node --import tsx ../scripts/')
+      || content.includes('node --import tsx scripts/')
+    ) {
+      offenders.push(path.relative(path.join(__dirname, '..'), filePath));
+    }
+  }
+
+  assert.deepEqual(offenders, []);
+});
+
+test('research validator is invokable through the strip-types entrypoint', () => {
   const root = makeTempProject();
 
   writeFile(root, '00-project/project-brief.md', [

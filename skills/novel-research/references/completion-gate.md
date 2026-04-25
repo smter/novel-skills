@@ -20,7 +20,7 @@
 - foreshadowing appears before planned payoff points
 - style guidance is strong enough to constrain later drafting
 - no critical setting or realism gaps remain unresolved
-- `node --import tsx scripts/validate-research-project.mts --project-root <path>` reports success
+- `node --experimental-strip-types scripts/validate-research-project.mts --project-root <path>` reports success
 
 如果任一检查失败，项目应保持在 `research_in_progress` 或 `research_blocked`。
 

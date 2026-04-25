@@ -104,7 +104,7 @@ description: Use when 中文小说项目已经具备完成且审查通过的书�
 从工作区根目录或小说项目根目录使用 Node 运行脚本化导出器：
 
 ```bash
-node --import tsx <skill-root>/scripts/export-book.mts --project-root <workspace-or-novel-project-path>
+node --experimental-strip-types <skill-root>/scripts/export-book.mts --project-root <workspace-or-novel-project-path>
 ```
 
 该命令是交付流程的默认且必需路径。agent 应触发该命令，而不是手工复现其组装步骤。

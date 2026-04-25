@@ -43,5 +43,5 @@
 ### 剩余缺口
 
 - 仓库内没有保留实时基线或实时验证转录；本审计诚实记录当前状态，而不是伪造运行结果
-- 导出器实现现在应通过 `node --import tsx <skill-root>/scripts/export-book.mts` 运行，而不是 PowerShell
+- 导出器实现现在应通过 `node --experimental-strip-types <skill-root>/scripts/export-book.mts` 运行，而不是 PowerShell
 - 默认 PDF 路径现在是 HTML 加 Chromium 打印，而不是 XeLaTeX；仍需在真实项目上做一次新的实时导出，以验证实际浏览器打印输出

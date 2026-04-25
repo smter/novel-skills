@@ -36,9 +36,9 @@ description: Use when 中文小说项目已经具备调研文件，并需要按�
 在推进工作流状态之前，对小说根目录运行起草验证器：
 
 ```bash
-node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Entry
-node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress
-node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Entry
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Completion
 ```
 
 使用方式：

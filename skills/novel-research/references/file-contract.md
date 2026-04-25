@@ -73,5 +73,5 @@ The project must contain:
 
 ## 指引
 
-- Run `node --import tsx ../scripts/validate-research-project.mts --project-root <path>` for the mechanical checks.
+- Run `node --experimental-strip-types ../scripts/validate-research-project.mts --project-root <path>` for the mechanical checks.
 - Read `completion-gate.md` for the qualitative release decision.

@@ -80,7 +80,7 @@
 - 只有当预期章节文件存在，且包含上述章节文件必需部分时，writer 运行才算完成。
 - 只有当预期审查文件存在，且包含有效 `Decision` 时，reviewer 运行才算完成。
 - 只有在审查文件包含 `Decision: 通过` 时，控制器才能推进。
-- 控制器在推进状态前，必须运行 `node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>`。
+- 控制器在推进状态前，必须运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>`。
 - 如果文件虽然存在，但结构不完整或未通过验证器检查，应视为失败运行，并按情况停止或重新派发。
 
 ## 验证器强制不变量

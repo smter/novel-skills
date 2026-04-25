@@ -11,7 +11,7 @@
 执行：
 
 ```bash
-node --import tsx <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>
+node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>
 ```
 
 ## 模式

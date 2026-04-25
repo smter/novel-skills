@@ -41,4 +41,4 @@ The output directory should contain:
 
 ## 指引
 
-Use `node --import tsx ../scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.
+Use `node --experimental-strip-types ../scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.
