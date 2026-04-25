@@ -54,6 +54,11 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - 带 `--chapter chapter-XX` 或 `--chapter 3` 时，只检查指定章节
 - `WordCount` 不检查全书完成状态；全书总字数仍由 `Completion` 负责
 
+字数验证优先规则：
+- 当 agent 只需要确认章节或单章字数是否达标时，必须优先运行 `WordCount` 模式
+- 不要在聊天中自行估算字数，也不要临时搓新的统计命令来替代 validator
+- 只有在调试 `check-word-count.mts` 本身时，才允许绕开这个入口
+
 验证器输出具有最终权威性。只要失败，就不得推进流程。
 
 ## 项目根目录识别
@@ -98,6 +103,11 @@ reviewer 需要检查：
 - 是否出现不允许的提前揭示
 - 与前文章节的连续性
 - 节奏与可读性
+
+当 reviewer 或 controller 只需要确认字数是否达标，而不是做完整 `Progress` / `Completion` 验证时：
+- 运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount`
+- 如需点查单章，运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount --chapter chapter-XX`
+- 不要自行实现字数统计逻辑
 
 reviewer 必须将结构化审查文件写入 `40-review/chapter-reviews/chapter-XX-review.md`，并返回 `通过` 或 `不通过`。
 reviewer 不负责重写章节正文。

@@ -58,3 +58,8 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - 不检查 review 文件
 - 不检查 completion gate
 - 不检查全书总字数
+
+强制使用约定：
+- 只要需求是“确认字数是否达标”，就应使用 `WordCount`
+- 不要为了字数检查额外实现 ad hoc 统计命令
+- 不要在 `Progress` / `Completion` 之外手工复写字数规则

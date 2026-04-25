@@ -50,6 +50,8 @@ Delivery consumes those files and adds:
 - Drafting word count only: `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <path> --mode WordCount [--chapter chapter-03]`
 - Delivery: `node --experimental-strip-types <skill-root>/scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>`
 
+If the need is only chapter-length verification, use the drafting `WordCount` entrypoint rather than implementing local counting logic.
+
 ## Status Contract
 
 Expected workflow progression:

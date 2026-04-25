@@ -14,6 +14,11 @@
 4. 检查 `40-review/chapter-reviews/`。
 5. 在推进前运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress`。
 
+如果当前只是想回答“这一章字数够不够”这类问题：
+- 不要自己写字数统计命令
+- 直接运行 `WordCount` 模式
+- 需要点查时使用 `--chapter chapter-XX`
+
 找到第一个满足以下任一条件的章节：
 
 - 章节文件不存在
@@ -63,6 +68,10 @@ reviewer 返回后：
 3. 以 `Progress` 模式运行起草验证器。
 4. 确认 `Decision` 只能是 `通过` 或 `不通过`。
 5. 如果 reviewer 返回 `BLOCKED`，将 `workflow-status.md` 更新为 `draft_blocked` 后停止。
+
+如果 reviewer 反馈里唯一待确认的问题是字数：
+- 不要额外发明统计方式
+- 直接运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount --chapter chapter-XX`
 
 ## 重试规则
 
