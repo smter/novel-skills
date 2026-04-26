@@ -13,7 +13,9 @@ import {
   collectMetadataWarnings,
   copyPrintStyles,
   findPlaywrightBrowserExecutable,
+  getDefaultMacOsBrowserPaths,
   getExportTargets,
+  getPandocMetadataFilePath,
   getPdfRenderOptions,
   getMetadataCoverPath,
   getPdfBrowserEnvironmentMessage,
@@ -22,6 +24,7 @@ import {
   getResolvedFonts,
   materializePandocDefaultsFile,
   newPandocCommand,
+  parseDeliveryMetadata,
   resolveNovelProjectRoot,
   setWorkflowDeliveryStatus,
   testDeliveryPreflight,
@@ -165,6 +168,73 @@ test("allows optional metadata fields to be missing while collecting warnings", 
     "metadata.md is missing optional field: publication date",
     "metadata.md is missing optional field: output formats",
   ]);
+});
+
+test("parses markdown delivery metadata into Pandoc-friendly scalar and list values", () => {
+  const metadata = parseDeliveryMetadata([
+    "# Metadata",
+    "",
+    "## Bibliographic Data",
+    "",
+    "- Title: 和自己一起的异世界冒险",
+    "- Author: 待补充",
+    "- Language: zh",
+    "- Summary: 两位主角在异世界相遇。",
+    "- Keywords: 异世界, 转生, 冒险",
+    "- Publication Date: 2026-04-26",
+    "",
+    "## Output Targets",
+    "",
+    "- Produce PDF: true",
+    "- Produce EPUB: true",
+    "- Cover Path: assets/cover.png",
+  ].join("\n"));
+
+  assert.deepEqual(metadata, {
+    title: "和自己一起的异世界冒险",
+    author: "待补充",
+    language: "zh",
+    summary: "两位主角在异世界相遇。",
+    keywords: ["异世界", "转生", "冒险"],
+    date: "2026-04-26",
+    producePdf: true,
+    produceEpub: true,
+    coverPath: "assets/cover.png",
+  });
+});
+
+test("writes a temporary YAML metadata file for Pandoc instead of passing metadata.md directly", () => {
+  const novelRoot = makeTempDir();
+  const metadataPath = path.join(novelRoot, "50-delivery", "metadata.md");
+  writeFile(
+    metadataPath,
+    [
+      "# Metadata",
+      "",
+      "## Bibliographic Data",
+      "",
+      "- Title: 蛇吻",
+      "- Author: 测试作者",
+      "- Language: zh-CN",
+      "- Keywords: 复仇, 惊悚",
+      "",
+      "## Output Targets",
+      "",
+      "- Produce PDF: true",
+      "- Produce EPUB: false",
+    ].join("\n"),
+  );
+
+  const yamlPath = getPandocMetadataFilePath(metadataPath);
+  const yaml = fs.readFileSync(yamlPath, "utf8");
+
+  assert.notEqual(yamlPath, metadataPath);
+  assert.match(yaml, /^title:\s*"蛇吻"$/m);
+  assert.match(yaml, /^author:\s*"测试作者"$/m);
+  assert.match(yaml, /^lang:\s*"zh-CN"$/m);
+  assert.match(yaml, /^keywords:\n\s*-\s*"复仇"\n\s*-\s*"惊悚"/m);
+  assert.match(yaml, /^produce-pdf:\s*true$/m);
+  assert.equal(yaml.includes("# Metadata"), false);
 });
 
 test("parses macOS system_profiler output into family names usable for font matching", () => {
@@ -373,6 +443,67 @@ test("finds a Playwright-downloaded Chromium executable from the local cache", (
     findPlaywrightBrowserExecutable("Windows", homeRoot),
     browserPath,
   );
+});
+
+test("includes common absolute application paths when scanning for macOS browsers", () => {
+  const candidatePaths = getDefaultMacOsBrowserPaths("/Applications");
+
+  assert.deepEqual(candidatePaths.slice(0, 3), [
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  ]);
+});
+
+test("parses chapter headings when chapter-plan.md omits chapter-01 tokens", () => {
+  const novelRoot = makeTempDir();
+  writeFile(
+    path.join(novelRoot, "00-project", "workflow-status.md"),
+    "- Status: draft_complete\n",
+  );
+  writeFile(
+    path.join(novelRoot, "30-draft", "chapter-plan.md"),
+    [
+      "# Chapter Plan",
+      "",
+      "## Chapter List",
+      "",
+      "### Chapter 1",
+      "- Title: First Crossing",
+      "",
+      "### Chapter 2",
+      "- Title: Lantern Wake",
+    ].join("\n"),
+  );
+  writeFile(path.join(novelRoot, "30-draft", "chapters", "chapter-01.md"), "# 第一章\n");
+  writeFile(path.join(novelRoot, "30-draft", "chapters", "chapter-02.md"), "# 第二章\n");
+  writeFile(path.join(novelRoot, "50-delivery", "frontmatter.md"), "# Title Page\n");
+  writeFile(
+    path.join(novelRoot, "50-delivery", "metadata.md"),
+    [
+      "# Metadata",
+      "",
+      "## Bibliographic Data",
+      "",
+      "- Title: 蛇吻",
+      "- Author: 测试作者",
+      "- Language: zh-CN",
+      "",
+      "## Output Targets",
+      "",
+      "- Produce PDF: true",
+      "- Produce EPUB: true",
+    ].join("\n"),
+  );
+
+  const result = testDeliveryPreflight(
+    novelRoot,
+    "node",
+    ["Source Han Serif SC", "Source Han Sans SC"],
+    process.execPath,
+  );
+
+  assert.deepEqual(result.chapterIds, ["chapter-01", "chapter-02"]);
 });
 
 test("latte html defaults use html output and catppuccin blue-lavender accents", () => {

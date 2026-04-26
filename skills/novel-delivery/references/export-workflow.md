@@ -2,7 +2,8 @@
 
 ## 概述
 
-在 `book.md`、`metadata.md` 与 `frontmatter.md` 准备就绪后使用本文件。它定义了如何导出 PDF 与 EPUB，以及每次运行后必须验证什么。
+在 `metadata.md` 与 `frontmatter.md` 准备就绪后使用本文件。它定义了如何导出 PDF 与 EPUB，以及每次运行后必须验证什么。
+`book.md` 由导出器生成，不是人工前置输入。
 
 ## 关键决策
 
@@ -31,10 +32,10 @@ EPUB 导出后，验证：
 
 如果任一格式验证失败：
 
-- 将 `Status` 保持为 `delivery_blocked` 或 `delivery_in_progress`，以符合当前重试状态者为准
+- 将 `Status` 设为 `delivery_blocked`
 - 写入 `50-delivery/output/export-log.md`
 - 不要标记 `delivery_complete`
 
 ## 指引
 
-导出后运行 `node --experimental-strip-types ../scripts/validate-delivery-project.mts --project-root <path> --mode Output`。
+导出后运行 `node --experimental-strip-types <skill-root>/scripts/validate-delivery-project.mts --project-root <path> --mode Output`。

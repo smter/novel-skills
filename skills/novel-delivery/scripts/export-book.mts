@@ -62,6 +62,7 @@ export interface ExportTargets {
 export interface DeliveryPreflightResult extends ResolvedFonts {
   chapterIds: string[];
   metadataPath: string;
+  pandocMetadataPath: string;
   frontmatterPath: string;
   workflowStatusPath: string;
   warnings: string[];
@@ -121,6 +122,27 @@ function ensureDirectory(targetPath: string): void {
 
 function normalizeSlashes(targetPath: string): string {
   return targetPath.split(path.sep).join('/');
+}
+
+function escapeYamlScalar(value: string): string {
+  return JSON.stringify(value);
+}
+
+function looksTruthy(value: string): boolean {
+  return /^(yes|true|1|y)$/i.test(value.trim());
+}
+
+function markdownFieldPattern(names: string[]): RegExp {
+  return new RegExp(
+    `^\\s*[-*]?\\s*(?:${names.map(escapeRegExp).join('|')})\\s*[:：]\\s*(.*?)\\s*$`,
+    'imu',
+  );
+}
+
+function getMarkdownFieldValue(content: string, names: string[]): string | null {
+  const match = content.match(markdownFieldPattern(names));
+  const value = match?.[1]?.trim() ?? '';
+  return value || null;
 }
 
 export function getCurrentPlatform(): string {
@@ -191,6 +213,15 @@ export function getPdfBrowserEnvironmentMessage(installPlan: PdfBrowserInstallPl
       ? ` Fallbacks: ${installPlan.fallbackCommands.join(' | ')}`
       : '';
   return `Missing Chromium-compatible browser on ${installPlan.platform}. Primary install command: ${installPlan.primaryCommand}.${fallback}`;
+}
+
+export function getDefaultMacOsBrowserPaths(applicationsDirectory = '/Applications'): string[] {
+  return [
+    path.join(applicationsDirectory, 'Microsoft Edge.app', 'Contents', 'MacOS', 'Microsoft Edge'),
+    path.join(applicationsDirectory, 'Google Chrome.app', 'Contents', 'MacOS', 'Google Chrome'),
+    path.join(applicationsDirectory, 'Chromium.app', 'Contents', 'MacOS', 'Chromium'),
+    path.join(applicationsDirectory, 'Brave Browser.app', 'Contents', 'MacOS', 'Brave Browser'),
+  ];
 }
 
 export function findPlaywrightBrowserExecutable(
@@ -272,6 +303,14 @@ export function resolvePdfBrowserPath(pdfBrowserPath: string | null = null): str
   for (const candidate of PDF_BROWSER_CANDIDATES[platform] || []) {
     if (findCommand(candidate)) {
       return candidate;
+    }
+  }
+
+  if (platform === 'macOS') {
+    for (const candidate of getDefaultMacOsBrowserPaths()) {
+      if (exists(candidate)) {
+        return candidate;
+      }
     }
   }
 
@@ -427,14 +466,79 @@ export function getExportTargets(projectRoot: string): ExportTargets {
 
 export function getPlannedChapterIds(chapterPlanPath: string): string[] {
   const chapterPlan = readText(chapterPlanPath);
-  const matches = chapterPlan.match(/chapter-\d{2}/g) || [];
-  const ordered = [...new Set(matches)];
+  const explicitMatches = chapterPlan.match(/chapter-\d{2}/g) || [];
+  const ordered = [...new Set(explicitMatches)];
+
+  if (ordered.length > 0) {
+    return ordered;
+  }
+
+  const headingMatches = [...chapterPlan.matchAll(/^\s{0,3}#{2,6}\s+(?:Chapter\s+|第)\s*(\d{1,3})\s*(?:章)?\s*$/gimu)];
+  for (const match of headingMatches) {
+    const chapterNumber = Number.parseInt(match[1], 10);
+    if (!Number.isNaN(chapterNumber)) {
+      ordered.push(`chapter-${String(chapterNumber).padStart(2, '0')}`);
+    }
+  }
 
   if (ordered.length === 0) {
-    throw new Error('No planned chapters found in chapter-plan.md');
+    throw new Error('No planned chapters found in chapter-plan.md. Add chapter-01 style ids or Markdown headings like "### Chapter 1".');
   }
 
   return ordered;
+}
+
+export function parseDeliveryMetadata(metadata: string): Record<string, string | string[] | boolean> {
+  const parsed: Record<string, string | string[] | boolean> = {};
+
+  const title = getMarkdownFieldValue(metadata, ['Title', 'title', '书名']);
+  const author = getMarkdownFieldValue(metadata, ['Author', 'author', '作者', '署名']);
+  const language = getMarkdownFieldValue(metadata, ['Language', 'language', '语言']);
+  const summary = getMarkdownFieldValue(metadata, ['Summary', 'summary', '简介']);
+  const keywords = getMarkdownFieldValue(metadata, ['Keywords', 'keywords', '关键词']);
+  const publicationDate = getMarkdownFieldValue(metadata, ['Publication Date', 'publication date', '发布日期']);
+  const producePdf = getMarkdownFieldValue(metadata, ['Produce PDF', 'produce pdf']);
+  const produceEpub = getMarkdownFieldValue(metadata, ['Produce EPUB', 'produce epub']);
+  const coverPath = getMarkdownFieldValue(metadata, ['Cover Path', 'cover path', 'Cover', 'cover', '封面路径']);
+
+  if (title) parsed.title = title;
+  if (author) parsed.author = author;
+  if (language) parsed.language = language;
+  if (summary) parsed.summary = summary;
+  if (keywords) {
+    parsed.keywords = keywords.split(/[，,]/).map((keyword) => keyword.trim()).filter(Boolean);
+  }
+  if (publicationDate) parsed.date = publicationDate;
+  if (producePdf) parsed.producePdf = looksTruthy(producePdf);
+  if (produceEpub) parsed.produceEpub = looksTruthy(produceEpub);
+  if (coverPath) parsed.coverPath = coverPath;
+
+  return parsed;
+}
+
+export function getPandocMetadataFilePath(metadataPath: string): string {
+  const metadata = parseDeliveryMetadata(readText(metadataPath));
+  const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'novel-delivery-metadata-'));
+  const yamlPath = path.join(tempDirectory, 'metadata.yaml');
+  const lines: string[] = [];
+
+  if (typeof metadata.title === 'string') lines.push(`title: ${escapeYamlScalar(metadata.title)}`);
+  if (typeof metadata.author === 'string') lines.push(`author: ${escapeYamlScalar(metadata.author)}`);
+  if (typeof metadata.language === 'string') lines.push(`lang: ${escapeYamlScalar(metadata.language)}`);
+  if (typeof metadata.summary === 'string') lines.push(`summary: ${escapeYamlScalar(metadata.summary)}`);
+  if (typeof metadata.date === 'string') lines.push(`date: ${escapeYamlScalar(metadata.date)}`);
+  if (Array.isArray(metadata.keywords) && metadata.keywords.length > 0) {
+    lines.push('keywords:');
+    for (const keyword of metadata.keywords) {
+      lines.push(`  - ${escapeYamlScalar(keyword)}`);
+    }
+  }
+  if (typeof metadata.producePdf === 'boolean') lines.push(`produce-pdf: ${metadata.producePdf}`);
+  if (typeof metadata.produceEpub === 'boolean') lines.push(`produce-epub: ${metadata.produceEpub}`);
+  if (typeof metadata.coverPath === 'string') lines.push(`cover-path: ${escapeYamlScalar(metadata.coverPath)}`);
+
+  writeText(yamlPath, `${lines.join('\n')}\n`);
+  return yamlPath;
 }
 
 export function collectMetadataWarnings(metadataPath: string): string[] {
@@ -616,6 +720,7 @@ export function testDeliveryPreflight(
     mainFontRegular: fonts.mainFontRegular,
     sansFont: fonts.sansFont,
     metadataPath,
+    pandocMetadataPath: getPandocMetadataFilePath(metadataPath),
     frontmatterPath: path.join(projectRoot, '50-delivery', 'frontmatter.md'),
     workflowStatusPath,
     warnings,
@@ -912,7 +1017,7 @@ export async function invokeNovelDeliveryExport({
         projectRoot: resolvedProjectRoot,
         defaultsFile: latteHtmlDefaults,
         outputPath: targets.latteHtml,
-        metadataFile: preflight.metadataPath,
+        metadataFile: preflight.pandocMetadataPath,
         mainFont: preflight.mainFont,
         mainFontRegular: preflight.mainFontRegular,
         sansFont: preflight.sansFont,
@@ -927,7 +1032,7 @@ export async function invokeNovelDeliveryExport({
         projectRoot: resolvedProjectRoot,
         defaultsFile: mochaHtmlDefaults,
         outputPath: targets.mochaHtml,
-        metadataFile: preflight.metadataPath,
+        metadataFile: preflight.pandocMetadataPath,
         mainFont: preflight.mainFont,
         mainFontRegular: preflight.mainFontRegular,
         sansFont: preflight.sansFont,
@@ -958,7 +1063,7 @@ export async function invokeNovelDeliveryExport({
         projectRoot: resolvedProjectRoot,
         defaultsFile: epubDefaults,
         outputPath: targets.epub,
-        metadataFile: preflight.metadataPath,
+        metadataFile: preflight.pandocMetadataPath,
         coverPath: coverResult.coverPath,
       }),
       'epub',

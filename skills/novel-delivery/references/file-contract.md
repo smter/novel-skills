@@ -12,6 +12,9 @@
 - `50-delivery/frontmatter.md`
 - `50-delivery/book.md` after assembly
 
+`metadata.md` 是 Markdown 模板文件；导出器会把它转换成临时 YAML 再传给 Pandoc。
+`book.md` 由导出器组装，不是人工维护的事实源。
+
 ## 最低章节规则
 
 `50-delivery/metadata.md` must contain at least:
@@ -35,10 +38,11 @@
 
 The output directory should contain:
 
-- `<slug>.pdf` when PDF export is requested
+- `<slug>-latte.html` and `<slug>-mocha.html` when PDF export is requested
+- `<slug>-latte.pdf` and `<slug>-mocha.pdf` when PDF export is requested
 - `<slug>.epub` when EPUB export is requested
 - `export-log.md` when any export or validation step fails
 
 ## 指引
 
-Use `node --experimental-strip-types ../scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.
+Use `node --experimental-strip-types <skill-root>/scripts/validate-delivery-project.mts --project-root <path> --mode <Preflight|Output>` for mechanical checks.

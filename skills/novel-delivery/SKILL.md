@@ -41,6 +41,14 @@ description: Use when 中文小说项目已经具备完成且审查通过的书�
 
 将这些问题记为警告，并继续导出。
 
+如果 `50-delivery/metadata.md` 或 `50-delivery/frontmatter.md` 缺失：
+- copy the matching file from `<skill-root>/templates/`
+- fill the minimum required fields before export
+
+最小必填字段：
+- `metadata.md`: `Title`, `Author`, `Language`
+- `frontmatter.md`: `Book Title`, `Author`, `Rights`, `Summary`
+
 ## 项目根目录识别
 
 本 skill 中的所有路径都应视为相对于小说项目根目录。
@@ -63,7 +71,8 @@ description: Use when 中文小说项目已经具备完成且审查通过的书�
 
 ## 状态更新
 
-- 在组装前设为 `delivery_in_progress`
+- 预检开始前保持 `draft_complete` 或 `delivery_blocked`
+- 只有预检通过后、开始组装与导出前才设为 `delivery_in_progress`
 - 预检或导出失败时设为 `delivery_blocked`
 - 只有导出校验通过后才能设为 `delivery_complete`
 
@@ -99,6 +108,9 @@ description: Use when 中文小说项目已经具备完成且审查通过的书�
 - output formats
 - cover path when used
 
+`metadata.md` 是面向作者填写的 Markdown 文件，不是 Pandoc 直接读取的原始 YAML。
+导出器会从该 Markdown 中提取键值，并生成临时 YAML 元数据文件供 Pandoc 使用。
+
 ## 导出命令
 
 从工作区根目录或小说项目根目录使用 Node 运行脚本化导出器：
@@ -114,6 +126,10 @@ node --experimental-strip-types <skill-root>/scripts/export-book.mts --project-r
 - generate `Latte` and `Mocha` HTML via Pandoc
 - print those HTML files to PDF with Playwright plus a Chromium-compatible browser
 - generate EPUB through Pandoc
+
+章节顺序默认从 `30-draft/chapter-plan.md` 解析，接受以下两种常见格式：
+- explicit chapter ids such as `chapter-01`
+- Markdown headings such as `### Chapter 1`
 
 PDF 导出应产出：
 - `50-delivery/output/<slug>-latte.html`
