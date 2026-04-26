@@ -8,6 +8,7 @@
 
 - Delivery is blocked unless drafting is already complete.
 - Preflight checks must be performed before any export attempt.
+- Do not manually set `delivery_in_progress`; `export-book.mts` owns that transition after preflight passes.
 - Missing required metadata fields are blocking; missing optional metadata fields are warnings.
 
 ## 必需检查

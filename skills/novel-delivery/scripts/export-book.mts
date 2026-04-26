@@ -711,7 +711,11 @@ export function testDeliveryPreflight(
     throw new Error('workflow-status.md is missing a structured Status field. Use `- Status: draft_complete` or `- Status: delivery_blocked`.');
   }
   if (!['draft_complete', 'delivery_blocked'].includes(workflowStatusValue)) {
-    throw new Error(`Project is not ready for delivery export. Expected Status: draft_complete or delivery_blocked, got ${workflowStatusValue}.`);
+    throw new Error(
+      `Project is not ready for delivery export. Expected Status: draft_complete or delivery_blocked, got ${workflowStatusValue}. ` +
+      'Do not set `delivery_in_progress` manually; the exporter sets that status after preflight passes. ' +
+      'Revert the workflow status to `draft_complete` or `delivery_blocked`, then rerun the exporter.',
+    );
   }
 
   const metadataPath = path.join(projectRoot, '50-delivery', 'metadata.md');

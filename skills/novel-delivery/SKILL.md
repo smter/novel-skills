@@ -73,6 +73,7 @@ description: Use when 中文小说项目已经具备完成且审查通过的书�
 
 - 预检开始前保持 `draft_complete` 或 `delivery_blocked`
 - 只有预检通过后、开始组装与导出前才设为 `delivery_in_progress`
+- 不要手动把 `workflow-status.md` 改成 `delivery_in_progress`；直接运行 `export-book.mts`，由导出脚本在预检通过后负责切换状态
 - 预检或导出失败时设为 `delivery_blocked`
 - 只有导出校验通过后才能设为 `delivery_complete`
 

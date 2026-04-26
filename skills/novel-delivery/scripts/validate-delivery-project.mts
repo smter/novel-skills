@@ -98,7 +98,7 @@ function validatePreflight(
   } else if (!['draft_complete', 'delivery_blocked'].includes(workflowStatusValue)) {
     addError(
       state,
-      `Delivery preflight requires Status: draft_complete or delivery_blocked in 00-project/workflow-status.md, got ${workflowStatusValue}.`,
+      `Delivery preflight requires Status: draft_complete or delivery_blocked in 00-project/workflow-status.md, got ${workflowStatusValue}. Do not set delivery_in_progress manually; export-book.mts sets it after preflight passes. Revert the workflow status to draft_complete or delivery_blocked, then rerun the exporter.`,
     );
   }
 

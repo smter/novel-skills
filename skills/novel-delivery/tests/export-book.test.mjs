@@ -542,6 +542,37 @@ test("delivery preflight rejects workflow files without a structured Status fiel
   );
 });
 
+test("delivery preflight explains that delivery_in_progress must be set by the exporter", () => {
+  const novelRoot = makeTempDir();
+  writeFile(
+    path.join(novelRoot, "00-project", "workflow-status.md"),
+    "- Status: delivery_in_progress\n",
+  );
+  writeFile(
+    path.join(novelRoot, "30-draft", "chapter-plan.md"),
+    "## Planned Chapters\n- chapter-01\n",
+  );
+  writeFile(path.join(novelRoot, "30-draft", "chapters", "chapter-01.md"), "# 第一章\n");
+  writeFile(path.join(novelRoot, "50-delivery", "frontmatter.md"), "# Title Page\n");
+  writeFile(
+    path.join(novelRoot, "50-delivery", "metadata.md"),
+    [
+      "# Metadata",
+      "",
+      "## Bibliographic Data",
+      "",
+      "- Title: 蛇吻",
+      "- Author: 测试作者",
+      "- Language: zh-CN",
+    ].join("\n"),
+  );
+
+  assert.throws(
+    () => testDeliveryPreflight(novelRoot, "node", ["Source Han Serif SC", "Source Han Sans SC"], process.execPath),
+    /delivery_in_progress[\s\S]*exporter[\s\S]*draft_complete[\s\S]*delivery_blocked/i,
+  );
+});
+
 test("latte html defaults use html output and catppuccin blue-lavender accents", () => {
   const latteYaml = fs.readFileSync(
     path.join(skillRoot, "pandoc", "latte-html.yaml"),
