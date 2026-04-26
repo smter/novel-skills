@@ -65,6 +65,7 @@ writer 返回后：
    - `30-draft/continuity/story-state.md`
    - 允许使用的辅助文件路径
    - 当前审查目标路径
+   - `<skill-root>/templates/chapter-review.md`
 
 reviewer 返回后：
 
@@ -73,6 +74,7 @@ reviewer 返回后：
 3. 以 `Progress` 模式运行起草验证器。
 4. 确认 `Decision` 只能是 `通过` 或 `不通过`。
 5. 如果 reviewer 返回 `BLOCKED`，将 `workflow-status.md` 更新为 `draft_blocked` 后停止。
+6. 如果 review 文件结构不合法，不得由 controller 直接编辑或代写审查内容；重新派发 reviewer，让 reviewer 按模板重写合法审查文件。
 
 如果 reviewer 反馈里唯一待确认的问题是字数：
 - 不要额外发明统计方式
@@ -110,6 +112,7 @@ reviewer 返回后：
 
 - 更新 `Completed Chapters`
 - 更新 `Last Completed Chapter`
+- `Last Completed Chapter` 必须写纯数字，如 `1`；不要写成 `chapter-01`
 - 将当前章节 continuity state 合并进 `30-draft/continuity/story-state.md`
 - 在整书闸门通过前，将 `Status` 保持为 `draft_in_progress`
 

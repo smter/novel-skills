@@ -27,6 +27,8 @@
 
 - `40-review/chapter-reviews/chapter-XX-review.md`
 
+优先直接套用 `<skill-root>/templates/chapter-review.md` 的标题和段落名；不要自创 `## 最终结论`、`## 审查结果` 之类的变体。
+
 审查文件是权威输出。不要在聊天中粘贴完整审查内容。
 
 ## 你必须检查
@@ -70,6 +72,31 @@
 - 若无问题，使用 `Clean: <结论>` 格式
 - 若有问题，使用 `Conflict: <Event Name> | source=story-state|chapter-state | issue=<slug>` 格式
 - 若出现重复发现、重复揭示或认知状态倒退，`<Event Name>` 必须是被错误重演的具体事件名
+
+审查文件最小结构如下，标题名必须保持一致：
+
+```md
+# Chapter XX Review
+
+## Metadata
+- Chapter Number: XX
+- Decision: 通过
+- Reviewer Status: completed
+
+## Checks
+- Word Count: pass
+
+## Findings
+- ...
+
+## Continuity Findings
+- Clean: no continuity conflicts found.
+
+## Required Revisions
+- None
+```
+
+不要翻译或改写这些 section 名；验证器按这些标题解析。
 
 ## 输出契约
 

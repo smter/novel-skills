@@ -137,6 +137,11 @@
 - `Blocking Issues`
 - `Next Allowed Skill`
 
+其中：
+
+- `Completed Chapters` 必须是纯数字
+- `Last Completed Chapter` 必须是纯数字；填写 `0`、`1`、`2` 这类整数，不要填写 `chapter-01`
+
 ## 控制器验证规则
 
 控制器必须通过读取文件内容来验证结果，不能只依赖聊天回复。
@@ -149,6 +154,7 @@
 - 只有当审查文件包含非占位的 `## Continuity Findings` 时，连续性审查才算完成。
 - `## Continuity Findings` 中的每条结论都必须使用 `Clean:` 或 `Conflict:` 结构化格式。
 - 只有在审查文件包含 `Decision: 通过` 时，控制器才能推进。
+- 如果审查文件结构不合法，控制器必须将其视为 reviewer 失败；控制器不得代写或修补审查结论。
 - 控制器在推进前，必须保证 `story-state.md` 与连续通过的章节对齐。
 - 控制器在推进状态前，必须运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>`。
 - 如果文件虽然存在，但结构不完整或未通过验证器检查，应视为失败运行，并按情况停止或重新派发。

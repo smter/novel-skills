@@ -1,4 +1,5 @@
 import { formatFailure } from '../lib/validator-utils.mts';
+import { fieldValue } from '../lib/common.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 
 export type DraftingValidationMode = 'Entry' | 'Progress' | 'Completion' | 'WordCount';
@@ -35,6 +36,23 @@ export function checkWorkflowState(
   const approvedNumbers = getApprovedNumbers(project);
   const expectedLastCompleted = consecutiveApprovedCount === 0 ? 0 : approvedNumbers[consecutiveApprovedCount - 1];
   const actualLastCompleted = workflow.lastCompletedChapter ?? 0;
+  const rawLastCompleted = fieldValue(workflow.fields, 'Last Completed Chapter').trim();
+
+  if (rawLastCompleted && !/^\d+$/.test(rawLastCompleted)) {
+    failures.push(formatFailure([
+      `Error: Last Completed Chapter must be a plain integer, but found '${rawLastCompleted}'.`,
+      '',
+      'Why it blocks:',
+      'This field is a workflow ledger value, not a chapter slug. Mixed formats like chapter-01 are ambiguous for agents and validators.',
+      '',
+      'How to fix:',
+      'Set Last Completed Chapter to a bare number such as 0, 1, or 2.',
+      '',
+      'See:',
+      '- 00-project/workflow-status.md',
+      '- chapter-loop.md',
+    ]));
+  }
 
   if ((workflow.completedChapters ?? 0) !== consecutiveApprovedCount) {
     failures.push(formatFailure([

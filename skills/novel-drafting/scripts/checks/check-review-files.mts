@@ -30,7 +30,20 @@ export function checkReviewFiles(
     }
 
     if (!['通过', '不通过'].includes(review.decision)) {
-      failures.push(`Review ${plannedChapter.number} is missing a valid decision.`);
+      failures.push(formatFailure([
+        `Error: 40-review/chapter-reviews/chapter-${String(plannedChapter.number).padStart(2, '0')}-review.md is missing a valid review decision.`,
+        '',
+        'Why it blocks:',
+        'The controller may only advance when the review file uses the structured review format and Decision is exactly 通过 or 不通过.',
+        '',
+        'How to fix:',
+        'Rewrite the review file with a `## Metadata` section that includes the exact field `- Decision: 通过|不通过`, or copy the exact headings from templates/chapter-review.md.',
+        '',
+        'See:',
+        `- 40-review/chapter-reviews/chapter-${String(plannedChapter.number).padStart(2, '0')}-review.md`,
+        '- reviewer-subagent.md',
+        '- templates/chapter-review.md',
+      ]));
     }
 
     if (review.metadataNumber !== null && review.fileNumber !== null && review.metadataNumber !== review.fileNumber) {

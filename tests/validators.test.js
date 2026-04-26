@@ -650,6 +650,32 @@ test('drafting validator in progress mode fails when a failed review has no acti
   assert.match(result.stdout, /actionable/i);
 });
 
+test('drafting validator in progress mode explains the required review decision format', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Final Verdict',
+    '- Result: 通过',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /## Metadata/i);
+  assert.match(result.stdout, /Decision: 通过\|不通过/i);
+  assert.match(result.stdout, /chapter-review\.md|reviewer-subagent\.md/i);
+});
+
 test('drafting validator in progress mode fails when a review omits continuity findings', () => {
   const root = makeTempProject();
   writeDraftingBaseProject(root);
@@ -842,6 +868,75 @@ test('drafting validator in completion mode fails when workflow status claims dr
   assert.equal(result.status, 1);
   assert.match(result.stdout, /draft_complete/i);
   assert.match(result.stdout, /all planned chapters/i);
+});
+
+test('drafting validator in progress mode rejects non-numeric last completed chapter values', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 1',
+      '- Last Completed Chapter: chapter-01',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(1));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Last Completed Chapter/i);
+  assert.match(result.stdout, /integer|1, 2, 3/i);
+  assert.match(result.stdout, /chapter-01/i);
+});
+
+test('drafting control docs tell the controller not to rewrite invalid review files', () => {
+  const chapterLoop = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'chapter-loop.md'),
+    'utf8',
+  );
+  const reviewerSubagent = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'reviewer-subagent.md'),
+    'utf8',
+  );
+
+  assert.match(chapterLoop, /不得.*编辑.*review/i);
+  assert.match(chapterLoop, /重新派发 reviewer|重新派发审查/i);
+  assert.match(reviewerSubagent, /模板|template/i);
+  assert.match(reviewerSubagent, /## Metadata/);
 });
 
 test('drafting validator in progress mode fails when the current chapter is missing a continuity state file', () => {
