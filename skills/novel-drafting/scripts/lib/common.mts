@@ -187,7 +187,7 @@ export function inferNumberFromPath(filePath: string): number | null {
   }
 
   const basename = path.basename(filePath);
-  const match = basename.match(/chapter-(\d+)(?:-review)?\.md$/);
+  const match = basename.match(/chapter-(\d+)(?:-review|-state)?\.md$/);
   return match ? Number(match[1]) : null;
 }
 

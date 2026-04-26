@@ -24,6 +24,8 @@ export interface ReviewFile {
   decision: string;
   reviewerStatus: string;
   findings: string[];
+  continuityFindings: string[];
+  continuityFindingsIsPlaceholder: boolean;
   requiredRevisions: string[];
   requiredRevisionsIsPlaceholder: boolean;
   fileNumber: number | null;
@@ -34,6 +36,8 @@ export function parseReviewFile(markdown: string, filePath = ''): ReviewFile {
   const metadataFields = parseLabeledList(getHeadingContent(markdown, '## Metadata'));
   const findingsSection = getHeadingContent(markdown, '## Findings');
   const findings = parseBulletList(findingsSection);
+  const continuityFindingsSection = getHeadingContent(markdown, '## Continuity Findings');
+  const continuityFindings = parseBulletList(continuityFindingsSection);
   const requiredRevisionsSection = getHeadingContent(markdown, '## Required Revisions');
   const requiredRevisions = parseBulletList(requiredRevisionsSection);
   const metadataNumber = parseInteger(fieldValue(metadataFields, 'Chapter Number'));
@@ -44,6 +48,9 @@ export function parseReviewFile(markdown: string, filePath = ''): ReviewFile {
   const normalizedRequiredRevisions = requiredRevisions.length > 0
     ? requiredRevisions
     : (trimSectionContent(requiredRevisionsSection) ? [trimSectionContent(requiredRevisionsSection)] : []);
+  const normalizedContinuityFindings = continuityFindings.length > 0
+    ? continuityFindings
+    : (trimSectionContent(continuityFindingsSection) ? [trimSectionContent(continuityFindingsSection)] : []);
 
   return {
     title: getTitle(markdown),
@@ -56,6 +63,11 @@ export function parseReviewFile(markdown: string, filePath = ''): ReviewFile {
     decision,
     reviewerStatus: fieldValue(metadataFields, 'Reviewer Status'),
     findings: findings.length > 0 ? findings : (trimSectionContent(findingsSection) ? [trimSectionContent(findingsSection)] : []),
+    continuityFindings: normalizedContinuityFindings,
+    continuityFindingsIsPlaceholder: isPlaceholderList(
+      normalizedContinuityFindings,
+      trimSectionContent(continuityFindingsSection),
+    ),
     requiredRevisions: normalizedRequiredRevisions,
     requiredRevisionsIsPlaceholder: isPlaceholderList(
       normalizedRequiredRevisions,

@@ -13,6 +13,7 @@ import { checkChapterFiles } from './checks/check-chapter-files.mts';
 import { checkReviewFiles } from './checks/check-review-files.mts';
 import { checkWordCount } from './checks/check-word-count.mts';
 import { checkCompletionGate } from './checks/check-completion-gate.mts';
+import { checkContinuityState } from './checks/check-continuity-state.mts';
 
 const requiredFiles = [
   '00-project/project-brief.md',
@@ -107,12 +108,14 @@ function main(): void {
     ],
     Progress: [
       checkWorkflowState,
+      checkContinuityState,
       checkChapterFiles,
       checkReviewFiles,
       checkWordCount,
     ],
     Completion: [
       checkWorkflowState,
+      checkContinuityState,
       checkChapterFiles,
       checkReviewFiles,
       checkWordCount,

@@ -117,6 +117,62 @@ function makeChapterContent(text, options = {}) {
   ].join('\n');
 }
 
+function makeContinuityStateContent(chapterNumber, overrides = {}) {
+  return [
+    `# Chapter ${chapterNumber} State Update`,
+    '',
+    '## Metadata',
+    `- Chapter Number: ${chapterNumber}`,
+    `- Source Chapter: 30-draft/chapters/chapter-${String(chapterNumber).padStart(2, '0')}.md`,
+    `- State Status: ${overrides.stateStatus ?? 'approved'}`,
+    '',
+    '## New Facts Confirmed',
+    ...(overrides.newFactsConfirmed ?? ['- Lin confirms the sabotage was intentional.']),
+    '',
+    '## Character Knowledge Changes',
+    ...(overrides.characterKnowledgeChanges ?? ['- Lin now knows the mooring line was cut on purpose.']),
+    '',
+    '## One-Time Events Triggered',
+    ...(overrides.oneTimeEventsTriggered ?? ['- First discovery of the sabotage attempt | consumed=yes']),
+    '',
+    '## Relationship State Changes',
+    ...(overrides.relationshipStateChanges ?? ['- Lin trusts Boatmaster Qiu slightly less.']),
+    '',
+    '## Open Secrets Remaining',
+    ...(overrides.openSecretsRemaining ?? ['- The saboteur identity remains unknown.']),
+    '',
+    '## Continuity Notes For Next Chapter',
+    ...(overrides.continuityNotes ?? ['- Do not present the sabotage as a first-time discovery again.']),
+  ].join('\n');
+}
+
+function makeStoryStateContent(lastApprovedChapter, overrides = {}) {
+  return [
+    '# Story State',
+    '',
+    '## Covered Through',
+    `- Last Approved Chapter: ${lastApprovedChapter}`,
+    '',
+    '## Confirmed Facts',
+    ...(overrides.confirmedFacts ?? ['- The sabotage attempt was intentional.']),
+    '',
+    '## Character Knowledge',
+    ...(overrides.characterKnowledge ?? ['- Lin knows the mooring line was cut on purpose.']),
+    '',
+    '## One-Time Events Consumed',
+    ...(overrides.oneTimeEventsConsumed ?? ['- First discovery of the sabotage attempt: chapter-01']),
+    '',
+    '## Relationship State',
+    ...(overrides.relationshipState ?? ['- Lin is wary of Boatmaster Qiu.']),
+    '',
+    '## Open Secrets',
+    ...(overrides.openSecrets ?? ['- The saboteur identity']),
+    '',
+    '## Locked Continuity Rules',
+    ...(overrides.lockedRules ?? ['- Do not restage the sabotage discovery as new information.']),
+  ].join('\n');
+}
+
 test('drafting parser extracts ordered planned chapters and word targets', async () => {
   const { parseChapterPlan } = await import('../skills/novel-drafting/scripts/lib/parse-chapter-plan.mts');
   const plan = parseChapterPlan([
@@ -315,7 +371,11 @@ test('drafting validator fails when a planned review is not passing', () => {
     '## Chapter List',
     '### Chapter 1',
   ].join('\n\n'));
-  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
   writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
     '# Chapter 1 Review',
     '',
@@ -328,6 +388,9 @@ test('drafting validator fails when a planned review is not passing', () => {
     '',
     '## Findings',
     '- The chapter is still too short.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
     '',
     '## Required Revisions',
     '- Expand the river convoy sequence.',
@@ -370,7 +433,11 @@ test('drafting validator passes in progress mode when the current chapter review
     '### Chapter 1',
     '### Chapter 2',
   ].join('\n\n'));
-  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
   writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
     '# Chapter 1 Review',
     '',
@@ -383,6 +450,9 @@ test('drafting validator passes in progress mode when the current chapter review
     '',
     '## Findings',
     '- The sabotage setup lands too softly.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
     '',
     '## Required Revisions',
     '- Strengthen the final beat before the chapter ends.',
@@ -438,6 +508,9 @@ test('drafting validator in completion mode fails when later chapters are still 
     '',
     '## Findings',
     '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
     '',
     '## Required Revisions',
     '- None',
@@ -560,6 +633,9 @@ test('drafting validator in progress mode fails when a failed review has no acti
     '## Findings',
     '- The chapter is too short.',
     '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
     '## Required Revisions',
     '- None',
   ].join('\n'));
@@ -572,6 +648,81 @@ test('drafting validator in progress mode fails when a failed review has no acti
   assert.equal(result.status, 1);
   assert.match(result.stdout, /Required Revisions/i);
   assert.match(result.stdout, /actionable/i);
+});
+
+test('drafting validator in progress mode fails when a review omits continuity findings', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- The chapter lands well.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Continuity Findings/i);
+  assert.match(result.stdout, /actionable/i);
+});
+
+test('drafting validator in progress mode fails when continuity findings are not structured', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root);
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- The chapter lands well.',
+    '',
+    '## Continuity Findings',
+    '- There is a continuity concern around the sabotage reveal.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Continuity Findings/i);
+  assert.match(result.stdout, /Clean:|Conflict:/i);
 });
 
 test('drafting validator in progress mode fails when chapter content is below the planned word range', () => {
@@ -653,8 +804,8 @@ test('drafting validator in completion mode fails when workflow status claims dr
       '- Status: draft_complete',
       '- Current Stage: novel-drafting',
       '- Planned Chapters: 2',
-      '- Completed Chapters: 1',
-      '- Last Completed Chapter: 1',
+      '- Completed Chapters: 2',
+      '- Last Completed Chapter: 2',
       '- Blocking Issues:',
       '  -',
       '- Next Allowed Skill: novel-delivery',
@@ -676,6 +827,9 @@ test('drafting validator in completion mode fails when workflow status claims dr
     '## Findings',
     '- None.',
     '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
     '## Required Revisions',
     '- None',
   ].join('\n'));
@@ -688,6 +842,283 @@ test('drafting validator in completion mode fails when workflow status claims dr
   assert.equal(result.status, 1);
   assert.match(result.stdout, /draft_complete/i);
   assert.match(result.stdout, /all planned chapters/i);
+});
+
+test('drafting validator in progress mode fails when the current chapter is missing a continuity state file', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 0',
+      '- Last Completed Chapter: 0',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(700)));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(0));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /continuity state file/i);
+  assert.match(result.stdout, /chapter-01-state\.md/i);
+});
+
+test('drafting validator in completion mode fails when story state lags behind approved chapters', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 2',
+      '- Last Completed Chapter: 2',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(
+    root,
+    '30-draft/chapters/chapter-02.md',
+    makeChapterContent('江风推着船篷向前。'.repeat(180), {
+      chapterNumber: 2,
+      title: 'Chapter 2',
+      goal: 'Reveal the sabotage attempt without solving it.',
+    }),
+  );
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(1));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+  writeFile(root, '40-review/chapter-reviews/chapter-02-review.md', [
+    '# Chapter 2 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 2',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Completion'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /story state/i);
+  assert.match(result.stdout, /Last Approved Chapter is 1 but should be 2/i);
+});
+
+test('drafting validator in completion mode fails when consumed one-time events lack chapter references', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 2',
+      '- Last Completed Chapter: 2',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('江风推着船篷向前。'.repeat(180), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(2, {
+    oneTimeEventsConsumed: ['- First discovery of the sabotage attempt'],
+  }));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- No continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+  writeFile(root, '40-review/chapter-reviews/chapter-02-review.md', [
+    '# Chapter 2 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 2',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- No continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Completion'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /One-Time Events Consumed/i);
+  assert.match(result.stdout, /chapter-XX|chapter-01/i);
+});
+
+test('drafting validator in completion mode fails when consumed triggered events are not archived in story state', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 2',
+      '- Last Completed Chapter: 2',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('江风推着船篷向前。'.repeat(180), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    oneTimeEventsTriggered: ['- First discovery of the sabotage attempt | consumed=yes'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2, {
+    oneTimeEventsTriggered: ['- Lin confirms Boatmaster Qiu lied | consumed=yes'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(2, {
+    oneTimeEventsConsumed: ['- First discovery of the sabotage attempt: chapter-01'],
+  }));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- No continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+  writeFile(root, '40-review/chapter-reviews/chapter-02-review.md', [
+    '# Chapter 2 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 2',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- No continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Completion'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /story-state\.md/i);
+  assert.match(result.stdout, /Lin confirms Boatmaster Qiu lied/i);
 });
 
 test('delivery validator passes in output mode when required themed artifacts exist', () => {

@@ -28,6 +28,64 @@
 ...
 ```
 
+## 连续性状态文件契约
+
+`30-draft/continuity/chapter-XX-state.md` 至少必须包含：
+
+- 一个状态标题
+- `## Metadata`
+- `## New Facts Confirmed`
+- `## Character Knowledge Changes`
+- `## One-Time Events Triggered`
+- `## Continuity Notes For Next Chapter`
+
+最小结构示例：
+
+```md
+# Chapter XX State Update
+
+## Metadata
+- Chapter Number: XX
+- Source Chapter: 30-draft/chapters/chapter-XX.md
+- State Status: approved
+
+## New Facts Confirmed
+- ...
+
+## Character Knowledge Changes
+- ...
+
+## One-Time Events Triggered
+- `<Event Name> | consumed=yes`
+- `<Event Name> | consumed=no`
+
+## Continuity Notes For Next Chapter
+- ...
+```
+
+`30-draft/continuity/story-state.md` 至少必须包含：
+
+- `# Story State`
+- `## Covered Through`
+- `## Confirmed Facts`
+- `## Character Knowledge`
+- `## One-Time Events Consumed`
+- `## Open Secrets`
+- `## Locked Continuity Rules`
+
+`## One-Time Events Consumed` 中的每一条必须使用以下格式：
+
+- `<Event Name>: chapter-XX`
+
+示例：
+
+- `First discovery of the sabotage attempt: chapter-01`
+
+触发与归档规则：
+
+- 当 `chapter-XX-state.md` 中某条 `One-Time Events Triggered` 使用 `consumed=yes` 时，
+  `story-state.md` 的 `## One-Time Events Consumed` 中必须存在同名事件的归档条目。
+
 ## 审查文件契约
 
 `40-review/chapter-reviews/chapter-XX-review.md` 审查文件至少必须包含：
@@ -37,6 +95,7 @@
 - `Decision`
 - `## Checks`
 - `## Findings`
+- `## Continuity Findings`
 - `## Required Revisions`
 
 最小结构示例：
@@ -55,6 +114,13 @@
 
 ## Findings
 - ...
+
+## Continuity Findings
+- Clean: no continuity conflicts found.
+
+或：
+
+- Conflict: First discovery of the sabotage attempt | source=story-state | issue=repeated-discovery
 
 ## Required Revisions
 - None
@@ -78,8 +144,12 @@
 验证规则：
 
 - 只有当预期章节文件存在，且包含上述章节文件必需部分时，writer 运行才算完成。
+- 只有当对应的 `chapter-XX-state.md` 存在且结构完整时，章节起草才算完成。
 - 只有当预期审查文件存在，且包含有效 `Decision` 时，reviewer 运行才算完成。
+- 只有当审查文件包含非占位的 `## Continuity Findings` 时，连续性审查才算完成。
+- `## Continuity Findings` 中的每条结论都必须使用 `Clean:` 或 `Conflict:` 结构化格式。
 - 只有在审查文件包含 `Decision: 通过` 时，控制器才能推进。
+- 控制器在推进前，必须保证 `story-state.md` 与连续通过的章节对齐。
 - 控制器在推进状态前，必须运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode <Entry|Progress|Completion>`。
 - 如果文件虽然存在，但结构不完整或未通过验证器检查，应视为失败运行，并按情况停止或重新派发。
 
@@ -90,5 +160,8 @@
 - 入口状态与阶段兼容性
 - 章节文件与审查文件的身份一致性
 - 对未通过审查给出可执行的必改项
+- review 文件中的 continuity findings 非空且非占位
+- continuity state 文件存在且结构完整
+- `story-state.md` 与已批准章节对齐
 - 章节与书稿的字数闸门
 - 完成状态下工作流字段的一致性

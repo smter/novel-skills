@@ -11,8 +11,9 @@
 1. 读取 `00-project/workflow-status.md`。
 2. 读取 `30-draft/chapter-plan.md`。
 3. 检查 `30-draft/chapters/`。
-4. 检查 `40-review/chapter-reviews/`。
-5. 在推进前运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress`。
+4. 检查 `30-draft/continuity/`。
+5. 检查 `40-review/chapter-reviews/`。
+6. 在推进前运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode Progress`。
 
 如果当前只是想回答“这一章字数够不够”这类问题：
 - 不要自己写字数统计命令
@@ -37,6 +38,7 @@
 3. 向 writer 传递：
    - 当前章节标识
    - 目标文件路径
+   - continuity state 目标文件路径
    - 允许使用的辅助文件路径
    - `30-draft/chapter-plan.md` 中当前章节的目标
    - 该章节当前的重试次数
@@ -45,9 +47,10 @@ writer 返回后：
 
 1. 不要只相信聊天文本。
 2. 检查报告路径上的章节文件是否真实存在。
-3. 以 `Progress` 模式运行起草验证器。
-4. 如果 writer 返回 `BLOCKED`，将 `workflow-status.md` 更新为 `draft_blocked` 后停止。
-5. 只有在章节文件存在且验证通过时，才派发 reviewer。
+3. 检查对应的 `30-draft/continuity/chapter-XX-state.md` 是否真实存在。
+4. 以 `Progress` 模式运行起草验证器。
+5. 如果 writer 返回 `BLOCKED`，将 `workflow-status.md` 更新为 `draft_blocked` 后停止。
+6. 只有在章节文件、continuity state 存在且验证通过时，才派发 reviewer。
 
 ## Reviewer 派发
 
@@ -58,6 +61,8 @@ writer 返回后：
 3. 向 reviewer 传递：
    - 当前章节标识
    - 当前章节文件路径
+   - 当前章节 continuity state 路径
+   - `30-draft/continuity/story-state.md`
    - 允许使用的辅助文件路径
    - 当前审查目标路径
 
@@ -105,6 +110,7 @@ reviewer 返回后：
 
 - 更新 `Completed Chapters`
 - 更新 `Last Completed Chapter`
+- 将当前章节 continuity state 合并进 `30-draft/continuity/story-state.md`
 - 在整书闸门通过前，将 `Status` 保持为 `draft_in_progress`
 
 ## 整书完成闸门

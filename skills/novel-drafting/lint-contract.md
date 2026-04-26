@@ -32,7 +32,10 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 
 检查项：
 - 工作流计数与连续通过的章节一致
+- 当前章节 continuity state 文件存在且结构完整
+- `story-state.md` 存在且覆盖到当前已批准基线
 - 章节文件元数据与文件身份一致
+- review 文件包含明确的 continuity findings
 - 未通过的审查包含可执行的必改项
 - 当前进行中的章节在推进前满足字数目标
 
@@ -42,8 +45,10 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 
 检查项：
 - 所有计划章节文件都存在
+- 所有已存在章节都有对应 continuity state 文件
 - 所有计划章节都有对应审查文件
 - 所有计划章节审查都为 `通过`
+- `story-state.md` 与最后一个连续通过章节对齐
 - 工作流状态字段与已批准章节一致
 - 章节与书稿总字数满足目标
 - `draft_complete` 与 `novel-delivery` 没有被过早设置

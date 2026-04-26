@@ -2,6 +2,15 @@ import { formatFailure } from '../lib/validator-utils.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 import type { DraftingValidationMode } from './check-workflow-state.mts';
 
+function isContinuityFindingWellFormed(entry: string): boolean {
+  const trimmed = entry.trim();
+  if (/^Clean:\s+.+$/i.test(trimmed)) {
+    return true;
+  }
+
+  return /^Conflict:\s+.+\|\s*source=(story-state|chapter-state)\s*\|\s*issue=[a-z0-9-]+$/i.test(trimmed);
+}
+
 export function checkReviewFiles(
   { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
 ): string[] {
@@ -51,6 +60,41 @@ export function checkReviewFiles(
         '',
         'See:',
         `- 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md`,
+      ]));
+    }
+
+    if (review.continuityFindingsIsPlaceholder) {
+      failures.push(formatFailure([
+        `Error: 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md is missing actionable Continuity Findings.`,
+        '',
+        'Why it blocks:',
+        'Every review must explicitly record whether continuity is clean or name the conflicting continuity state entries.',
+        '',
+        'How to fix:',
+        'Fill ## Continuity Findings with concrete continuity conclusions such as "No continuity conflicts found." or the exact state entries that conflict.',
+        '',
+        'See:',
+        `- 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md`,
+        '- reviewer-subagent.md',
+      ]));
+    }
+
+    const malformedContinuityFindings = review.continuityFindings.filter(
+      (entry) => !isContinuityFindingWellFormed(entry),
+    );
+    if (malformedContinuityFindings.length > 0) {
+      failures.push(formatFailure([
+        `Error: 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md has malformed Continuity Findings entries: ${malformedContinuityFindings.join('; ')}`,
+        '',
+        'Why it blocks:',
+        'Continuity findings must explicitly say whether continuity is clean or identify a concrete conflict with its source and issue type.',
+        '',
+        'How to fix:',
+        'Use `Clean: ...` for no-conflict conclusions, or `Conflict: <Event Name> | source=story-state|chapter-state | issue=<slug>` for continuity problems.',
+        '',
+        'See:',
+        `- 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md`,
+        '- reviewer-subagent.md',
       ]));
     }
 

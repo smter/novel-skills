@@ -76,6 +76,7 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 
 检查：
 - `30-draft/chapters/`
+- `30-draft/continuity/`
 - `40-review/chapter-reviews/`
 
 从第一个缺失、审查未通过或尚未标记为通过的章节继续。
@@ -88,10 +89,11 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
-- 已批准的前文章节摘要，或为保持连续性所需的已批准正文
+- `30-draft/continuity/story-state.md`
+- 必要时最近的已批准 `30-draft/continuity/chapter-XX-state.md`
 - `30-draft/chapter-plan.md` 中当前章节的目标
 
-writer 只输出当前章节草稿。
+writer 输出当前章节草稿，并写出当前章节的 continuity state。
 
 ## Reviewer 子 Agent 契约
 
@@ -102,6 +104,7 @@ reviewer 需要检查：
 - 人物一致性
 - 是否出现不允许的提前揭示
 - 与前文章节的连续性
+- 与 `story-state.md` 和最近已批准 continuity state 的一致性
 - 节奏与可读性
 
 当 reviewer 或 controller 只需要确认字数是否达标，而不是做完整 `Progress` / `Completion` 验证时：
@@ -111,6 +114,20 @@ reviewer 需要检查：
 
 reviewer 必须将结构化审查文件写入 `40-review/chapter-reviews/chapter-XX-review.md`，并返回 `通过` 或 `不通过`。
 reviewer 不负责重写章节正文。
+reviewer 还必须确认当前章节的 `30-draft/continuity/chapter-XX-state.md` 能准确记录：
+- 新确认事实
+- 人物认知变化
+- 已触发的一次性事件
+- 下一章不得违背的连续性约束
+
+`story-state.md` 中的 `One-Time Events Consumed` 必须显式写明来源章节，格式固定为：
+- `<Event Name>: chapter-XX`
+
+`chapter-XX-state.md` 中的 `One-Time Events Triggered` 也必须结构化记录，格式固定为：
+- `<Event Name> | consumed=yes`
+- `<Event Name> | consumed=no`
+
+如果某条事件标记为 `consumed=yes`，则 `story-state.md` 中必须有同名归档条目。
 
 ## 修订循环
 
@@ -139,6 +156,7 @@ reviewer 不负责重写章节正文。
 
 最后一个计划章节通过后，执行整书级审查：
 - 将已完成章节与 `30-draft/chapter-plan.md` 对比
+- 将 `30-draft/continuity/story-state.md` 与已通过章节对齐
 - 验证每个 `40-review/chapter-reviews/chapter-XX-review.md` 都已通过
 - 将总字数与目标区间对比
 
