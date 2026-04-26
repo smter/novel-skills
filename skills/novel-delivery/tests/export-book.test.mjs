@@ -47,7 +47,7 @@ test("fails when metadata.md is missing", () => {
   const novelRoot = makeTempDir();
   writeFile(
     path.join(novelRoot, "00-project", "workflow-status.md"),
-    "- **当前阶段**：创作完成 (draft_complete)\n",
+    "- Status: draft_complete\n",
   );
   writeFile(
     path.join(novelRoot, "30-draft", "chapter-plan.md"),
@@ -146,11 +146,11 @@ test("materializes html defaults with an absolute template path for Pandoc 3.x",
 
 test("sets workflow status to delivery_blocked when export fails", () => {
   const workflowPath = path.join(makeTempDir(), "workflow-status.md");
-  writeFile(workflowPath, "- **当前阶段**：创作完成 (draft_complete)\n");
+  writeFile(workflowPath, "- Status: draft_complete\n");
 
   setWorkflowDeliveryStatus(workflowPath, "delivery_blocked");
 
-  assert.match(fs.readFileSync(workflowPath, "utf8"), /delivery_blocked/);
+  assert.equal(fs.readFileSync(workflowPath, "utf8"), "- Status: delivery_blocked\n");
 });
 
 test("allows optional metadata fields to be missing while collecting warnings", () => {
@@ -338,7 +338,7 @@ test("preflight keeps review and optional metadata issues as warnings", () => {
   const novelRoot = makeTempDir();
   writeFile(
     path.join(novelRoot, "00-project", "workflow-status.md"),
-    "- **当前阶段**：创作完成 (draft_complete)\n",
+    "- Status: draft_complete\n",
   );
   writeFile(
     path.join(novelRoot, "30-draft", "chapter-plan.md"),
@@ -396,7 +396,7 @@ test("builds a browser environment message with concise next steps", () => {
 test("resolves the project root from a workspace root that contains one book directory", () => {
   const workspaceRoot = makeTempDir();
   const novelRoot = path.join(workspaceRoot, "snake-bite-revenge");
-  writeFile(path.join(novelRoot, "00-project", "workflow-status.md"), "(draft_complete)\n");
+  writeFile(path.join(novelRoot, "00-project", "workflow-status.md"), "- Status: draft_complete\n");
 
   assert.equal(resolveNovelProjectRoot(workspaceRoot), novelRoot);
 });
@@ -504,6 +504,42 @@ test("parses chapter headings when chapter-plan.md omits chapter-01 tokens", () 
   );
 
   assert.deepEqual(result.chapterIds, ["chapter-01", "chapter-02"]);
+});
+
+test("delivery preflight rejects workflow files without a structured Status field", () => {
+  const novelRoot = makeTempDir();
+  writeFile(
+    path.join(novelRoot, "00-project", "workflow-status.md"),
+    "(draft_complete)\n",
+  );
+  writeFile(
+    path.join(novelRoot, "30-draft", "chapter-plan.md"),
+    "## Planned Chapters\n- chapter-01\n",
+  );
+  writeFile(path.join(novelRoot, "30-draft", "chapters", "chapter-01.md"), "# 第一章\n");
+  writeFile(path.join(novelRoot, "50-delivery", "frontmatter.md"), "# Title Page\n");
+  writeFile(
+    path.join(novelRoot, "50-delivery", "metadata.md"),
+    [
+      "# Metadata",
+      "",
+      "## Bibliographic Data",
+      "",
+      "- Title: 蛇吻",
+      "- Author: 测试作者",
+      "- Language: zh-CN",
+      "",
+      "## Output Targets",
+      "",
+      "- Produce PDF: true",
+      "- Produce EPUB: true",
+    ].join("\n"),
+  );
+
+  assert.throws(
+    () => testDeliveryPreflight(novelRoot, "node", ["Source Han Serif SC", "Source Han Sans SC"], process.execPath),
+    /Status: draft_complete|structured Status field/i,
+  );
 });
 
 test("latte html defaults use html output and catppuccin blue-lavender accents", () => {

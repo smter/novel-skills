@@ -248,45 +248,129 @@ test('research validator is invokable through the strip-types entrypoint', () =>
   const root = makeTempProject();
 
   writeFile(root, '00-project/project-brief.md', [
+    '# Project Brief',
+    '',
     '## Working Title',
+    '《蛇吻》',
+    '',
     '## Genre/Type',
+    '都市惊悚复仇小说',
+    '',
     '## Target Audience',
+    '喜欢快节奏女性复仇题材的网文读者',
+    '',
     '## Target Length',
+    '中篇，约 12 章',
+    '',
     '## Core Premise',
+    '女主在一场精心设计的事故后发现自己被最亲近的人出卖，决定反向布局复仇。',
+    '',
     '## Central Conflict',
+    '她必须在保存证据与保护家人之间做选择，同时躲开幕后黑手的清除行动。',
+    '',
     '## Protagonist Goal',
+    '找出真正主谋并让对方在公众面前失去一切。',
+    '',
     '## Forbidden Content',
-  ].join('\n\n'));
+    '不要洗白加害者，不要超自然设定。',
+  ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
-    '## Reader Promise',
-    '## Length and Scope',
-    '## Completion Gates',
-    '## Review Expectations',
-  ].join('\n\n'));
+    '# Success Criteria',
+    '',
+    '- Target Audience: 女性向悬疑读者',
+    '- Length Tier: novella',
+    '- Planned Chapters: 12',
+    '- Target Total Words: 24000-30000',
+    '- Per-Chapter Word Range: 1800-2500',
+    '- Completion Rule: all planned chapters drafted and approved',
+    '- Review Pass Rule: every planned chapter review must be 通过',
+  ].join('\n'));
   writeFile(root, '00-project/workflow-status.md', [
     'Status: research_complete',
-    'Current Stage: research',
+    'Current Stage: novel-research',
     'Planned Chapters: 12',
     'Completed Chapters: 0',
     'Blocking Issues: none',
     'Next Allowed Skill: novel-drafting',
   ].join('\n'));
-  writeFile(root, '10-research/topic-research.md', 'topic');
-  writeFile(root, '10-research/setting-research.md', 'setting');
-  writeFile(root, '10-research/style-research.md', 'style');
+  writeFile(root, '10-research/topic-research.md', [
+    '# Topic Research',
+    '',
+    '- Legal realism: 公开举报需要留存可验证的时间线与资金流证据。',
+    '- Investigation risk: 私人调查容易触发反制和证据销毁。',
+  ].join('\n'));
+  writeFile(root, '10-research/setting-research.md', [
+    '# Setting Research',
+    '',
+    '- 城市环境: 沿江新一线城市，夜生活密集，监控覆盖高。',
+    '- Occupational detail: 媒体从业者接触爆料时更依赖匿名信箱与线下交接。',
+  ].join('\n'));
+  writeFile(root, '10-research/style-research.md', [
+    '# Style Research',
+    '',
+    '- 叙事风格: 近距离第三人称，句子偏短，强调压迫感与反击节奏。',
+    '- 禁忌: 避免大段背景说明，避免自怜式独白。',
+  ].join('\n'));
   writeFile(root, '10-research/references.md', [
     '## Source Entry',
+    '- Source: 记者行业访谈',
+    '- Type: interview',
+    '- Reliability: medium',
+    '- Notes: 确认匿名爆料与证据保全的常见流程。',
+    '',
     '## Open Question',
+    '- Question: 女主能否合法取得公司账目截图？',
+    '- Status: pending',
+    '- Notes: 需要补查劳动纠纷中的证据使用边界。',
+    '',
     '## Inference Note',
-  ].join('\n\n'));
-  writeFile(root, '20-story/characters.md', 'characters');
-  writeFile(root, '20-story/plot-outline.md', 'plot');
-  writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
+    '- Inference: 反派会先尝试舆论抹黑，再尝试物理灭证。',
+    '- Basis: 同类案件里公共关系与法律威胁通常先于暴力升级。',
+    '- Confidence: medium',
+    '- Notes: 可作为前三章压力来源。',
+  ].join('\n'));
+  writeFile(root, '20-story/characters.md', [
+    '# Characters',
+    '',
+    '- Name: 林闻',
+    '- Desire: 公开真相并复仇',
+    '- Fear: 家人因此受害',
+  ].join('\n'));
+  writeFile(root, '20-story/plot-outline.md', [
+    '# Plot Outline',
+    '',
+    '## Story Spine',
+    '- Opening: 林闻在葬礼后收到匿名证据。',
+    '- Inciting Incident: 她发现恋人参与伪造事故记录。',
+    '- Midpoint: 她反向设局，诱使反派以为证据已经销毁。',
+    '- Crisis: 家人被威胁，她必须决定是否提前公开。',
+    '- Climax: 她在直播发布会上公开关键账本与录音。',
+    '- Resolution: 反派名誉与资产崩塌，但她也失去原有生活。',
+  ].join('\n'));
+  writeFile(root, '20-story/foreshadowing.md', [
+    '# Foreshadowing',
+    '',
+    '- Setup: 第一章提到被删改的监控时间戳。',
+    '- Payoff: 第九章用时间戳漏洞击穿伪证链。',
+  ].join('\n'));
   writeFile(root, '30-draft/chapter-plan.md', [
+    '# Chapter Plan',
+    '',
     '## Overview',
+    '',
+    '- Total Chapters: 12',
+    '- Target Per Chapter: 1800-2500',
+    '',
     '## Chapter List',
+    '',
     '### Chapter 1',
-  ].join('\n\n'));
+    '- Title: 葬礼后的匿名信',
+    '- POV: 林闻',
+    '- Word Target: 1800-2500',
+    '- Goal: 让女主拿到第一批证据并决定反击。',
+    '- Key Events: 匿名信到达；发现时间戳被改；决定不报警。',
+    '- Characters: 林闻, 周叙',
+  ].join('\n'));
 
   const result = runValidator(
     path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
@@ -301,45 +385,93 @@ test('research validator passes for a complete scaffold', () => {
   const root = makeTempProject();
 
   writeFile(root, '00-project/project-brief.md', [
+    '# Project Brief',
+    '',
     '## Working Title',
+    '《河灯未熄》',
+    '',
     '## Genre/Type',
+    '现实向悬疑成长小说',
+    '',
     '## Target Audience',
+    '偏爱慢热悬疑和角色成长的读者',
+    '',
     '## Target Length',
+    '中篇，约 10 章',
+    '',
     '## Core Premise',
+    '女主在调查父亲旧案时，被迫重返自己逃离多年的故乡。',
+    '',
     '## Central Conflict',
+    '她想查清真相，但每靠近一步都会伤到仍住在当地的亲人。',
+    '',
     '## Protagonist Goal',
+    '证明父亲不是纵火案真凶，并找出真正受益者。',
+    '',
     '## Forbidden Content',
-  ].join('\n\n'));
+    '不加入超能力和命运论反转。',
+  ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
-    '## Reader Promise',
-    '## Length and Scope',
-    '## Completion Gates',
-    '## Review Expectations',
-  ].join('\n\n'));
+    '# Success Criteria',
+    '',
+    '- Target Audience: 悬疑成长向读者',
+    '- Length Tier: novella',
+    '- Planned Chapters: 10',
+    '- Target Total Words: 22000-28000',
+    '- Per-Chapter Word Range: 1800-2400',
+    '- Completion Rule: all planned chapters drafted and approved',
+    '- Review Pass Rule: every planned chapter review must be 通过',
+  ].join('\n'));
   writeFile(root, '00-project/workflow-status.md', [
     'Status: research_complete',
-    'Current Stage: research',
-    'Planned Chapters: 12',
+    'Current Stage: novel-research',
+    'Planned Chapters: 10',
     'Completed Chapters: 0',
     'Blocking Issues: none',
     'Next Allowed Skill: novel-drafting',
   ].join('\n'));
-  writeFile(root, '10-research/topic-research.md', 'topic');
-  writeFile(root, '10-research/setting-research.md', 'setting');
-  writeFile(root, '10-research/style-research.md', 'style');
+  writeFile(root, '10-research/topic-research.md', '# Topic Research\n\n- 县域旧案重审通常受到熟人社会压力影响。\n');
+  writeFile(root, '10-research/setting-research.md', '# Setting Research\n\n- 故乡临江、工厂停产后人口外流，夜间渡口空旷。\n');
+  writeFile(root, '10-research/style-research.md', '# Style Research\n\n- 风格偏克制，压抑感通过细节而非说教呈现。\n');
   writeFile(root, '10-research/references.md', [
     '## Source Entry',
+    '- Source: 地方新闻旧档案',
+    '- Type: archive',
+    '- Reliability: medium',
+    '- Notes: 可为旧案时间线提供素材。',
+    '',
     '## Open Question',
+    '- Question: 故乡渡口夜间是否仍有人值守？',
+    '- Status: open',
+    '- Notes: 关系到夜探戏的可信度。',
+    '',
     '## Inference Note',
-  ].join('\n\n'));
-  writeFile(root, '20-story/characters.md', 'characters');
-  writeFile(root, '20-story/plot-outline.md', 'plot');
-  writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
+    '- Inference: 真凶与旧工厂拆迁利益有关。',
+    '- Basis: 父亲死亡与停产节点高度重合。',
+    '- Confidence: medium',
+    '- Notes: 适合在中段逐步揭示。',
+  ].join('\n'));
+  writeFile(root, '20-story/characters.md', '# Characters\n\n- Name: 沈枝\n- Goal: 为父亲翻案\n- Wound: 对故乡与亲人的长期逃避\n');
+  writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: 沈枝回乡奔丧。\n- Inciting Incident: 她发现父亲遗物里藏有失踪证词。\n- Midpoint: 她确认旧案有人篡改消防记录。\n- Crisis: 关键证人突然失踪。\n- Climax: 她在拆迁听证会上公开录音与账本。\n- Resolution: 旧案重启调查，故乡关系却再也回不到从前。\n');
+  writeFile(root, '20-story/foreshadowing.md', '# Foreshadowing\n\n- Setup: 第一章出现被雨水浸坏的旧录音笔。\n- Payoff: 第八章恢复录音后揭露篡改指令。\n');
   writeFile(root, '30-draft/chapter-plan.md', [
+    '# Chapter Plan',
+    '',
     '## Overview',
+    '',
+    '- Total Chapters: 10',
+    '- Target Per Chapter: 1800-2400',
+    '',
     '## Chapter List',
+    '',
     '### Chapter 1',
-  ].join('\n\n'));
+    '- Title: 回乡',
+    '- POV: 沈枝',
+    '- Word Target: 1800-2400',
+    '- Goal: 让女主被迫回到故乡并接触旧案线索。',
+    '- Key Events: 回乡奔丧；发现录音笔；与旧友重逢。',
+    '- Characters: 沈枝, 赵屿',
+  ].join('\n'));
 
   const result = runValidator(
     path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
@@ -348,6 +480,81 @@ test('research validator passes for a complete scaffold', () => {
 
   assert.equal(result.status, 0);
   assert.match(result.stdout, /Research validation passed\./);
+});
+
+test('research validator rejects a generic current stage value', () => {
+  const root = makeTempProject();
+
+  writeFile(root, '00-project/project-brief.md', '# Project Brief\n\n## Working Title\n《试作》\n\n## Genre/Type\n悬疑\n\n## Target Audience\n网文读者\n\n## Target Length\n中篇\n\n## Core Premise\n主角调查好友失踪。\n\n## Central Conflict\n调查会伤害现有关系。\n\n## Protagonist Goal\n找回好友。\n\n## Forbidden Content\n不要超自然。\n');
+  writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 网文读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: all planned chapters drafted and approved\n- Review Pass Rule: every planned chapter review must be 通过\n');
+  writeFile(root, '00-project/workflow-status.md', 'Status: research_complete\nCurrent Stage: research\nPlanned Chapters: 8\nCompleted Chapters: 0\nBlocking Issues: none\nNext Allowed Skill: novel-drafting\n');
+  writeFile(root, '10-research/topic-research.md', '# Topic Research\n\n- 线人通常不会在线上直接传递完整证据。\n');
+  writeFile(root, '10-research/setting-research.md', '# Setting Research\n\n- 故事发生在沿海旅游城市的淡季。\n');
+  writeFile(root, '10-research/style-research.md', '# Style Research\n\n- 叙事要求冷静克制，避免戏剧化旁白。\n');
+  writeFile(root, '10-research/references.md', '## Source Entry\n- Source: 采访\n- Type: interview\n- Reliability: medium\n- Notes: 提供线人行为参考。\n\n## Open Question\n- Question: 监控保留多久？\n- Status: open\n- Notes: 影响取证窗口。\n\n## Inference Note\n- Inference: 反派会先抹黑主角。\n- Basis: 同类故事压力来源。\n- Confidence: low\n- Notes: 需后续验证。\n');
+  writeFile(root, '20-story/characters.md', '# Characters\n\n- Name: 祁遥\n');
+  writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: 主角返城。\n- Midpoint: 她发现熟人撒谎。\n- Resolution: 她找到失踪者。\n');
+  writeFile(root, '20-story/foreshadowing.md', '# Foreshadowing\n\n- Setup: 第一章提到坏掉的手机。\n- Payoff: 第六章恢复短信记录。\n');
+  writeFile(root, '30-draft/chapter-plan.md', '# Chapter Plan\n\n## Overview\n- Total Chapters: 8\n- Target Per Chapter: 1800-2400\n\n## Chapter List\n\n### Chapter 1\n- Title: 返城\n- POV: 祁遥\n- Word Target: 1800-2400\n- Goal: 让主角接到求救信息。\n- Key Events: 返城；发现异常；决定调查。\n- Characters: 祁遥\n');
+
+  const result = runValidator(
+    path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
+    ['--project-root', root],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Current Stage/i);
+  assert.match(result.stdout, /novel-research/i);
+});
+
+test('research validator rejects thin placeholder-like scaffolds', () => {
+  const root = makeTempProject();
+
+  writeFile(root, '00-project/project-brief.md', [
+    '# Project Brief',
+    '',
+    '## Working Title',
+    '《待补》',
+    '',
+    '## Genre/Type',
+    '悬疑',
+    '',
+    '## Target Audience',
+    '读者',
+    '',
+    '## Target Length',
+    '中篇',
+    '',
+    '## Core Premise',
+    '待补充',
+    '',
+    '## Central Conflict',
+    '待补充',
+    '',
+    '## Protagonist Goal',
+    '待补充',
+    '',
+    '## Forbidden Content',
+    '无',
+  ].join('\n'));
+  writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: done\n- Review Pass Rule: pass\n');
+  writeFile(root, '00-project/workflow-status.md', 'Status: research_complete\nCurrent Stage: novel-research\nPlanned Chapters: 8\nCompleted Chapters: 0\nBlocking Issues: none\nNext Allowed Skill: novel-drafting\n');
+  writeFile(root, '10-research/topic-research.md', 'topic');
+  writeFile(root, '10-research/setting-research.md', 'setting');
+  writeFile(root, '10-research/style-research.md', 'style');
+  writeFile(root, '10-research/references.md', '## Source Entry\n- Source: {{source}}\n\n## Open Question\n- Question: {{question}}\n\n## Inference Note\n- Inference: {{inference}}\n');
+  writeFile(root, '20-story/characters.md', 'characters');
+  writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: {{opening}}\n- Midpoint: {{midpoint}}\n- Resolution: {{resolution}}\n');
+  writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
+  writeFile(root, '30-draft/chapter-plan.md', '# Chapter Plan\n\n## Overview\n\n## Chapter List\n\n### Chapter 1\n');
+
+  const result = runValidator(
+    path.join('skills', 'novel-research', 'scripts', 'validate-research-project.mts'),
+    ['--project-root', root],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /too thin|placeholder|insufficient/i);
 });
 
 test('drafting validator fails when a planned review is not passing', () => {
@@ -939,6 +1146,33 @@ test('drafting control docs tell the controller not to rewrite invalid review fi
   assert.match(reviewerSubagent, /## Metadata/);
 });
 
+test('drafting writer docs point to fixed chapter and state templates', () => {
+  const chapterLoop = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'chapter-loop.md'),
+    'utf8',
+  );
+  const writerSubagent = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'writer-subagent.md'),
+    'utf8',
+  );
+  const chapterTemplate = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'templates', 'chapter-draft.md'),
+    'utf8',
+  );
+  const stateTemplate = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'templates', 'chapter-state.md'),
+    'utf8',
+  );
+
+  assert.match(chapterLoop, /templates\/chapter-draft\.md/);
+  assert.match(chapterLoop, /templates\/chapter-state\.md/);
+  assert.match(writerSubagent, /模板|template/i);
+  assert.match(chapterTemplate, /## Metadata/);
+  assert.match(chapterTemplate, /## Content/);
+  assert.match(stateTemplate, /## One-Time Events Triggered/);
+  assert.match(stateTemplate, /## Continuity Notes For Next Chapter/);
+});
+
 test('drafting validator in progress mode fails when the current chapter is missing a continuity state file', () => {
   const root = makeTempProject();
   writeDraftingBaseProject(root, {
@@ -1291,10 +1525,44 @@ test('delivery validator in preflight mode fails when workflow, browser, fonts, 
   process.env.PATH = originalPath;
 
   assert.equal(result.status, 1);
-  assert.match(result.stdout, /workflow status/i);
+  assert.match(result.stdout, /workflow-status\.md|Status: draft_complete/i);
   assert.match(result.stdout, /Playwright/i);
   assert.match(result.stdout, /Chromium-compatible browser/i);
   assert.match(result.stdout, /Chinese font/i);
+});
+
+test('delivery validator in preflight mode rejects workflow files without a structured Status field', () => {
+  const root = makeTempProject();
+
+  writeFile(root, '00-project/workflow-status.md', '(draft_complete)\n');
+  writeFile(root, '30-draft/chapter-plan.md', '## Overview\n\n## Chapter List\n\n### Chapter 1\n');
+  writeFile(root, '50-delivery/metadata.md', [
+    '# Metadata',
+    '## Bibliographic Data',
+    '## Output Targets',
+    '- Produce PDF: yes',
+    '- Produce EPUB: yes',
+  ].join('\n\n'));
+  writeFile(root, '50-delivery/frontmatter.md', [
+    '# Title Page',
+    '## Book Title',
+    '## Author',
+    '## Rights',
+    '## Summary',
+  ].join('\n\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-delivery', 'scripts', 'validate-delivery-project.mts'),
+    [
+      '--project-root', root,
+      '--mode', 'Preflight',
+      '--pdf-browser-path', process.execPath,
+      '--installed-fonts', 'Source Han Serif SC,Source Han Sans SC',
+    ],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Status: draft_complete|structured Status field/i);
 });
 
 test('delivery validator in output mode fails when themed artifacts use the wrong names', () => {

@@ -29,6 +29,8 @@
 - `30-draft/chapters/chapter-XX.md`
 - `30-draft/continuity/chapter-XX-state.md`
 
+优先直接套用 `<skill-root>/templates/chapter-draft.md` 与 `<skill-root>/templates/chapter-state.md` 的标题和段落名；不要自创 `## 正文大纲`、`## 章节结论`、`## 状态摘要` 之类的变体。
+
 章节文件是权威输出。除非控制器明确要求诊断性摘录，否则不要在聊天中返回完整正文。
 
 ## 你不得做的事
@@ -75,6 +77,49 @@ Concerns: <empty or short note>
 ```
 
 如果你被阻塞，且没有写出有效产物，则将 `Written File` 与 `State File` 留空。
+
+最小章节模板如下，标题名必须保持一致：
+
+```md
+# Chapter XX
+
+## Metadata
+- Chapter Number: XX
+- Chapter Goal: ...
+- Target Word Range: ...
+- Draft Status: drafted
+
+## Summary
+- ...
+
+## Content
+...
+```
+
+最小状态模板如下，标题名必须保持一致：
+
+```md
+# Chapter XX State Update
+
+## Metadata
+- Chapter Number: XX
+- Source Chapter: 30-draft/chapters/chapter-XX.md
+- State Status: approved
+
+## New Facts Confirmed
+- ...
+
+## Character Knowledge Changes
+- ...
+
+## One-Time Events Triggered
+- <Event Name> | consumed=yes
+
+## Continuity Notes For Next Chapter
+- ...
+```
+
+不要翻译或改写这些 section 名；验证器按这些标题解析。
 
 ## 色情内容
 

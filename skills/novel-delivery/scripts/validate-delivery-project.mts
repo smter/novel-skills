@@ -9,6 +9,7 @@ import {
   getCurrentPlatform,
   getExportTargets,
   getResolvedFonts,
+  getWorkflowStatusValue,
   resolvePdfBrowserPath,
 } from './export-book.mts';
 
@@ -88,10 +89,16 @@ function validatePreflight(
   ]);
 
   const workflowContent = readFile(state, '00-project/workflow-status.md') ?? '';
-  if (!/\b(draft_complete|delivery_blocked)\b/.test(workflowContent)) {
+  const workflowStatusValue = getWorkflowStatusValue(workflowContent);
+  if (!workflowStatusValue) {
     addError(
       state,
-      'Delivery preflight requires workflow status draft_complete or delivery_blocked in 00-project/workflow-status.md.',
+      'workflow-status.md is missing a structured Status field. Use `- Status: draft_complete` or `- Status: delivery_blocked`.',
+    );
+  } else if (!['draft_complete', 'delivery_blocked'].includes(workflowStatusValue)) {
+    addError(
+      state,
+      `Delivery preflight requires Status: draft_complete or delivery_blocked in 00-project/workflow-status.md, got ${workflowStatusValue}.`,
     );
   }
 

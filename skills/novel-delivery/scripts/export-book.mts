@@ -29,8 +29,6 @@ const PDF_BROWSER_CANDIDATES: Record<string, string[]> = {
 };
 
 const PRINT_STYLES_FILENAME = 'novel-book.css';
-const STATUS_PATTERN =
-  /\((initialized|research_in_progress|research_blocked|research_complete|draft_in_progress|draft_blocked|draft_complete|delivery_in_progress|delivery_blocked|delivery_complete)\)/;
 const STATUS_FIELD_PATTERN = /^(\s*-\s*Status:\s*)(.+)$/m;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -118,6 +116,11 @@ function writeText(targetPath: string, content: string): void {
 
 function ensureDirectory(targetPath: string): void {
   fs.mkdirSync(targetPath, { recursive: true });
+}
+
+export function getWorkflowStatusValue(workflowContent: string): string | null {
+  const match = String(workflowContent ?? '').match(STATUS_FIELD_PATTERN);
+  return match ? match[2].trim() : null;
 }
 
 function normalizeSlashes(targetPath: string): string {
@@ -703,8 +706,12 @@ export function testDeliveryPreflight(
 
   const workflowStatusPath = path.join(projectRoot, '00-project', 'workflow-status.md');
   const workflowStatus = readText(workflowStatusPath);
-  if (!/draft_complete|delivery_blocked/.test(workflowStatus)) {
-    throw new Error('Project is not ready for delivery export.');
+  const workflowStatusValue = getWorkflowStatusValue(workflowStatus);
+  if (!workflowStatusValue) {
+    throw new Error('workflow-status.md is missing a structured Status field. Use `- Status: draft_complete` or `- Status: delivery_blocked`.');
+  }
+  if (!['draft_complete', 'delivery_blocked'].includes(workflowStatusValue)) {
+    throw new Error(`Project is not ready for delivery export. Expected Status: draft_complete or delivery_blocked, got ${workflowStatusValue}.`);
   }
 
   const metadataPath = path.join(projectRoot, '50-delivery', 'metadata.md');
@@ -902,11 +909,6 @@ export function setWorkflowDeliveryStatus(workflowStatusPath: string, status: st
   const content = readText(workflowStatusPath);
   if (STATUS_FIELD_PATTERN.test(content)) {
     writeText(workflowStatusPath, content.replace(STATUS_FIELD_PATTERN, `$1${status}`));
-    return;
-  }
-
-  if (STATUS_PATTERN.test(content)) {
-    writeText(workflowStatusPath, content.replace(STATUS_PATTERN, `(${status})`));
     return;
   }
 

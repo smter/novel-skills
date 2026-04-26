@@ -1,0 +1,13 @@
+# Chapter XX
+
+## Metadata
+- Chapter Number: XX
+- Chapter Goal: ...
+- Target Word Range: ...
+- Draft Status: drafted
+
+## Summary
+- ...
+
+## Content
+...

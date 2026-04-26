@@ -39,6 +39,8 @@
    - 当前章节标识
    - 目标文件路径
    - continuity state 目标文件路径
+   - `<skill-root>/templates/chapter-draft.md`
+   - `<skill-root>/templates/chapter-state.md`
    - 允许使用的辅助文件路径
    - `30-draft/chapter-plan.md` 中当前章节的目标
    - 该章节当前的重试次数
