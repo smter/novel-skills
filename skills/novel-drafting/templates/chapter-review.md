@@ -8,6 +8,10 @@
 ## Checks
 - Word Count: pass
 - Outline Alignment: pass
+- Premise Alignment: pass
+- Research Accuracy: pass
+- Verified Facts Only: pass
+- Style Adherence: pass
 
 ## Findings
 - ...

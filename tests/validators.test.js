@@ -1173,6 +1173,44 @@ test('drafting writer docs point to fixed chapter and state templates', () => {
   assert.match(stateTemplate, /## Continuity Notes For Next Chapter/);
 });
 
+test('drafting reviewer docs require explicit style adherence checks', () => {
+  const reviewerSubagent = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'reviewer-subagent.md'),
+    'utf8',
+  );
+  const reviewTemplate = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'templates', 'chapter-review.md'),
+    'utf8',
+  );
+
+  assert.match(reviewerSubagent, /10-research\/style-research\.md/);
+  assert.match(reviewerSubagent, /Style Adherence|风格一致性/);
+  assert.match(reviewerSubagent, /style-research\.md.*修订项|修订项.*style-research\.md/s);
+  assert.match(reviewTemplate, /Style Adherence:\s*pass/);
+});
+
+test('drafting reviewer docs require explicit checks for remaining research artifacts', () => {
+  const reviewerSubagent = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'reviewer-subagent.md'),
+    'utf8',
+  );
+  const reviewTemplate = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'templates', 'chapter-review.md'),
+    'utf8',
+  );
+
+  assert.match(reviewerSubagent, /00-project\/project-brief\.md/);
+  assert.match(reviewerSubagent, /10-research\/topic-research\.md/);
+  assert.match(reviewerSubagent, /10-research\/setting-research\.md/);
+  assert.match(reviewerSubagent, /10-research\/references\.md/);
+  assert.match(reviewerSubagent, /核心 premise|禁忌内容|Forbidden Content/);
+  assert.match(reviewerSubagent, /真实性|术语|topic-research|setting-research/);
+  assert.match(reviewerSubagent, /inference|open question|未验证|不确定/);
+  assert.match(reviewTemplate, /Premise Alignment:\s*pass/);
+  assert.match(reviewTemplate, /Research Accuracy:\s*pass/);
+  assert.match(reviewTemplate, /Verified Facts Only:\s*pass/);
+});
+
 test('drafting validator in progress mode fails when the current chapter is missing a continuity state file', () => {
   const root = makeTempProject();
   writeDraftingBaseProject(root, {

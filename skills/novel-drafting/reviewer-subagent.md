@@ -12,7 +12,12 @@
 
 - 当前章节文件
 - 当前章节 `30-draft/continuity/chapter-XX-state.md`
+- `00-project/project-brief.md`
 - `00-project/success-criteria.md`
+- `10-research/topic-research.md`
+- `10-research/setting-research.md`
+- `10-research/references.md`
+- `10-research/style-research.md`
 - `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
@@ -36,8 +41,12 @@
 至少检查：
 
 - 章节字数是否符合目标
+- 是否仍然符合 `00-project/project-brief.md` 中定义的核心 premise、主角目标、目标读者与禁忌内容
 - 是否符合当前章节目标
 - 是否符合整体大纲
+- 是否违反 `10-research/topic-research.md` 与 `10-research/setting-research.md` 中已经确认的真实性、术语或设定约束
+- 是否把 `10-research/references.md` 里仍属于 inference / open question / 未验证信息的内容写成既定事实
+- 是否遵守 `10-research/style-research.md` 中定义的风格规则、叙事距离、节奏要求与禁止项
 - 人物一致性
 - 伏笔时序与不允许的提前揭示
 - 与已批准前文章节的连续性
@@ -67,6 +76,10 @@
 
 如果章节为 `不通过`，必须提供 writer 可以直接执行的具体修改项。
 如果连续性问题涉及重复发现、重复揭示或认知状态倒退，必须在修订项中明确指出冲突的 state 条目。
+如果章节偏离 `project-brief.md` 的核心 premise、主角目标、目标读者或禁忌内容，必须在修订项中点名对应条目。
+如果章节违反 `topic-research.md` 或 `setting-research.md` 中的已确认约束，必须写明错误术语、错误事实或不可信的设定行为。
+如果章节把 `references.md` 中仍未验证的 inference / open question 当成事实，必须在修订项中明确标出“需要降级为猜测、疑点，或补足前文验证依据”。
+如果风格问题来自 `style-research.md`，必须把对应风格规则转写成 writer 可执行的修订项，而不是只写“风格不对”。
 
 审查文件必须包含 `## Continuity Findings`：
 - 若无问题，使用 `Clean: <结论>` 格式
@@ -85,6 +98,10 @@
 
 ## Checks
 - Word Count: pass
+- Premise Alignment: pass
+- Research Accuracy: pass
+- Verified Facts Only: pass
+- Style Adherence: pass
 
 ## Findings
 - ...
