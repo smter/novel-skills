@@ -23,6 +23,7 @@ export interface ReviewFile {
   metadata: ReviewMetadata;
   decision: string;
   reviewerStatus: string;
+  checks: string[];
   findings: string[];
   continuityFindings: string[];
   continuityFindingsIsPlaceholder: boolean;
@@ -34,6 +35,8 @@ export interface ReviewFile {
 
 export function parseReviewFile(markdown: string, filePath = ''): ReviewFile {
   const metadataFields = parseLabeledList(getHeadingContent(markdown, '## Metadata'));
+  const checksSection = getHeadingContent(markdown, '## Checks');
+  const checks = parseBulletList(checksSection);
   const findingsSection = getHeadingContent(markdown, '## Findings');
   const findings = parseBulletList(findingsSection);
   const continuityFindingsSection = getHeadingContent(markdown, '## Continuity Findings');
@@ -62,6 +65,7 @@ export function parseReviewFile(markdown: string, filePath = ''): ReviewFile {
     },
     decision,
     reviewerStatus: fieldValue(metadataFields, 'Reviewer Status'),
+    checks: checks.length > 0 ? checks : (trimSectionContent(checksSection) ? [trimSectionContent(checksSection)] : []),
     findings: findings.length > 0 ? findings : (trimSectionContent(findingsSection) ? [trimSectionContent(findingsSection)] : []),
     continuityFindings: normalizedContinuityFindings,
     continuityFindingsIsPlaceholder: isPlaceholderList(

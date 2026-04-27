@@ -14,6 +14,8 @@ import { checkReviewFiles } from './checks/check-review-files.mts';
 import { checkWordCount } from './checks/check-word-count.mts';
 import { checkCompletionGate } from './checks/check-completion-gate.mts';
 import { checkContinuityState } from './checks/check-continuity-state.mts';
+import { checkKnowledgeBoundaryWarning } from './checks/check-knowledge-boundary-warning.mts';
+import { checkStyleDrift } from './checks/check-style-drift.mts';
 
 const requiredFiles = [
   '00-project/project-brief.md',
@@ -31,7 +33,7 @@ type DraftingCheck = (args: {
   project: ReturnType<typeof loadDraftingProject>;
   mode: DraftingValidationMode;
   chapterNumber?: number | null;
-}) => string[];
+}) => string[] | { errors?: string[]; warnings?: string[] };
 
 function runChecks(
   state: ReturnType<typeof createValidator>,
@@ -41,8 +43,19 @@ function runChecks(
   checks: DraftingCheck[],
 ): void {
   for (const check of checks) {
-    for (const error of check({ project, mode, chapterNumber })) {
+    const result = check({ project, mode, chapterNumber });
+    if (Array.isArray(result)) {
+      for (const error of result) {
+        state.errors.push(error);
+      }
+      continue;
+    }
+
+    for (const error of result.errors ?? []) {
       state.errors.push(error);
+    }
+    for (const warning of result.warnings ?? []) {
+      state.warnings.push(warning);
     }
   }
 }
@@ -112,6 +125,8 @@ function main(): void {
       checkChapterFiles,
       checkReviewFiles,
       checkWordCount,
+      checkKnowledgeBoundaryWarning,
+      checkStyleDrift,
     ],
     Completion: [
       checkWorkflowState,
@@ -120,6 +135,8 @@ function main(): void {
       checkReviewFiles,
       checkWordCount,
       checkCompletionGate,
+      checkKnowledgeBoundaryWarning,
+      checkStyleDrift,
     ],
     WordCount: [
       checkWordCount,

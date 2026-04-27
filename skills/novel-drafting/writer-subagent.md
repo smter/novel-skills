@@ -51,6 +51,8 @@
 - 避免过早揭示计划中的伏笔回收
 - 与累计 `story-state.md` 保持兼容
 - 将本章新增事实、认知变化和一次性事件写入 chapter state
+- `## Character Knowledge Changes` 必须使用 `角色 | 事实 | unknown|suspected|confirmed | source=chapter-XX`
+- 任何 `confirmed` 的知识升级都必须在 `## Knowledge Transition Notes` 中补一条 `basis=...` 依据
 
 ## 阻塞情形
 
@@ -110,7 +112,10 @@ Concerns: <empty or short note>
 - ...
 
 ## Character Knowledge Changes
-- ...
+- <Character> | <Fact> | unknown|suspected|confirmed | source=chapter-XX
+
+## Knowledge Transition Notes
+- <Character> | <Fact> | basis=<brief evidence from this chapter>
 
 ## One-Time Events Triggered
 - <Event Name> | consumed=yes

@@ -37,6 +37,9 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - 章节文件元数据与文件身份一致
 - review 文件包含明确的 continuity findings
 - 未通过的审查包含可执行的必改项
+- `Character Knowledge Changes` 使用结构化知识账本格式
+- `Knowledge Transition Notes` 能为 `confirmed` 的知识升级提供依据
+- cumulative `Character Knowledge` 不包含同一角色/事实的冲突终态
 - 当前进行中的章节在推进前满足字数目标
 
 ### Completion

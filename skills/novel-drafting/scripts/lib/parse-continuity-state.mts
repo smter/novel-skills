@@ -16,6 +16,7 @@ export interface ChapterStateFile {
   stateStatus: string;
   newFactsConfirmed: string[];
   characterKnowledgeChanges: string[];
+  knowledgeTransitionNotes: string[];
   oneTimeEventsTriggered: string[];
   continuityNotes: string[];
 }
@@ -51,6 +52,7 @@ export function parseChapterStateFile(markdown: string, filePath = ''): ChapterS
     stateStatus: fieldValue(metadataFields, 'State Status'),
     newFactsConfirmed: parseSectionList(markdown, '## New Facts Confirmed'),
     characterKnowledgeChanges: parseSectionList(markdown, '## Character Knowledge Changes'),
+    knowledgeTransitionNotes: parseSectionList(markdown, '## Knowledge Transition Notes'),
     oneTimeEventsTriggered: parseSectionList(markdown, '## One-Time Events Triggered'),
     continuityNotes: parseSectionList(markdown, '## Continuity Notes For Next Chapter'),
   };

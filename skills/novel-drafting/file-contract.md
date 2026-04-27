@@ -36,6 +36,7 @@
 - `## Metadata`
 - `## New Facts Confirmed`
 - `## Character Knowledge Changes`
+- `## Knowledge Transition Notes`
 - `## One-Time Events Triggered`
 - `## Continuity Notes For Next Chapter`
 
@@ -53,7 +54,10 @@
 - ...
 
 ## Character Knowledge Changes
-- ...
+- `<Character> | <Fact> | unknown|suspected|confirmed | source=chapter-XX`
+
+## Knowledge Transition Notes
+- `<Character> | <Fact> | basis=<brief evidence from this chapter>`
 
 ## One-Time Events Triggered
 - `<Event Name> | consumed=yes`
@@ -86,6 +90,14 @@
 - 当 `chapter-XX-state.md` 中某条 `One-Time Events Triggered` 使用 `consumed=yes` 时，
   `story-state.md` 的 `## One-Time Events Consumed` 中必须存在同名事件的归档条目。
 
+知识账本规则：
+
+- `chapter-XX-state.md` 的 `## Character Knowledge Changes` 与 `story-state.md` 的 `## Character Knowledge` 都必须使用
+  `角色 | 事实 | unknown|suspected|confirmed | source=chapter-XX`
+- 仅当确实需要显式锁定“不知道”时才写 `unknown`，不要枚举所有未知项。
+- 同一连续性基线内，同一 `角色 | 事实` 只能有一个终态；不能同时出现 `suspected` 和 `confirmed`。
+- 若 `chapter-XX-state.md` 中某条知识状态为 `confirmed`，必须在 `## Knowledge Transition Notes` 中有对应的 `basis=...` 条目。
+
 ## 审查文件契约
 
 `40-review/chapter-reviews/chapter-XX-review.md` 审查文件至少必须包含：
@@ -111,9 +123,25 @@
 ## Checks
 - Word Count: pass
 - Outline Alignment: pass
-
+- Knowledge Boundary: pass
+- Premise Alignment: pass
+- Research Accuracy: pass
+- Verified Facts Only: pass
+- Style Adherence: pass
+- Style Drift: pass
+ 
 ## Findings
 - ...
+
+## Knowledge Boundary Findings
+- Clean: POV knowledge stays within the approved character knowledge ledger.
+
+或：
+
+- Leak: 林闻 | 假溺女不是受害者 | expected=suspected | used_as=confirmed
+
+## Style Drift Findings
+- Clean: no abnormal style drift detected for punctuation, repeated phrasing, or explanatory habits.
 
 ## Continuity Findings
 - Clean: no continuity conflicts found.
@@ -152,6 +180,7 @@
 - 只有当对应的 `chapter-XX-state.md` 存在且结构完整时，章节起草才算完成。
 - 只有当预期审查文件存在，且包含有效 `Decision` 时，reviewer 运行才算完成。
 - 只有当审查文件包含非占位的 `## Continuity Findings` 时，连续性审查才算完成。
+- 只有当审查文件显式给出 `Knowledge Boundary` 与 `Style Drift` 检查结论时，相关审查才算完整。
 - `## Continuity Findings` 中的每条结论都必须使用 `Clean:` 或 `Conflict:` 结构化格式。
 - 只有在审查文件包含 `Decision: 通过` 时，控制器才能推进。
 - 如果审查文件结构不合法，控制器必须将其视为 reviewer 失败；控制器不得代写或修补审查结论。
@@ -168,6 +197,8 @@
 - 对未通过审查给出可执行的必改项
 - review 文件中的 continuity findings 非空且非占位
 - continuity state 文件存在且结构完整
+- 角色知识账本必须结构化且不能自相矛盾
+- `confirmed` 的知识升级必须带有 `Knowledge Transition Notes`
 - `story-state.md` 与已批准章节对齐
 - 章节与书稿的字数闸门
 - 完成状态下工作流字段的一致性

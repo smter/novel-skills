@@ -9,7 +9,10 @@
 - ...
 
 ## Character Knowledge Changes
-- ...
+- <Character> | <Fact> | unknown|suspected|confirmed | source=chapter-XX
+
+## Knowledge Transition Notes
+- <Character> | <Fact> | basis=<brief evidence from this chapter>
 
 ## One-Time Events Triggered
 - <Event Name> | consumed=yes

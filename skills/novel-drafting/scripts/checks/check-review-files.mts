@@ -15,6 +15,7 @@ export function checkReviewFiles(
   { project, mode }: { project: LoadedDraftingProject; mode: DraftingValidationMode },
 ): string[] {
   const failures: string[] = [];
+  const requiredChecks = ['Knowledge Boundary', 'Style Drift'];
 
   for (const plannedChapter of project.plannedChapters ?? []) {
     const review = plannedChapter.reviewFile;
@@ -58,6 +59,26 @@ export function checkReviewFiles(
         '',
         'See:',
         `- 40-review/chapter-reviews/chapter-${String(review.fileNumber).padStart(2, '0')}-review.md`,
+      ]));
+    }
+
+    const missingChecks = requiredChecks.filter((requiredCheck) =>
+      !review.checks.some((entry) => entry.toLowerCase().startsWith(requiredCheck.toLowerCase())),
+    );
+    if (missingChecks.length > 0) {
+      failures.push(formatFailure([
+        `Error: 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md is missing required review checks: ${missingChecks.join(', ')}.`,
+        '',
+        'Why it blocks:',
+        'Reviewer outputs must explicitly confirm knowledge-boundary and style-drift review so long-form drafting regressions are not silently skipped.',
+        '',
+        'How to fix:',
+        'Add the missing check lines under `## Checks`, using the exact labels from templates/chapter-review.md.',
+        '',
+        'See:',
+        `- 40-review/chapter-reviews/chapter-${String(review.fileNumber ?? plannedChapter.number).padStart(2, '0')}-review.md`,
+        '- reviewer-subagent.md',
+        '- templates/chapter-review.md',
       ]));
     }
 

@@ -2,16 +2,33 @@ import { formatFailure } from '../lib/validator-utils.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 import type { DraftingValidationMode } from './check-workflow-state.mts';
 
+type KnowledgeState = 'unknown' | 'suspected' | 'confirmed';
+
+interface KnowledgeEntry {
+  character: string;
+  fact: string;
+  state: KnowledgeState;
+  source: string;
+}
+
+interface KnowledgeTransitionNote {
+  character: string;
+  fact: string;
+  basis: string;
+}
+
 function hasRequiredChapterStateSections(chapterState: {
   title: string;
   newFactsConfirmed: string[];
   characterKnowledgeChanges: string[];
+  knowledgeTransitionNotes: string[];
   oneTimeEventsTriggered: string[];
   continuityNotes: string[];
 }): boolean {
   return Boolean(chapterState.title)
     && chapterState.newFactsConfirmed.length > 0
     && chapterState.characterKnowledgeChanges.length > 0
+    && chapterState.knowledgeTransitionNotes.length > 0
     && chapterState.oneTimeEventsTriggered.length > 0
     && chapterState.continuityNotes.length > 0;
 }
@@ -43,6 +60,52 @@ function parseTriggeredEventEntry(entry: string): { name: string; consumed: bool
     name: match[1].trim(),
     consumed: match[2].toLowerCase() === 'yes',
   };
+}
+
+function parseKnowledgeEntry(entry: string): KnowledgeEntry | null {
+  const match = entry.trim().match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(unknown|suspected|confirmed)\s*\|\s*source=(chapter-\d{2}|baseline)$/i);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    character: match[1].trim(),
+    fact: match[2].trim(),
+    state: match[3].toLowerCase() as KnowledgeState,
+    source: match[4].trim().toLowerCase(),
+  };
+}
+
+function parseKnowledgeTransitionNote(entry: string): KnowledgeTransitionNote | null {
+  const match = entry.trim().match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*basis=(.+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    character: match[1].trim(),
+    fact: match[2].trim(),
+    basis: match[3].trim(),
+  };
+}
+
+function knowledgeKey(entry: { character: string; fact: string }): string {
+  return `${entry.character.trim().toLowerCase()}||${entry.fact.trim().toLowerCase()}`;
+}
+
+function findKnowledgeConflicts(entries: KnowledgeEntry[]): Array<{ key: string; states: string[] }> {
+  const statesByKey = new Map<string, Set<string>>();
+  for (const entry of entries) {
+    const key = knowledgeKey(entry);
+    if (!statesByKey.has(key)) {
+      statesByKey.set(key, new Set());
+    }
+    statesByKey.get(key)!.add(entry.state);
+  }
+
+  return Array.from(statesByKey.entries())
+    .filter(([, states]) => states.size > 1)
+    .map(([key, states]) => ({ key, states: Array.from(states.values()) }));
 }
 
 function getConsecutiveApprovedCount(project: LoadedDraftingProject): number {
@@ -117,10 +180,84 @@ export function checkContinuityState(
         `Error: ${statePath} is structurally incomplete.`,
         '',
         'Why it blocks:',
-        'A chapter continuity state must capture new facts, knowledge changes, one-time events, and next-chapter continuity constraints.',
+        'A chapter continuity state must capture new facts, knowledge changes, transition notes, one-time events, and next-chapter continuity constraints.',
         '',
         'How to fix:',
-        'Fill in the required continuity sections with concrete, non-placeholder content.',
+        'Fill in the required continuity sections with concrete, non-placeholder content, including Knowledge Transition Notes.',
+        '',
+        'See:',
+        `- ${statePath}`,
+      ]));
+    }
+
+    const parsedKnowledgeChanges = chapterState.characterKnowledgeChanges
+      .map((entry) => ({ entry, parsed: parseKnowledgeEntry(entry) }));
+    const malformedKnowledgeChanges = parsedKnowledgeChanges.filter((record) => !record.parsed);
+    if (malformedKnowledgeChanges.length > 0) {
+      failures.push(formatFailure([
+        `Error: ${statePath} has malformed Character Knowledge Changes entries: ${malformedKnowledgeChanges.map((record) => record.entry).join('; ')}`,
+        '',
+        'Why it blocks:',
+        'Character knowledge must be machine-readable before POV and continuity review can reason about who knows what.',
+        '',
+        'How to fix:',
+        'Rewrite each knowledge entry as `Character | Fact | unknown|suspected|confirmed | source=chapter-XX` (or `source=baseline` when appropriate).',
+        '',
+        'See:',
+        `- ${statePath}`,
+      ]));
+    }
+
+    const parsedTransitionNotes = chapterState.knowledgeTransitionNotes
+      .map((entry) => ({ entry, parsed: parseKnowledgeTransitionNote(entry) }));
+    const malformedTransitionNotes = parsedTransitionNotes.filter((record) => !record.parsed);
+    if (malformedTransitionNotes.length > 0) {
+      failures.push(formatFailure([
+        `Error: ${statePath} has malformed Knowledge Transition Notes entries: ${malformedTransitionNotes.map((record) => record.entry).join('; ')}`,
+        '',
+        'Why it blocks:',
+        'Knowledge transitions need a short basis note so reviewer and controller can verify how the POV earned that knowledge change.',
+        '',
+        'How to fix:',
+        'Rewrite each transition note as `Character | Fact | basis=<brief evidence>`.',
+        '',
+        'See:',
+        `- ${statePath}`,
+      ]));
+    }
+
+    const validKnowledgeChanges = parsedKnowledgeChanges.flatMap((record) => (record.parsed ? [record.parsed] : []));
+    const conflictingChapterKnowledge = findKnowledgeConflicts(validKnowledgeChanges);
+    if (conflictingChapterKnowledge.length > 0) {
+      failures.push(formatFailure([
+        `Error: ${statePath} has contradictory Character Knowledge Changes entries for: ${conflictingChapterKnowledge.map((record) => record.key.replace('||', ' | ')).join('; ')}`,
+        '',
+        'Why it blocks:',
+        'One continuity baseline cannot end with multiple knowledge states for the same character-fact pair.',
+        '',
+        'How to fix:',
+        'Keep only one terminal state per `Character | Fact` pair inside the chapter state.',
+        '',
+        'See:',
+        `- ${statePath}`,
+      ]));
+    }
+
+    const transitionKeys = new Set(
+      parsedTransitionNotes
+        .flatMap((record) => (record.parsed ? [knowledgeKey(record.parsed)] : [])),
+    );
+    const missingTransitionNotes = validKnowledgeChanges.filter((entry) =>
+      entry.state === 'confirmed' && !transitionKeys.has(knowledgeKey(entry)));
+    if (missingTransitionNotes.length > 0) {
+      failures.push(formatFailure([
+        `Error: ${statePath} is missing Knowledge Transition Notes for confirmed Character Knowledge Changes: ${missingTransitionNotes.map((entry) => `${entry.character} | ${entry.fact}`).join('; ')}`,
+        '',
+        'Why it blocks:',
+        'Confirmed knowledge needs a recorded basis so reviewer can tell whether the POV truly learned it in this chapter.',
+        '',
+        'How to fix:',
+        'Add matching `Knowledge Transition Notes` entries using `Character | Fact | basis=<brief evidence>` for each confirmed knowledge change.',
         '',
         'See:',
         `- ${statePath}`,
@@ -171,6 +308,41 @@ export function checkContinuityState(
       '',
       'How to fix:',
       'Fill in the required story-state sections with concrete content.',
+      '',
+      'See:',
+      '- 30-draft/continuity/story-state.md',
+    ]));
+  }
+
+  const parsedStoryKnowledge = project.storyState.characterKnowledge
+    .map((entry) => ({ entry, parsed: parseKnowledgeEntry(entry) }));
+  const malformedStoryKnowledge = parsedStoryKnowledge.filter((record) => !record.parsed);
+  if (malformedStoryKnowledge.length > 0) {
+    failures.push(formatFailure([
+      `Error: story-state.md has malformed Character Knowledge entries: ${malformedStoryKnowledge.map((record) => record.entry).join('; ')}`,
+      '',
+      'Why it blocks:',
+      'The cumulative character knowledge ledger must be structured before later POV checks can trust it.',
+      '',
+      'How to fix:',
+      'Rewrite each cumulative knowledge entry as `Character | Fact | unknown|suspected|confirmed | source=chapter-XX` (or `source=baseline`).',
+      '',
+      'See:',
+      '- 30-draft/continuity/story-state.md',
+    ]));
+  }
+
+  const validStoryKnowledge = parsedStoryKnowledge.flatMap((record) => (record.parsed ? [record.parsed] : []));
+  const conflictingStoryKnowledge = findKnowledgeConflicts(validStoryKnowledge);
+  if (conflictingStoryKnowledge.length > 0) {
+    failures.push(formatFailure([
+      `Error: story-state.md has contradictory Character Knowledge entries for: ${conflictingStoryKnowledge.map((record) => record.key.replace('||', ' | ')).join('; ')}`,
+      '',
+      'Why it blocks:',
+      'A cumulative continuity ledger cannot claim multiple final knowledge states for the same character-fact pair.',
+      '',
+      'How to fix:',
+      'Choose one terminal knowledge state per `Character | Fact` pair and remove the contradictory duplicates.',
       '',
       'See:',
       '- 30-draft/continuity/story-state.md',

@@ -8,6 +8,7 @@ export interface ParsedArgs {
 
 export interface ValidatorState {
   errors: string[];
+  warnings: string[];
   projectRoot: string;
 }
 
@@ -46,12 +47,17 @@ export function parseArgs(argv: string[], options: ParseArgsOptions = {}): Parse
 export function createValidator(projectRoot: string): ValidatorState {
   return {
     errors: [],
+    warnings: [],
     projectRoot: path.resolve(projectRoot),
   };
 }
 
 export function addError(state: ValidatorState, message: string): void {
   state.errors.push(message);
+}
+
+export function addWarning(state: ValidatorState, message: string): void {
+  state.warnings.push(message);
 }
 
 export function formatFailure(lines: string[]): string {
@@ -92,10 +98,22 @@ export function finish(
     for (const error of state.errors) {
       console.log(`- ${error}`);
     }
+    if (state.warnings.length > 0) {
+      console.log('Warnings:');
+      for (const warning of state.warnings) {
+        console.log(`- ${warning}`);
+      }
+    }
     process.exit(1);
   }
 
   console.log(successMessage);
+  if (state.warnings.length > 0) {
+    console.log('Warnings:');
+    for (const warning of state.warnings) {
+      console.log(`- ${warning}`);
+    }
+  }
 }
 
 export function hasCommand(command: string): boolean {

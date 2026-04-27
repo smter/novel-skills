@@ -130,7 +130,10 @@ function makeContinuityStateContent(chapterNumber, overrides = {}) {
     ...(overrides.newFactsConfirmed ?? ['- Lin confirms the sabotage was intentional.']),
     '',
     '## Character Knowledge Changes',
-    ...(overrides.characterKnowledgeChanges ?? ['- Lin now knows the mooring line was cut on purpose.']),
+    ...(overrides.characterKnowledgeChanges ?? ['- Lin | The mooring line was cut on purpose. | confirmed | source=chapter-01']),
+    '',
+    '## Knowledge Transition Notes',
+    ...(overrides.knowledgeTransitionNotes ?? ['- Lin | The mooring line was cut on purpose. | basis=Lin inspected the cut fibers herself.']),
     '',
     '## One-Time Events Triggered',
     ...(overrides.oneTimeEventsTriggered ?? ['- First discovery of the sabotage attempt | consumed=yes']),
@@ -157,7 +160,7 @@ function makeStoryStateContent(lastApprovedChapter, overrides = {}) {
     ...(overrides.confirmedFacts ?? ['- The sabotage attempt was intentional.']),
     '',
     '## Character Knowledge',
-    ...(overrides.characterKnowledge ?? ['- Lin knows the mooring line was cut on purpose.']),
+    ...(overrides.characterKnowledge ?? ['- Lin | The mooring line was cut on purpose. | confirmed | source=chapter-01']),
     '',
     '## One-Time Events Consumed',
     ...(overrides.oneTimeEventsConsumed ?? ['- First discovery of the sabotage attempt: chapter-01']),
@@ -588,10 +591,13 @@ test('drafting validator fails when a planned review is not passing', () => {
     '',
     '## Metadata',
     '- Chapter Number: 1',
+    '- Decision: 不通过',
     '- Reviewer Status: completed',
     '',
     '## Checks',
     '- Word Count: fail',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
     '',
     '## Findings',
     '- The chapter is still too short.',
@@ -620,26 +626,22 @@ test('drafting validator fails when a planned review is not passing', () => {
 
 test('drafting validator passes in progress mode when the current chapter review is not passing yet', () => {
   const root = makeTempProject();
-
-  writeFile(root, '00-project/project-brief.md', 'brief');
-  writeFile(root, '00-project/success-criteria.md', 'criteria');
-  writeFile(root, '00-project/workflow-status.md', [
-    'Status: draft_in_progress',
-    'Current Stage: drafting',
-    'Completed Chapters: 0',
-    'Last Completed Chapter: 0',
-    'Blocking Issues: none',
-    'Next Allowed Skill: novel-drafting',
-  ].join('\n'));
-  writeFile(root, '20-story/characters.md', 'characters');
-  writeFile(root, '20-story/plot-outline.md', 'plot');
-  writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
-  writeFile(root, '30-draft/chapter-plan.md', [
-    '## Overview',
-    '## Chapter List',
-    '### Chapter 1',
-    '### Chapter 2',
-  ].join('\n\n'));
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 0',
+      '- Last Completed Chapter: 0',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
   writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
   writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
     stateStatus: 'proposed',
@@ -650,10 +652,13 @@ test('drafting validator passes in progress mode when the current chapter review
     '',
     '## Metadata',
     '- Chapter Number: 1',
+    '- Decision: 不通过',
     '- Reviewer Status: completed',
     '',
     '## Checks',
     '- Word Count: fail',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
     '',
     '## Findings',
     '- The sabotage setup lands too softly.',
@@ -663,12 +668,7 @@ test('drafting validator passes in progress mode when the current chapter review
     '',
     '## Required Revisions',
     '- Strengthen the final beat before the chapter ends.',
-    '',
-    'Decision: 不通过',
   ].join('\n'));
-
-  fs.mkdirSync(path.join(root, '30-draft', 'chapters'), { recursive: true });
-  fs.mkdirSync(path.join(root, '40-review', 'chapter-reviews'), { recursive: true });
 
   const result = runValidator(
     path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
@@ -958,6 +958,211 @@ test('drafting validator in progress mode fails when continuity findings are not
   assert.match(result.stdout, /Clean:|Conflict:/i);
 });
 
+test('drafting validator in progress mode fails when character knowledge entries are not structured', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 1',
+      '- Last Completed Chapter: 1',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+    characterKnowledgeChanges: ['- Lin now knows the mooring line was cut on purpose.'],
+    knowledgeTransitionNotes: ['- Lin | The mooring line was cut on purpose. | basis=Lin inspected the cut fibers herself.'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(1));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
+    '',
+    '## Findings',
+    '- The chapter lands well.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Character Knowledge/i);
+  assert.match(result.stdout, /unknown\|suspected\|confirmed|source=chapter-XX/i);
+});
+
+test('drafting validator in progress mode fails when knowledge transitions are missing for confirmed knowledge changes', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 1',
+      '- Last Completed Chapter: 1',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1, {
+    stateStatus: 'proposed',
+    knowledgeTransitionNotes: ['- None'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(1));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
+    '',
+    '## Findings',
+    '- The chapter lands well.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Knowledge Transition Notes/i);
+  assert.match(result.stdout, /basis=/i);
+});
+
+test('drafting validator in completion mode fails when cumulative knowledge ledger contains contradictory states', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 2',
+      '- Completed Chapters: 2',
+      '- Last Completed Chapter: 2',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前。'.repeat(180)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('江风推着船篷向前。'.repeat(180), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2, {
+    characterKnowledgeChanges: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | suspected | source=chapter-02'],
+    knowledgeTransitionNotes: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | basis=Lin saw Qiu near the rope before dawn.'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(2, {
+    characterKnowledge: [
+      '- Lin | Boatmaster Qiu sabotaged the mooring line. | suspected | source=chapter-02',
+      '- Lin | Boatmaster Qiu sabotaged the mooring line. | confirmed | source=chapter-02',
+    ],
+  }));
+  writeFile(root, '40-review/chapter-reviews/chapter-01-review.md', [
+    '# Chapter 1 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 1',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+  writeFile(root, '40-review/chapter-reviews/chapter-02-review.md', [
+    '# Chapter 2 Review',
+    '',
+    '## Metadata',
+    '- Chapter Number: 2',
+    '- Decision: 通过',
+    '- Reviewer Status: completed',
+    '',
+    '## Checks',
+    '- Word Count: pass',
+    '- Knowledge Boundary: pass',
+    '- Style Drift: pass',
+    '',
+    '## Findings',
+    '- None.',
+    '',
+    '## Continuity Findings',
+    '- Clean: no continuity conflicts found.',
+    '',
+    '## Required Revisions',
+    '- None',
+  ].join('\n'));
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Completion'],
+  );
+
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Character Knowledge/i);
+  assert.match(result.stdout, /conflicting|contradictory/i);
+});
+
 test('drafting validator in progress mode fails when chapter content is below the planned word range', () => {
   const root = makeTempProject();
   writeDraftingBaseProject(root);
@@ -971,6 +1176,409 @@ test('drafting validator in progress mode fails when chapter content is below th
   assert.equal(result.status, 1);
   assert.match(result.stdout, /word count/i);
   assert.match(result.stdout, /1200-1600/);
+});
+
+test('drafting validator in progress mode warns when em-dash usage drifts sharply upward', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 4',
+      '- Completed Chapters: 3',
+      '- Last Completed Chapter: 3',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+    chapterPlan: [
+      '# Chapter Plan',
+      '',
+      '## Overview',
+      '',
+      '- Total Chapters: 4',
+      '- Target Per Chapter: 1200-1600',
+      '',
+      '## Chapter List',
+      '',
+      '### Chapter 1',
+      '- Title: First Crossing',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Get Lin onto the river convoy.',
+      '- Key Events: Lin bargains for passage.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 2',
+      '- Title: Lantern Wake',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Reveal the sabotage attempt without solving it.',
+      '- Key Events: Lin spots the cut mooring line.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 3',
+      '- Title: River Hush',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Deepen suspicion around the convoy crew.',
+      '- Key Events: Lin questions the deckhands.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 4',
+      '- Title: Split Current',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Push Lin into an overinterpreted confrontation.',
+      '- Key Events: Lin confronts Qiu too early.',
+      '- Characters: Lin, Boatmaster Qiu',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前，Lin看着水面，心里记下每一次晃动。'.repeat(60)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('船灯在雾里摇晃，Lin压低声音问了两句，又把疑心按回去。'.repeat(60), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-03.md', makeChapterContent('甲板潮湿，Lin只听，不急着下结论，也不让自己的猜测先走。'.repeat(60), {
+    chapterNumber: 3,
+    title: 'Chapter 3',
+    goal: 'Deepen suspicion around the convoy crew.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-04.md', makeChapterContent('Lin盯着Boatmaster Qiu——又停住——又逼近——又断开话头——她忽然意识到他一定在撒谎——她忽然意识到每个人都在躲她——她忽然意识到整条船都在塌陷。'.repeat(25), {
+    chapterNumber: 4,
+    title: 'Chapter 4',
+    goal: 'Push Lin into an overinterpreted confrontation.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2, {
+    characterKnowledgeChanges: ['- Lin | The sabotage was deliberate. | suspected | source=chapter-02'],
+    knowledgeTransitionNotes: ['- Lin | The sabotage was deliberate. | basis=Lin found the rope fibers cut cleanly.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-03-state.md', makeContinuityStateContent(3, {
+    characterKnowledgeChanges: ['- Lin | A crew member is covering for the saboteur. | suspected | source=chapter-03'],
+    knowledgeTransitionNotes: ['- Lin | A crew member is covering for the saboteur. | basis=A deckhand changed his story twice.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-04-state.md', makeContinuityStateContent(4, {
+    stateStatus: 'proposed',
+    characterKnowledgeChanges: ['- Lin | Boatmaster Qiu is definitely the saboteur. | suspected | source=chapter-04'],
+    knowledgeTransitionNotes: ['- Lin | Boatmaster Qiu is definitely the saboteur. | basis=Lin confronts him before she has proof.'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(3, {
+    characterKnowledge: [
+      '- Lin | The mooring line was cut on purpose. | confirmed | source=chapter-01',
+      '- Lin | The sabotage was deliberate. | suspected | source=chapter-02',
+      '- Lin | A crew member is covering for the saboteur. | suspected | source=chapter-03',
+    ],
+  }));
+  for (const chapterNumber of [1, 2, 3]) {
+    writeFile(root, `40-review/chapter-reviews/chapter-${String(chapterNumber).padStart(2, '0')}-review.md`, [
+      `# Chapter ${chapterNumber} Review`,
+      '',
+      '## Metadata',
+      `- Chapter Number: ${chapterNumber}`,
+      '- Decision: 通过',
+      '- Reviewer Status: completed',
+      '',
+      '## Checks',
+      '- Word Count: pass',
+      '- Knowledge Boundary: pass',
+      '- Style Drift: pass',
+      '',
+      '## Findings',
+      '- None.',
+      '',
+      '## Continuity Findings',
+      '- Clean: no continuity conflicts found.',
+      '',
+      '## Required Revisions',
+      '- None',
+    ].join('\n'));
+  }
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Drafting validation passed for mode Progress\./);
+  assert.match(result.stdout, /Warnings:/i);
+  assert.match(result.stdout, /Style Drift/i);
+  assert.match(result.stdout, /em-dash|破折号/i);
+});
+
+test('drafting validator in progress mode warns when POV reasoning uses another character confirmed fact', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 4',
+      '- Completed Chapters: 3',
+      '- Last Completed Chapter: 3',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+    chapterPlan: [
+      '# Chapter Plan',
+      '',
+      '## Overview',
+      '',
+      '- Total Chapters: 4',
+      '- Target Per Chapter: 1200-1600',
+      '',
+      '## Chapter List',
+      '',
+      '### Chapter 1',
+      '- Title: First Crossing',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Get Lin onto the river convoy.',
+      '- Key Events: Lin bargains for passage.',
+      '- Characters: Lin, Shen, Boatmaster Qiu',
+      '',
+      '### Chapter 2',
+      '- Title: Lantern Wake',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Reveal the sabotage attempt without solving it.',
+      '- Key Events: Lin spots the cut mooring line.',
+      '- Characters: Lin, Shen, Boatmaster Qiu',
+      '',
+      '### Chapter 3',
+      '- Title: River Hush',
+      '- POV: Shen',
+      '- Word Target: 1200-1600',
+      '- Goal: Let Shen confirm the saboteur quietly.',
+      '- Key Events: Shen overhears the confession.',
+      '- Characters: Lin, Shen, Boatmaster Qiu',
+      '',
+      '### Chapter 4',
+      '- Title: Split Current',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Show Lin rushing to the wrong certainty.',
+      '- Key Events: Lin corners Qiu too early.',
+      '- Characters: Lin, Shen, Boatmaster Qiu',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前，Lin看着水面，心里记下每一次晃动。'.repeat(60)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('船灯在雾里摇晃，Lin压低声音问了两句，又把疑心按回去。'.repeat(60), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-03.md', makeChapterContent('Shen守在舱门后，终于听清了那句压低的认罪。'.repeat(60), {
+    chapterNumber: 3,
+    title: 'Chapter 3',
+    goal: 'Let Shen confirm the saboteur quietly.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-04.md', makeChapterContent('Lin忽然意识到 Boatmaster Qiu sabotaged the mooring line，她几乎把这件事当成早就坐实的结论。'.repeat(50), {
+    chapterNumber: 4,
+    title: 'Chapter 4',
+    goal: 'Show Lin rushing to the wrong certainty.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2, {
+    characterKnowledgeChanges: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | suspected | source=chapter-02'],
+    knowledgeTransitionNotes: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | basis=Lin saw Qiu near the rope before dawn.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-03-state.md', makeContinuityStateContent(3, {
+    characterKnowledgeChanges: ['- Shen | Boatmaster Qiu sabotaged the mooring line. | confirmed | source=chapter-03'],
+    knowledgeTransitionNotes: ['- Shen | Boatmaster Qiu sabotaged the mooring line. | basis=Shen heard Qiu admit it behind the cargo net.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-04-state.md', makeContinuityStateContent(4, {
+    stateStatus: 'proposed',
+    characterKnowledgeChanges: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | suspected | source=chapter-04'],
+    knowledgeTransitionNotes: ['- Lin | Boatmaster Qiu sabotaged the mooring line. | basis=Lin is over-reading fragmented clues.'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(3, {
+    characterKnowledge: [
+      '- Lin | The mooring line was cut on purpose. | confirmed | source=chapter-01',
+      '- Lin | Boatmaster Qiu sabotaged the mooring line. | suspected | source=chapter-02',
+      '- Shen | Boatmaster Qiu sabotaged the mooring line. | confirmed | source=chapter-03',
+    ],
+  }));
+  for (const [chapterNumber, pov] of [[1, 'Lin'], [2, 'Lin'], [3, 'Shen']]) {
+    writeFile(root, `40-review/chapter-reviews/chapter-${String(chapterNumber).padStart(2, '0')}-review.md`, [
+      `# Chapter ${chapterNumber} Review`,
+      '',
+      '## Metadata',
+      `- Chapter Number: ${chapterNumber}`,
+      '- Decision: 通过',
+      '- Reviewer Status: completed',
+      '',
+      '## Checks',
+      '- Word Count: pass',
+      '- Knowledge Boundary: pass',
+      '- Style Drift: pass',
+      '',
+      '## Findings',
+      `- ${pov} stays on model.`,
+      '',
+      '## Continuity Findings',
+      '- Clean: no continuity conflicts found.',
+      '',
+      '## Required Revisions',
+      '- None',
+    ].join('\n'));
+  }
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Warnings:/i);
+  assert.match(result.stdout, /Knowledge Boundary/i);
+  assert.match(result.stdout, /Lin/i);
+  assert.match(result.stdout, /Boatmaster Qiu sabotaged the mooring line/i);
+  assert.match(result.stdout, /expected=suspected|used_as=confirmed/i);
+});
+
+test('drafting validator in progress mode warns when a repeated phrase echoes across the current chapter', () => {
+  const root = makeTempProject();
+  writeDraftingBaseProject(root, {
+    workflowStatus: [
+      '# Workflow Status',
+      '',
+      '- Project: test-book',
+      '- Status: draft_in_progress',
+      '- Current Stage: novel-drafting',
+      '- Planned Chapters: 4',
+      '- Completed Chapters: 3',
+      '- Last Completed Chapter: 3',
+      '- Blocking Issues:',
+      '  -',
+      '- Next Allowed Skill: novel-drafting',
+      '- Last Updated: 2026-04-22',
+    ].join('\n'),
+    chapterPlan: [
+      '# Chapter Plan',
+      '',
+      '## Overview',
+      '',
+      '- Total Chapters: 4',
+      '- Target Per Chapter: 1200-1600',
+      '',
+      '## Chapter List',
+      '',
+      '### Chapter 1',
+      '- Title: First Crossing',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Get Lin onto the river convoy.',
+      '- Key Events: Lin bargains for passage.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 2',
+      '- Title: Lantern Wake',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Reveal the sabotage attempt without solving it.',
+      '- Key Events: Lin spots the cut mooring line.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 3',
+      '- Title: River Hush',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Deepen suspicion around the convoy crew.',
+      '- Key Events: Lin questions the deckhands.',
+      '- Characters: Lin, Boatmaster Qiu',
+      '',
+      '### Chapter 4',
+      '- Title: Split Current',
+      '- POV: Lin',
+      '- Word Target: 1200-1600',
+      '- Goal: Show an over-repeated narrative tic.',
+      '- Key Events: Lin waits for the confrontation to snap.',
+      '- Characters: Lin, Boatmaster Qiu',
+    ].join('\n'),
+  });
+  writeFile(root, '30-draft/chapters/chapter-01.md', makeChapterContent('江风推着船篷向前，Lin看着水面，心里记下每一次晃动。'.repeat(60)));
+  writeFile(root, '30-draft/chapters/chapter-02.md', makeChapterContent('船灯在雾里摇晃，Lin压低声音问了两句，又把疑心按回去。'.repeat(60), {
+    chapterNumber: 2,
+    title: 'Chapter 2',
+    goal: 'Reveal the sabotage attempt without solving it.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-03.md', makeChapterContent('甲板潮湿，Lin只听，不急着下结论，也不让自己的猜测先走。'.repeat(60), {
+    chapterNumber: 3,
+    title: 'Chapter 3',
+    goal: 'Deepen suspicion around the convoy crew.',
+  }));
+  writeFile(root, '30-draft/chapters/chapter-04.md', makeChapterContent('空气安静了一瞬，Lin没有动。空气安静了一瞬，她仍旧盯着门缝。空气安静了一瞬，连船板都像停住了。空气安静了一瞬，她才慢慢吸气。空气安静了一瞬，谁都没敢先开口。空气安静了一瞬，Lin才听见自己的心跳。'.repeat(15), {
+    chapterNumber: 4,
+    title: 'Chapter 4',
+    goal: 'Show an over-repeated narrative tic.',
+  }));
+  writeFile(root, '30-draft/continuity/chapter-01-state.md', makeContinuityStateContent(1));
+  writeFile(root, '30-draft/continuity/chapter-02-state.md', makeContinuityStateContent(2, {
+    characterKnowledgeChanges: ['- Lin | The sabotage was deliberate. | suspected | source=chapter-02'],
+    knowledgeTransitionNotes: ['- Lin | The sabotage was deliberate. | basis=Lin found the rope fibers cut cleanly.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-03-state.md', makeContinuityStateContent(3, {
+    characterKnowledgeChanges: ['- Lin | A crew member is covering for the saboteur. | suspected | source=chapter-03'],
+    knowledgeTransitionNotes: ['- Lin | A crew member is covering for the saboteur. | basis=A deckhand changed his story twice.'],
+  }));
+  writeFile(root, '30-draft/continuity/chapter-04-state.md', makeContinuityStateContent(4, {
+    stateStatus: 'proposed',
+    characterKnowledgeChanges: ['- Lin | The confrontation will turn public if she keeps pushing. | suspected | source=chapter-04'],
+    knowledgeTransitionNotes: ['- Lin | The confrontation will turn public if she keeps pushing. | basis=The crew has started watching in silence.'],
+  }));
+  writeFile(root, '30-draft/continuity/story-state.md', makeStoryStateContent(3, {
+    characterKnowledge: [
+      '- Lin | The mooring line was cut on purpose. | confirmed | source=chapter-01',
+      '- Lin | The sabotage was deliberate. | suspected | source=chapter-02',
+      '- Lin | A crew member is covering for the saboteur. | suspected | source=chapter-03',
+    ],
+  }));
+  for (const chapterNumber of [1, 2, 3]) {
+    writeFile(root, `40-review/chapter-reviews/chapter-${String(chapterNumber).padStart(2, '0')}-review.md`, [
+      `# Chapter ${chapterNumber} Review`,
+      '',
+      '## Metadata',
+      `- Chapter Number: ${chapterNumber}`,
+      '- Decision: 通过',
+      '- Reviewer Status: completed',
+      '',
+      '## Checks',
+      '- Word Count: pass',
+      '- Knowledge Boundary: pass',
+      '- Style Drift: pass',
+      '',
+      '## Findings',
+      '- None.',
+      '',
+      '## Continuity Findings',
+      '- Clean: no continuity conflicts found.',
+      '',
+      '## Required Revisions',
+      '- None',
+    ].join('\n'));
+  }
+
+  const result = runValidator(
+    path.join('skills', 'novel-drafting', 'scripts', 'validate-drafting-project.mts'),
+    ['--project-root', root, '--mode', 'Progress'],
+  );
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Warnings:/i);
+  assert.match(result.stdout, /Style Drift/i);
+  assert.match(result.stdout, /repeated phrase|措辞回声|echo/i);
+  assert.match(result.stdout, /空气安静了一瞬/i);
 });
 
 test('drafting validator supports word-count-only mode without workflow gates', () => {
@@ -1169,6 +1777,9 @@ test('drafting writer docs point to fixed chapter and state templates', () => {
   assert.match(writerSubagent, /模板|template/i);
   assert.match(chapterTemplate, /## Metadata/);
   assert.match(chapterTemplate, /## Content/);
+  assert.match(stateTemplate, /## Character Knowledge Changes/);
+  assert.match(stateTemplate, /unknown\|suspected\|confirmed/);
+  assert.match(stateTemplate, /## Knowledge Transition Notes/);
   assert.match(stateTemplate, /## One-Time Events Triggered/);
   assert.match(stateTemplate, /## Continuity Notes For Next Chapter/);
 });
@@ -1184,9 +1795,27 @@ test('drafting reviewer docs require explicit style adherence checks', () => {
   );
 
   assert.match(reviewerSubagent, /10-research\/style-research\.md/);
+  assert.match(reviewerSubagent, /Style Drift/);
   assert.match(reviewerSubagent, /Style Adherence|风格一致性/);
   assert.match(reviewerSubagent, /style-research\.md.*修订项|修订项.*style-research\.md/s);
+  assert.match(reviewTemplate, /Style Drift:\s*pass/);
   assert.match(reviewTemplate, /Style Adherence:\s*pass/);
+});
+
+test('drafting reviewer docs require explicit knowledge-boundary checks', () => {
+  const reviewerSubagent = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'reviewer-subagent.md'),
+    'utf8',
+  );
+  const reviewTemplate = fs.readFileSync(
+    path.join(__dirname, '..', 'skills', 'novel-drafting', 'templates', 'chapter-review.md'),
+    'utf8',
+  );
+
+  assert.match(reviewerSubagent, /Knowledge Boundary/i);
+  assert.match(reviewerSubagent, /POV Leak|knowledge leak|认知串台/i);
+  assert.match(reviewerSubagent, /expected=suspected|used_as=confirmed/i);
+  assert.match(reviewTemplate, /Knowledge Boundary:\s*pass/);
 });
 
 test('drafting reviewer docs require explicit checks for remaining research artifacts', () => {

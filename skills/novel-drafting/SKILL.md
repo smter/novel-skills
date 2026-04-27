@@ -117,8 +117,15 @@ reviewer 不负责重写章节正文。
 reviewer 还必须确认当前章节的 `30-draft/continuity/chapter-XX-state.md` 能准确记录：
 - 新确认事实
 - 人物认知变化
+- 人物认知变化的触发依据
 - 已触发的一次性事件
 - 下一章不得违背的连续性约束
+
+`Character Knowledge Changes` 与 `story-state.md` 的 `Character Knowledge` 必须使用：
+- `<角色名> | <事实> | unknown|suspected|confirmed | source=chapter-XX`
+
+若某条知识状态写为 `confirmed`，`chapter-XX-state.md` 中必须提供对应的：
+- `<角色名> | <事实> | basis=<本章内的触发依据>`
 
 `story-state.md` 中的 `One-Time Events Consumed` 必须显式写明来源章节，格式固定为：
 - `<Event Name>: chapter-XX`

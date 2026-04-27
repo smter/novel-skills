@@ -47,10 +47,12 @@
 - 是否违反 `10-research/topic-research.md` 与 `10-research/setting-research.md` 中已经确认的真实性、术语或设定约束
 - 是否把 `10-research/references.md` 里仍属于 inference / open question / 未验证信息的内容写成既定事实
 - 是否遵守 `10-research/style-research.md` 中定义的风格规则、叙事距离、节奏要求与禁止项
+- 是否出现明显的风格漂移，尤其是标点偏执、重复措辞、解释冲动升级等长篇续写退化现象
 - 人物一致性
 - 伏笔时序与不允许的提前揭示
 - 与已批准前文章节的连续性
 - 当前章节 state 文件是否准确记录连续性变化
+- 当前 POV 是否把他人 knowledge leak 成自己的思考前提，或把 `suspected` 写成 `confirmed`
 - 是否把已消耗的一次性事件重新写成首次发生
 - 节奏与可读性
 
@@ -76,10 +78,12 @@
 
 如果章节为 `不通过`，必须提供 writer 可以直接执行的具体修改项。
 如果连续性问题涉及重复发现、重复揭示或认知状态倒退，必须在修订项中明确指出冲突的 state 条目。
+如果出现 POV knowledge leak、认知串台或把 `suspected` 写成 `confirmed`，必须在修订项中写清 `角色 | 事实 | expected=<state> | used_as=<state>`。
 如果章节偏离 `project-brief.md` 的核心 premise、主角目标、目标读者或禁忌内容，必须在修订项中点名对应条目。
 如果章节违反 `topic-research.md` 或 `setting-research.md` 中的已确认约束，必须写明错误术语、错误事实或不可信的设定行为。
 如果章节把 `references.md` 中仍未验证的 inference / open question 当成事实，必须在修订项中明确标出“需要降级为猜测、疑点，或补足前文验证依据”。
 如果风格问题来自 `style-research.md`，必须把对应风格规则转写成 writer 可执行的修订项，而不是只写“风格不对”。
+如果风格问题属于后期漂移，必须说明触发信号，例如破折号滥用、解释性句子堆积、口头禅回声或重复句式。
 
 审查文件必须包含 `## Continuity Findings`：
 - 若无问题，使用 `Clean: <结论>` 格式
@@ -101,10 +105,22 @@
 - Premise Alignment: pass
 - Research Accuracy: pass
 - Verified Facts Only: pass
+- Knowledge Boundary: pass
 - Style Adherence: pass
+- Style Drift: pass
 
 ## Findings
 - ...
+
+## Knowledge Boundary Findings
+- Clean: POV knowledge stays within the approved character knowledge ledger.
+
+或：
+
+- Leak: 林闻 | 假溺女不是受害者 | expected=suspected | used_as=confirmed
+
+## Style Drift Findings
+- Clean: no abnormal style drift detected.
 
 ## Continuity Findings
 - Clean: no continuity conflicts found.
