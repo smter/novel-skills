@@ -32,7 +32,7 @@ const requiredHeadings = new Map<string, string[]>([
     '## Core Premise',
     '## Central Conflict',
     '## Protagonist Goal',
-    '## Forbidden Content',
+    '## Content Boundaries',
   ]],
   ['10-research/references.md', [
     '## Source Entry',
@@ -162,7 +162,7 @@ function validateResearchContent(state: ReturnType<typeof createValidator>): voi
     ['## Core Premise', 12],
     ['## Central Conflict', 12],
     ['## Protagonist Goal', 8],
-    ['## Forbidden Content', 2],
+    ['## Content Boundaries', 2],
   ] as const) {
     requireMeaningfulSection(state, '00-project/project-brief.md', heading, minimumLength);
   }

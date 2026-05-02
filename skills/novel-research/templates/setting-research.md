@@ -27,5 +27,5 @@ template: setting-research
 ## Realism Notes
 
 - Must Include: {{must_include}}
-- Must Avoid: {{must_avoid}}
+- Excluded: {{must_avoid}}
 - Inferred Details: {{inferred_details}}

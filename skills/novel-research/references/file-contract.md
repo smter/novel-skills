@@ -31,7 +31,7 @@ The project must contain:
 - `## Core Premise`
 - `## Central Conflict`
 - `## Protagonist Goal`
-- `## Forbidden Content`
+- `## Content Boundaries`
 
 `00-project/success-criteria.md` must contain at least:
 

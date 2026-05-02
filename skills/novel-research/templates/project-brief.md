@@ -20,6 +20,6 @@
 
 ## Ending Tendency
 
-## Forbidden Content
+## Content Boundaries
 
 ## Notes

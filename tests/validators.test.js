@@ -274,7 +274,7 @@ test('research validator is invokable through the strip-types entrypoint', () =>
     '## Protagonist Goal',
     '找出真正主谋并让对方在公众面前失去一切。',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '不要洗白加害者，不要超自然设定。',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
@@ -411,7 +411,7 @@ test('research validator passes for a complete scaffold', () => {
     '## Protagonist Goal',
     '证明父亲不是纵火案真凶，并找出真正受益者。',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '不加入超能力和命运论反转。',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
@@ -488,7 +488,7 @@ test('research validator passes for a complete scaffold', () => {
 test('research validator rejects a generic current stage value', () => {
   const root = makeTempProject();
 
-  writeFile(root, '00-project/project-brief.md', '# Project Brief\n\n## Working Title\n《试作》\n\n## Genre/Type\n悬疑\n\n## Target Audience\n网文读者\n\n## Target Length\n中篇\n\n## Core Premise\n主角调查好友失踪。\n\n## Central Conflict\n调查会伤害现有关系。\n\n## Protagonist Goal\n找回好友。\n\n## Forbidden Content\n不要超自然。\n');
+  writeFile(root, '00-project/project-brief.md', '# Project Brief\n\n## Working Title\n《试作》\n\n## Genre/Type\n悬疑\n\n## Target Audience\n网文读者\n\n## Target Length\n中篇\n\n## Core Premise\n主角调查好友失踪。\n\n## Central Conflict\n调查会伤害现有关系。\n\n## Protagonist Goal\n找回好友。\n\n## Content Boundaries\n不要超自然。\n');
   writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 网文读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: all planned chapters drafted and approved\n- Review Pass Rule: every planned chapter review must be 通过\n');
   writeFile(root, '00-project/workflow-status.md', 'Status: research_complete\nCurrent Stage: research\nPlanned Chapters: 8\nCompleted Chapters: 0\nBlocking Issues: none\nNext Allowed Skill: novel-drafting\n');
   writeFile(root, '10-research/topic-research.md', '# Topic Research\n\n- 线人通常不会在线上直接传递完整证据。\n');
@@ -537,7 +537,7 @@ test('research validator rejects thin placeholder-like scaffolds', () => {
     '## Protagonist Goal',
     '待补充',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '无',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: done\n- Review Pass Rule: pass\n');
@@ -1832,7 +1832,7 @@ test('drafting reviewer docs require explicit checks for remaining research arti
   assert.match(reviewerSubagent, /10-research\/topic-research\.md/);
   assert.match(reviewerSubagent, /10-research\/setting-research\.md/);
   assert.match(reviewerSubagent, /10-research\/references\.md/);
-  assert.match(reviewerSubagent, /核心 premise|禁忌内容|Forbidden Content/);
+  assert.match(reviewerSubagent, /核心 premise|禁忌内容|Content Boundaries/);
   assert.match(reviewerSubagent, /真实性|术语|topic-research|setting-research/);
   assert.match(reviewerSubagent, /inference|open question|未验证|不确定/);
   assert.match(reviewTemplate, /Premise Alignment:\s*pass/);
