@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import ExifReader from 'exifreader';
+import ExifReader from './vendor/exifreader.js';
 
 export interface Entry {
   keys: string[];
