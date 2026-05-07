@@ -1,7 +1,7 @@
 # SillyTavern 角色卡导入 — 设计文档
 
 > 日期：2026-05-07
-> 状态：设计完成，待用户审查
+> 状态：设计完成（经技术验证 spike 修正）
 > 关联技能：`novel-research`
 
 ---
@@ -32,10 +32,16 @@ skills/novel-research/
 ```
 
 **职责边界：**
-- `charcard-parser`: Buffer → tEXt/iTXt chunk 搜索 → Base64 解码 → `JSON.parse` → 返回 `CharacterCardV2`
-- `charcard-transformer`: `CharacterCardV2` → 字段四分类 → 模板渲染 → 返回 Markdown 字符串
+- `charcard-parser`: Buffer → ExifReader 读取元数据 → 从 `chara` 键提取 Base64 → 解码 + `JSON.parse` → 返回 `CharacterCardV2`。统一处理 PNG 和 WebP。
+- `charcard-transformer`: `CharacterCardV2` → 字段四分类 → Lore-bias 检测 → 模板渲染 → 返回 Markdown 字符串
 - `parse-charcard.mts`: 只做编排，不含解析或格式逻辑
 - 两个 lib 文件各自可独立测试
+
+**技术验证结论（2026-05-07 spike）：**
+- `png-chunks-extract` 为 CJS 模块，与 tsconfig 的 `verbatimModuleSyntax: true` 不兼容，无法使用 named export
+- `exifreader` 单库即可读取 PNG 的 tEXt 文本块（含 `chara` 键）和 WebP 的 EXIF/XMP——无需其他依赖
+- 实际角色卡中 V1 字段（name, description 等）可能同时出现在 JSON 顶层和 `data` 子对象中，取 `data.*` 优先
+- 部分角色卡将角色设定储存在 `character_book` entries 中而非顶层 description/personality 字段
 
 **端口依赖：**
 
@@ -51,6 +57,10 @@ parse-charcard.mts
 
 V2 全字段处理策略：
 
+### 3.0 解析时的字段归一化
+
+角色卡 JSON 中 V1 字段（name, description, personality, scenario, first_mes, mes_example）可能同时存在于顶层和 `data` 子对象。解析器取 `data.*` 优先；仅当 `data` 中为空字符串时回退到顶层同名字段。
+
 ### 3.1 直接保留区
 
 | 字段 | 写入位置 | 备注 |
@@ -64,7 +74,15 @@ V2 全字段处理策略：
 | `tags` | `## Tags` | 逗号分隔 |
 | `creator_notes` | `## Creator Notes` | 标注「作者笔记，非角色自身设定」 |
 
-### 3.2 需代理总结区
+### 3.2 Lore-bias 检测
+
+若 `description` 和 `personality` 均为空（或仅含空白），但 `character_book` 中存在 entries，在 Description / Personality 区域渲染以下警示：
+
+> ⚠️ 此角色卡的 description 和 personality 字段为空。角色的核心设定可能储存在下方「Associated Lore」区域中。代理请从 Lore entries 中提取角色基础信息。
+
+此检测由 transformer 自动完成，作为 Warnings 的一种写入输出文件。
+
+### 3.3 需代理总结区
 
 写入但包裹警示框，agent 在访谈阶段读取、提取意图、过滤角色扮演框架后写入 `characters.md`：
 
@@ -75,14 +93,14 @@ V2 全字段处理策略：
 
 代理总结规则：提取语言风格、行为约束、一致性规则；丢弃角色扮演框架（如 "You are X", "Stay in character"）。
 
-### 3.3 关联 Lore 区
+### 3.4 关联 Lore 区
 
 | 字段 | 写入方式 |
 |------|----------|
 | `character_book.entries[].content` | `## Associated Lore` 列表，每条标记触发词 `keys` |
 | `character_book.entries[].constant` | constant=true 的条目标注「全局生效」 |
 
-### 3.4 显式丢弃区
+### 3.5 显式丢弃区
 
 不写入输出文件，也不传递给下游：
 
@@ -112,6 +130,8 @@ V2 全字段处理策略：
 ## Description
 
 {{description}}
+<!-- lore-bias 检测: 当 description 仅含空白但 character_book 有内容时 -->
+<!-- ⚠️ 此角色卡的 description 和 personality 字段为空。角色的核心设定可能储存在下方「Associated Lore」区域中。代理请从 Lore entries 中提取角色基础信息。 -->
 
 ## Personality
 
@@ -219,8 +239,10 @@ node --experimental-strip-types <skill-root>/scripts/parse-charcard.mts \
 - 所有异常写入输出文件底部的 `## Warnings` 区域，逐条列出原因和建议
 - 极端情况（连 name 都解析不出）仍生成文件，文件名用 `unknown-{timestamp}`
 - Base64 清洗：自动去除 `data:image/*;base64,` 前缀
-- PNG chunk 搜索：同时检查 `tEXt` 和 `iTXt`
-- V1 兼容：若 JSON 中没有 `data` 嵌套层，将顶层字段提升为 `data` 子对象
+- 元数据读取：通过 ExifReader 统一读取 PNG 和 WebP，查找 `chara` 键
+- **V1 兼容**：若 JSON 中没有 `data` 嵌套层，将顶层 V1 字段提升为 `data` 子对象
+- **V1/V2 共存**：若 V1 字段同时出现在顶层和 `data` 中，`data.*` 优先（`data` 中为空时回退到顶层）
+- **Lore-bias 检测**：若 description 和 personality 均为空但 character_book 有 entries，触发 lore-bias 警告
 
 **Warnings 示例：**
 
@@ -230,6 +252,7 @@ node --experimental-strip-types <skill-root>/scripts/parse-charcard.mts \
 - [JSON 解析警告] `mes_example` 字段存在非 UTF-8 字符，已跳过该字段
 - [截断提示] `mes_example` 共 4230 字符，已截断至 1500 字符。使用 --no-truncate 保留全文
 - [缺失字段] 未找到 `character_book`，角色卡未附带世界书
+- [LORE_BIAS] description 和 personality 为空，角色设定可能在 character_book 中
 ```
 
 ---
@@ -238,9 +261,9 @@ node --experimental-strip-types <skill-root>/scripts/parse-charcard.mts \
 
 | 库 | 用途 | 大小 |
 |----|------|------|
-| `png-chunks-extract` | 提取 PNG chunk 元数据 | ~2KB |
-| `png-chunk-text` | 解析 tEXt/iTXt chunk 的文本内容 | ~1KB |
-| `exifreader` | 读取 WebP EXIF/XMP 元数据块 | ~30KB |
+| `exifreader` | 读取 PNG/WebP 元数据（含 tEXt chunk 的 `chara` 文本块），统一处理两种格式 | ~30KB |
+
+> **技术验证（2026-05-07）：** `png-chunks-extract`（CJS 模块，与 `verbatimModuleSyntax: true` 不兼容）和 `png-chunk-text` 均不需引入——ExifReader 单库即可读取 PNG 的 tEXt 文本块。
 
 所有依赖通过 npm 安装在仓库根 `package.json`。
 
@@ -252,14 +275,15 @@ node --experimental-strip-types <skill-root>/scripts/parse-charcard.mts \
 - **端口清晰：** parser 和 transformer 通过函数签名解耦，可独立测试
 - **不修改已有文件：** 导入操作只写 `20-story/charcard-raw/` 和追加 `20-story/characters.md`，不触及 `00-project/`、`10-research/`、验证器等
 - **已有验证器不变：** `charcard-raw/` 目录不在 requiredFiles 列表中，不影响现有验证通过
-- **V1 兼容：** V1 角色卡（无 `data` 嵌套、无 `spec` 顶层字段）自动提升为 V2 结构后处理
+- **V1 兼容：** V1 角色卡（无 `data` 嵌套、无 `spec` 顶层字段）自动提升为 V2 结构后处理。V1/V2 字段共存时 `data.*` 优先
+- **Lore-bias 检测：** transformer 自动检测 description/personality 为空但 character_book 有内容的情况，在输出中标注提醒
 
 ---
 
 ## 10. 测试策略
 
-- `charcard-parser` 单元测试：覆盖正常 PNG、损坏 PNG、非角色卡 PNG、V1 格式、Base64 前缀清洗
-- `charcard-transformer` 单元测试：覆盖全字段 V2、最简 V1、仅有 character_book 无其他字段、全空字段
+- `charcard-parser` 单元测试：覆盖正常 PNG（exifreader 读取 chara）、损坏 PNG（无 chara 键）、WebP、V1 格式、V1/V2 共存字段、Base64 前缀清洗
+- `charcard-transformer` 单元测试：覆盖全字段 V2、最简 V1、仅有 character_book 无 description/personality（lore-bias 检测）、全空字段
 - CLI 集成测试：端到端 `--project-root` 输出完整性验证
 - 回归：现有 `tests/validators.test.js` 继续通过（charcard-raw 不影响 requiredFiles 列表）
 
