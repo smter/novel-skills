@@ -163,60 +163,78 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 三组全部通过后，agent 给出覆盖所有 8 个话题 + 角色信息的整体摘要。用户确认后进入 Phase 4。
 
-## 搜索策略
+---
+
+## Phase 4: 调研与文件撰写
+
+将 Phase 2–3 确认的结论写入全部 11 个产物文件。
+
+### 联网调研
 
 对于领域事实、时代细节、设定真实性、职业流程、地域背景和风格参照，除非用户明确禁止，否则默认进行联网调研。
 
 如果禁止搜索：
-- Do not browse
-- Mark uncertain areas in `references.md`
-- State which details are inferred rather than verified
-
-具体要求：
 - 不要联网浏览
 - 在 `references.md` 中标记不确定区域
 - 明确指出哪些细节是推断而非验证所得
 
-## 调研转化
+### 调研转化
 
-不要停留在链接或摘录层面。
-
-把每一个有用发现转化为以下一种或多种内容：
-- Setting constraints
-- Terminology notes
-- Realism pitfalls
-- Style rules
-- Taboo or continuity risks
-
-对应含义：
+不要停留在链接或摘录层面。把每一个有用发现转化为以下一种或多种内容：
 - 设定约束
 - 术语说明
 - 真实性风险
 - 风格规则
 - 禁忌或连续性风险
 
-## 完整性清单
+### 文件撰写原则
 
-在标记调研完成之前，确认：
+- 每个文件的约束必须可追溯到 Phase 3 的确认结论
+- 文件之间不得矛盾（若有，视为未完成）
+- 角色卡解析结果整合到 `characters.md`
 
-- [ ] Protagonist, main conflict, and story goal are clearly defined
-- [ ] Target length is determined with chapter count
-- [ ] Chapter plan matches the target length
-- [ ] Foreshadowing appears before its payoff point
-- [ ] Style guidelines are sufficient to constrain later writing
-- [ ] No critical background gaps remain
+---
 
-如果任一项失败，继续访谈或调研。不要过早标记为完成。
+## Phase 5: 自检
 
-## 推进前置条件
+在文件全部写完后，依次通过两道检查。任一道不过 → 状态保持 `research_in_progress`，回到对应阶段补充。
 
-只有满足以下条件才能推进：
-- 所有关键约束已澄清并写入对应文件
-- 联网调研已完成（除非用户明确禁止）
-- 每个发现已转化为结构化知识记录
-- 核心文件内容充实且互不矛盾
+### 第一道：完整性清单
 
-未满足则保持 `research_in_progress` 或转为 `research_blocked`。
+- [ ] 主角、核心冲突、故事目标已明确定义
+- [ ] 篇幅目标已设定，且与章节数量一致
+- [ ] 章节计划与篇幅和推进节奏匹配
+- [ ] 伏笔出现在对应收束点之前
+- [ ] 风格约束足够约束后续起草
+- [ ] 世界观 / 设定 / 真实性无明显空白
+
+### 第二道：机械验证
+
+运行 validator（必须成功）：
+
+```
+node --experimental-strip-types <skill-root>/scripts/validate-research-project.mts --project-root <project-root>
+```
+
+两道检查全部通过后，进入 Phase 6。
+
+---
+
+## Phase 6: 用户审阅闸门
+
+**硬约束：在用户明确确认之前，`workflow-status.md` 中的 `Status` 绝对不能写为 `research_complete`。**
+
+**流程：**
+1. Agent 列出全部 11 个产物文件路径，给出简洁摘要（类型、篇幅、核心冲突、关键约束）
+2. 询问：「所有文件已就绪，请审阅确认。如有需要调整请告诉我，确认后我将状态设为 research_complete。」
+3. **等待用户回复，不做任何推进动作**
+4. 用户提出修改 → 修改后回到步骤 1
+5. 用户确认 → 更新 `00-project/workflow-status.md`：
+   - `Status` → `research_complete`
+   - `Next Allowed Skill` → `novel-drafting`
+   - 更新 `Last Updated`
+
+---
 
 ## 常见自我说服
 
@@ -225,13 +243,21 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 | "用户说得很模糊，所以给个宽松大纲就够了" | 起草阶段需要明确约束和文件产物。 |
 | "这个类型我已经很熟，不用查了" | 除非被拒绝，否则调研默认需要联网核验。 |
 | "章节计划短一点应该也没问题" | 起草 skill 需要明确的章节推进设计。 |
+| "用户要求很简单，快速过一遍就行" | 跳过 Phase 2 方案探索或 Phase 6 用户审阅意味着未经验证的假设进入起草。 |
+| "自检过了就标 research_complete" | Phase 6 用户审阅闸门是强制步骤，未经用户确认不得推进。 |
 
 ## 状态流转
 
 - 开始：将状态设为 `research_in_progress`
 - 阻塞：将状态设为 `research_blocked`，并列出具体阻塞原因
-- 完成：只有在所有文件通过完整性检查后，才能设为 `research_complete`
+- 完成：通过 Phase 5 自检 **且** Phase 6 用户确认后，才能设为 `research_complete`
 
 ## 下一步
 
-在 `research_complete` 之后，下一个允许使用的 skill 是 `novel-drafting`。
+在 `research_complete` 之后，下一个允许使用的 skill 是 `novel-drafting`。**在用户通过 Phase 6 确认之前，绝不推进到 drafting。**
+
+---
+
+## 参考文件
+
+- 自检细则：[references/completion-gate.md](references/completion-gate.md)
