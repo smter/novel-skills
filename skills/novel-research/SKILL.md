@@ -79,6 +79,22 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 一次只问一个问题。不要批量提问。
 
+## 角色卡导入
+
+在进入人物设定访谈前，先询问用户：
+
+> "你是否拥有 SillyTavern / 酒馆角色卡（PNG 或 WebP 图片）？如果有，我可以解析并导入，作为人物设定的起点。"
+
+如果用户提供角色卡路径：
+
+1. 运行 `<skill-root>/scripts/parse-charcard.mts --input <path> --project-root <project-root>`
+2. 读取生成的 `20-story/charcard-raw/<角色名>.md`
+3. 遍历「需代理总结」区域的 system_prompt / post_history_instructions，提取对角色塑造有用的信息
+4. 将解析结果 + 代理总结整合到 `20-story/characters.md` 的对应角色条目
+5. 若解析出的信息足以覆盖模板字段，直接填充；不足的部分进入正常补充访谈
+
+如果用户没有角色卡，直接进入常规人物访谈。
+
 ## 搜索策略
 
 对于领域事实、时代细节、设定真实性、职业流程、地域背景和风格参照，除非用户明确禁止，否则默认进行联网调研。
