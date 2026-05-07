@@ -26,7 +26,7 @@
 
 ## 退出规则
 
-只有在清单全部通过后，才能：
+清单全部通过后，进入 Phase 6（用户审阅闸门）。只有在用户明确确认后：
 
 - set `Status` to `research_complete`
 - set `Next Allowed Skill` to `novel-drafting`
