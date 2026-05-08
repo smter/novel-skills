@@ -32,7 +32,8 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 - `10-research/setting-research.md`
 - `10-research/style-research.md`
 - `10-research/references.md`
-- `20-story/characters.md`
+- `20-story/characters/` — 每个角色一个 `.md` 文件，统一角色卡格式
+- `20-story/character-relationships.md` — 角色间双向关系
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
@@ -143,10 +144,10 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 如果用户提供角色卡路径：
 1. 运行 `<skill-root>/scripts/parse-charcard.mts --input <path> --project-root <project-root>`
-2. 读取生成的 `20-story/charcard-raw/<角色名>.md`
+2. 读取生成的 `20-story/characters/<角色名>.md`
 3. 遍历「需代理总结」区域的 system_prompt / post_history_instructions，提取对角色塑造有用的信息
-4. 将解析结果 + 代理总结整合到 `20-story/characters.md` 的对应角色条目
-5. 若解析出的信息足以覆盖模板字段，直接填充；不足的部分在 Phase 4 补充
+4. 将解析结果 + 代理总结整合到角色的角色卡文件
+5. 身份 / 目标 / 动机 / 冲突 / 弧光等遗留字段留为占位符，供访谈阶段补充完成
 
 如果用户没有角色卡，继续 C 组访谈。
 
@@ -191,7 +192,7 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 - 每个文件的约束必须可追溯到 Phase 3 的确认结论
 - 文件之间不得矛盾（若有，视为未完成）
-- 角色卡解析结果整合到 `characters.md`
+- 角色卡解析结果整合到 `20-story/characters/` 目录（目录非空），并更新 `20-story/character-relationships.md`
 
 ---
 
@@ -261,3 +262,4 @@ node --experimental-strip-types <skill-root>/scripts/validate-research-project.m
 ## 参考文件
 
 - 自检细则：[references/completion-gate.md](references/completion-gate.md)
+- 角色访谈方法指引：[references/character-interview-guide.md](references/character-interview-guide.md)
