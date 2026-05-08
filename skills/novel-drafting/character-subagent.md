@@ -12,7 +12,7 @@
 ---
 
 <CHARACTER_CARD>
-（完整 charcard-raw/<角色名>.md 内容）
+（完整 characters/<角色名>.md 内容）
 </CHARACTER_CARD>
 
 <IN_STORY_MEMORY>
@@ -48,7 +48,7 @@
 
 ## 填充规则
 
-- **CHARACTER_CARD**：直接粘贴 `charcard-raw/<角色名>.md` 全文，不删改
+- **CHARACTER_CARD**：直接粘贴 `characters/<角色名>.md` 全文，不删改
 - **IN_STORY_MEMORY**：
   1. 从各章 `chapter-XX-state.md` 的 `## Character Knowledge Changes` 表格中，匹配 `| <角色名> |` 开头的行
   2. 补充 story-state 中 confirmed 且该角色在场的全局事实（best-effort 语义推断，不确定则不纳入）
@@ -72,7 +72,7 @@
 ## 阻塞条件
 
 角色子代理应返回 BLOCKED 当：
-- 角色卡文件（charcard-raw/<角色名>.md）缺失
+- 角色卡文件（characters/<角色名>.md）缺失
 - IN_STORY_MEMORY 为空且角色卡的 scenario 字段不足以推断当前心理状态
 - 本章情节简报过于模糊，无法判断角色处境
 

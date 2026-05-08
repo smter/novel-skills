@@ -39,7 +39,7 @@
 
 1. 从 `30-draft/chapter-plan.md` 中读取当前章节的 `Characters` 字段。
 2. 对 `Characters` 中列出的每个角色：
-   - 检查 `20-story/charcard-raw/<角色名>.md` 是否存在。
+   - 检查 `20-story/characters/<角色名>.md` 是否存在。
    - 存在：读取该角色卡全文。从各章 `30-draft/continuity/chapter-XX-state.md` 的
      `## Character Knowledge Changes` 表格中过滤出 `| <角色名> |` 开头的行。
      加上 `30-draft/continuity/story-state.md` 中该角色在场的 confirmed 全局事实。

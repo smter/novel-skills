@@ -24,7 +24,7 @@ description: Use when 中文小说项目已经具备调研文件，并需要按�
 - `00-project/workflow-status.md` 的 status 为 `research_complete` 或 `draft_blocked`
 - `00-project/workflow-status.md` 的 current stage 与起草阶段兼容
 - `00-project/success-criteria.md`
-- `20-story/characters.md`
+- `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
@@ -86,7 +86,7 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 只向 writer 提供：
 - `00-project/project-brief.md`
 - `10-research/style-research.md`
-- `20-story/characters.md`
+- `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/continuity/story-state.md`

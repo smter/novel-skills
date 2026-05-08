@@ -12,7 +12,7 @@
 
 - `00-project/project-brief.md`
 - `10-research/style-research.md`
-- `20-story/characters.md`
+- `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/continuity/story-state.md`
@@ -37,7 +37,7 @@
 
 - 不要修改任何其他章节文件。
 - 不要修改任何审查文件。
-- 不要重写 `plot-outline.md`、`foreshadowing.md` 或 `characters.md`。
+- 不要重写 `plot-outline.md`、`foreshadowing.md` 或 `characters/` 目录。
 - 不要提前跳到后续章节。
 - 如果章节目标不清晰，或与已批准背景冲突，不要继续。
 
@@ -72,7 +72,7 @@
 
 1. 读取 `<skill-root>/character-subagent.md` 中的 Prompt 模板。
 2. 按模板填充占位符：
-   - `<CHARACTER_CARD>`：读取 `20-story/charcard-raw/<角色名>.md` 全文
+   - `<CHARACTER_CARD>`：读取 `20-story/characters/<角色名>.md` 全文
    - `<IN_STORY_MEMORY>`：从你正在写入的 `chapter-XX-state.md` 的 Knowledge Changes 中过滤该角色的行
    - `<CURRENT_SITUATION>`：当前场景上下文 + 角色此刻的具体处境
    - `<OUTPUT_FORMAT>`：固定模板，不修改
