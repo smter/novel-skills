@@ -172,6 +172,8 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 将 Phase 2–3 确认的结论写入全部 11 个产物文件。
 
+**风格与叙事构建：** agent 在撰写 `10-research/style-research.md` 时，按 `references/style-analysis-guide.md` 的文体分析流程和风格复现宪章产出风格约束。在撰写 `30-draft/chapter-plan.md` 和 `20-story/plot-outline.md` 时，按 `references/narrative-structure-guide.md` 的叙事框架设计 → 叙事网络梳理 → 章节细化流程构建故事结构。
+
 **世界观构建：** agent 在撰写 `10-research/setting-research.md` 时，按 `references/worldbuilding-guide.md` 的 7 大板块（基调与物理原则 → 自然禀赋 → 生物圈 → 世界历史 → 人文文化 → 区域差异化 → 文化符号）逐板块构建。板块一至六必填，板块七可选。
 
 ### 联网调研
@@ -268,3 +270,5 @@ node --experimental-strip-types <skill-root>/scripts/validate-research-project.m
 - 自检细则：[references/completion-gate.md](references/completion-gate.md)
 - 角色访谈方法指引：[references/character-interview-guide.md](references/character-interview-guide.md)
 - 世界观构建方法指引：[references/worldbuilding-guide.md](references/worldbuilding-guide.md)
+- 风格分析方法指引：[references/style-analysis-guide.md](references/style-analysis-guide.md)
+- 叙事结构方法指引：[references/narrative-structure-guide.md](references/narrative-structure-guide.md)

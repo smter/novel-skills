@@ -86,6 +86,7 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 只向 writer 提供：
 - `00-project/project-brief.md`
 - `10-research/style-research.md`
+- 此外，Writer 在需要处理风格一致性时可查阅 `references/style-analysis-guide.md` 的风格复现宪章。
 - `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
@@ -102,6 +103,7 @@ reviewer 需要检查：
 - 是否符合当前章节目标
 - 是否符合整体大纲
 - 人物一致性
+- 风格一致性（如有明确风格约束，对照 `style-research.md` 和 `style-analysis-guide.md` 的风格四层框架检查）
 - 是否出现不允许的提前揭示
 - 与前文章节的连续性
 - 与 `story-state.md` 和最近已批准 continuity state 的一致性
