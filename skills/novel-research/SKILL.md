@@ -151,6 +151,8 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 如果用户没有角色卡，继续 C 组访谈。
 
+**角色创建管线：** agent 在创建角色时，按 `references/character-interview-guide.md` 第一部分的 char0~7 步骤逐步骤执行，角色创建完成后运行第二部分「角色审查」进行自检。
+
 ### C 组：边界条件
 
 | 话题 | 问法 |
