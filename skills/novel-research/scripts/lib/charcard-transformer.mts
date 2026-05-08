@@ -64,7 +64,7 @@ function renderLoreEntries(
     return '';
   }
 
-  let result = '## Associated Lore\n\n';
+  let result = '## 深层设定\n\n';
 
   for (const entry of book.entries) {
     if (!entry.content || !entry.content.trim()) {
@@ -95,7 +95,7 @@ function renderSystemInstructions(card: CharacterCardV2): string {
   result += '> **不可直接注入小说写作上下文**，否则将导致模型切换至角色扮演模式而非作者模式。\n';
   result += '> \n';
   result += '> 代理在访谈阶段应：分析其意图 → 过滤角色扮演框架 → 提取对角色塑造有用的信息\n';
-  result += '> （如语言风格、行为约束、一致性规则）→ 总结写入 `characters.md` 的 Voice Notes。\n\n';
+  result += '> （如语言风格、行为约束、一致性规则）→ 总结写入 `characters/` 目录下对应角色卡的对应字段。\n\n';
 
   if (hasSystem) {
     result += '### System Prompt (原始)\n\n';
@@ -127,20 +127,24 @@ export function transformCharcard(
 
   let output = '';
 
-  output += `# 角色卡导入：${d.name || '(未知)'}\n\n`;
-  output += '> 来源：SillyTavern Character Card V2\n';
-  output += `> 导入时间：${new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')}\n`;
-  output += '> 本文件为角色卡原始数据的结构化呈现，供代理在访谈阶段参考。\n\n';
+  output += `# ${d.name || '(未知)'}\n\n`;
+  output += '> 来源：角色卡导入\n';
+  output += `> 导入时间：${new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')}\n\n`;
   output += '---\n\n';
 
-  output += '## Name\n\n';
-  output += `${d.name || '(未提供)'}\n\n`;
+  // 身份定位 — placeholders for interview completion
+  output += '## 身份定位\n\n';
+  output += '<!-- 待访谈补全 -->\n\n';
+  output += '- **身份**：\n';
+  output += '- **目标**：\n';
+  output += '- **动机**：\n';
+  output += '- **核心冲突**：\n';
+  output += '- **弧光笔记**：\n\n';
 
-  output += '## Description\n\n';
-  output += `${d.description || '(未提供)'}\n\n`;
-
-  output += '## Personality\n\n';
-  output += `${d.personality || '(未提供)'}\n\n`;
+  output += '## 角色档案\n\n';
+  output += `- **简介**：${d.description || '(未提供)'}\n`;
+  output += `- **性格**：${d.personality || '(未提供)'}\n`;
+  output += `- **标签**：${formatTags(d.tags)}\n\n`;
 
   const hasLoreBook = d.character_book && d.character_book.entries && d.character_book.entries.length > 0;
   const descEmpty = !d.description || d.description.trim().length === 0;
@@ -153,13 +157,13 @@ export function transformCharcard(
     });
   }
 
-  output += '## Scenario\n\n';
+  output += '## 情景设定\n\n';
   output += `${d.scenario || '(未提供)'}\n\n`;
 
-  output += '## First Message\n\n';
+  output += '## 开场呈现\n\n';
   output += `${d.first_mes || '(未提供)'}\n\n`;
 
-  output += '## Dialogue Examples\n\n';
+  output += '## 对话风格\n\n';
   if (hasNonEmpty(d.mes_example)) {
     const { truncated, wasTruncated } = opts.truncate
       ? truncateText(d.mes_example, opts.truncateLength)
@@ -178,8 +182,7 @@ export function transformCharcard(
     output += '(未提供)\n\n';
   }
 
-  output += '## Tags\n\n';
-  output += `${formatTags(d.tags)}\n\n`;
+
 
   output += '## Creator Notes\n\n';
   output += '> ⚠️ 以下为角色卡作者的备忘笔记，非角色自身设定。仅供参考作者意图。\n\n';
