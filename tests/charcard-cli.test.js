@@ -40,7 +40,7 @@ test('CLI — 空文件时报错', () => {
 test('CLI — --force 覆盖已有文件', () => {
   const dir = makeTempProject();
   const projectRoot = path.join(dir, 'output');
-  const outputDir = path.join(projectRoot, '20-story/charcard-raw');
+  const outputDir = path.join(projectRoot, '20-story/characters');
 
   const v2JSON = {
     spec: 'chara_card_v2',

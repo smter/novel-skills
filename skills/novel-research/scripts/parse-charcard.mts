@@ -19,7 +19,7 @@ function main(): void {
 
   const inputPath = path.resolve(args['input']);
   const projectRoot = path.resolve(args['project-root']);
-  const outputDirName = args['output-dir'] || '20-story/charcard-raw';
+  const outputDirName = args['output-dir'] || '20-story/characters';
   const outputDir = path.resolve(projectRoot, outputDirName);
   const force = args['force'] === 'true' || args['force'] === '';
   const noTruncate = args['no-truncate'] === 'true' || args['no-truncate'] === '';
