@@ -33,6 +33,23 @@
 
 在派发 writer 之前：
 
+### 角色子代理预派发（如适用）
+
+在收集 writer 上下文之前，先为本章关键角色收集视角分析：
+
+1. 从 `30-draft/chapter-plan.md` 中读取当前章节的 `Characters` 字段。
+2. 对 `Characters` 中列出的每个角色：
+   - 检查 `20-story/charcard-raw/<角色名>.md` 是否存在。
+   - 存在：读取该角色卡全文。从各章 `30-draft/continuity/chapter-XX-state.md` 的
+     `## Character Knowledge Changes` 表格中过滤出 `| <角色名> |` 开头的行。
+     加上 `30-draft/continuity/story-state.md` 中该角色在场的 confirmed 全局事实。
+     按照 `<skill-root>/character-subagent.md` 的 Prompt 模板组装，派发角色子代理。
+   - 不存在：跳过该角色。
+3. 将所有角色子代理返回的结构化分析汇总为 `## 角色视角分析` 段落。
+4. 该段落将在派发 Writer 时，紧随 chapter-plan 的本章目标之后注入上下文。
+5. 如果某角色子代理返回 BLOCKED，在汇总中标明「<角色名> 视角缺失」，继续流程。
+6. 如果章节没有 `Characters` 字段或所有角色均无角色卡，跳过预派发，直接进入 Writer 派发。
+
 1. 读取 `writer-subagent.md`。
 2. 只读取 `file-contract.md` 中与 writer 相关的部分。
 3. 向 writer 传递：
