@@ -38,11 +38,11 @@ test('transformCharcard — 最简 V2 角色卡生成基本 Markdown', async () 
   });
 
   const result = transformCharcard(card, []);
-  assert.ok(result.markdown.includes('# 角色卡导入：秦雪'));
-  assert.ok(result.markdown.includes('## Name'));
+  assert.ok(result.markdown.includes('# 秦雪'));
+  assert.ok(result.markdown.includes('## 角色档案'));
   assert.ok(result.markdown.includes('秦雪'));
   assert.ok(result.markdown.includes('冷傲剑客'));
-  assert.ok(result.markdown.includes('## Tags'));
+  assert.ok(result.markdown.includes('- **标签**：'));
   assert.ok(result.markdown.includes('武侠'));
   assert.ok(result.markdown.includes('江湖'));
 });
@@ -99,7 +99,7 @@ test('transformCharcard — character_book entries 渲染为 Associated Lore', a
   });
 
   const result = transformCharcard(card, []);
-  assert.ok(result.markdown.includes('## Associated Lore'));
+  assert.ok(result.markdown.includes('## 深层设定'));
   assert.ok(result.markdown.includes('雪山派是江湖中隐世门派'));
   assert.ok(result.markdown.includes('[触发词: 雪山, 门派]'));
 });
