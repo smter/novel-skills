@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import {
   addError,
   createValidator,
@@ -17,7 +20,7 @@ const requiredFiles = [
   '10-research/setting-research.md',
   '10-research/style-research.md',
   '10-research/references.md',
-  '20-story/characters.md',
+  '20-story/character-relationships.md',
   '20-story/plot-outline.md',
   '20-story/foreshadowing.md',
   '30-draft/chapter-plan.md',
@@ -183,7 +186,6 @@ function validateResearchContent(state: ReturnType<typeof createValidator>): voi
     '10-research/topic-research.md',
     '10-research/setting-research.md',
     '10-research/style-research.md',
-    '20-story/characters.md',
     '20-story/foreshadowing.md',
   ]) {
     const content = requireFile(state, relativePath);
@@ -248,6 +250,11 @@ function main(): void {
     }
 
     requireFile(state, relativePath);
+  }
+
+  const charactersDir = path.join(state.projectRoot, '20-story', 'characters');
+  if (!fs.existsSync(charactersDir) || fs.readdirSync(charactersDir).filter((f: string) => f.endsWith('.md')).length === 0) {
+    addError(state, '[文件缺失] 20-story/characters/ 目录不存在或目录下无 .md 文件（需至少一个角色卡）。\n  此目录应包含每个角色的统一角色卡文件。');
   }
 
   validateWorkflowStatus(state);
