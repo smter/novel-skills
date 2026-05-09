@@ -280,3 +280,8 @@ node --experimental-strip-types <skill-root>/scripts/validate-research-project.m
 - 世界观构建方法指引：[references/worldbuilding-guide.md](references/worldbuilding-guide.md)
 - 风格分析方法指引：[references/style-analysis-guide.md](references/style-analysis-guide.md)
 - 叙事结构方法指引：[references/narrative-structure-guide.md](references/narrative-structure-guide.md)
+- 理论参考 — 麦基《人物》：[references/theory/mckee-character.md](references/theory/mckee-character.md)
+- 理论参考 — 麦基《对白》：[references/theory/mckee-dialogue.md](references/theory/mckee-dialogue.md)
+- 理论参考 — 麦基《故事》：[references/theory/mckee-story.md](references/theory/mckee-story.md)
+- 理论参考 — 哈蒙故事圈：[references/theory/harmon-story-circle.md](references/theory/harmon-story-circle.md)
+- 理论参考 — 珠矶角色理论：[references/theory/zhuji-character-theory.md](references/theory/zhuji-character-theory.md)
