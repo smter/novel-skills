@@ -100,6 +100,7 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 - [ ] 字数达标 — 是否符合 `chapter-plan.md` 的预期字数范围？（使用 `WordCount` 模式验证）
 - [ ] 无伏笔遗漏 — 是否有应在本章收束但未收束的伏笔？对照 `foreshadowing.md`
 - [ ] 无设定矛盾 — 本章内容是否与 `worldbuilding-guide.md` 的设定约束冲突？
+- [ ] 无元叙事措辞 — 正文中是否出现了"第x章""上一章""前文"等打破第四面墙的表述？
 
 ### 连续性维度
 - [ ] 时间线一致 — 本章事件发生的时间是否与前后章一致？
