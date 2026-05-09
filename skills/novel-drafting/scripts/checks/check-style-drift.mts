@@ -2,10 +2,6 @@ import { formatFailure } from '../lib/validator-utils.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 import type { DraftingValidationMode } from './check-workflow-state.mts';
 
-interface StyleDriftWarning {
-  message: string;
-}
-
 function countMatches(content: string, pattern: RegExp): number {
   return content.match(pattern)?.length ?? 0;
 }

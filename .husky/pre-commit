@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -e
+
+echo "=== Type-check ==="
+npx tsc --noEmit
+
+echo ""
+echo "=== Tests ==="
+npx tsx --test tests/validators.test.js
+
+echo ""
+echo "=== Harness integrity ==="
+if [ ! -f progress.md ]; then
+  echo "ERROR: progress.md is missing."
+  exit 1
+fi
+
+REQUIRED_SECTIONS=("当前状态" "已完成" "进行中" "已阻塞" "下一步")
+for section in "${REQUIRED_SECTIONS[@]}"; do
+  if ! grep -q "## $section" progress.md; then
+    echo "ERROR: progress.md 缺少必要的节: ## $section"
+    exit 1
+  fi
+done
+
+STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
+if [ -n "$STAGED_FILES" ] && echo "$STAGED_FILES" | grep -qv '^progress\.md$'; then
+  if ! echo "$STAGED_FILES" | grep -q '^progress\.md$'; then
+    echo ""
+    echo "WARNING: progress.md 未包含在本次提交中。"
+    echo "如果本次修改改变了功能状态，请更新 progress.md。"
+    echo ""
+  fi
+fi
+
+echo "Harness integrity OK."

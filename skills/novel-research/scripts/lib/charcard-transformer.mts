@@ -119,7 +119,6 @@ export function transformCharcard(
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   const d = card.data;
-  const filename = sanitizeFilename(d.name);
 
   if (!d.name || !d.name.trim()) {
     warnings.push({ level: 'warning', message: '角色卡缺少 name 字段，将使用时间戳作为文件名' });

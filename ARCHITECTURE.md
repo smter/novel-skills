@@ -157,8 +157,8 @@ rtk node --import tsx --test tests/validators.test.js --test-name-pattern "skill
 
 ## Pointers
 
-- Top-level routing: [AGENTS.md](/Users/smterc/Project/写小说/novel-skills/AGENTS.md:1)
-- Stage handoff map: [skills/novel-workflow-overview.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-workflow-overview.md:1)
-- Research details: [skills/novel-research/SKILL.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-research/SKILL.md:1)
-- Drafting details: [skills/novel-drafting/SKILL.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-drafting/SKILL.md:1)
-- Delivery details: [skills/novel-delivery/SKILL.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-delivery/SKILL.md:1)
+- Top-level routing: `AGENTS.md`
+- Stage handoff map: `skills/novel-workflow-overview.md`
+- Research details: `skills/novel-research/SKILL.md`
+- Drafting details: `skills/novel-drafting/SKILL.md`
+- Delivery details: `skills/novel-delivery/SKILL.md`
