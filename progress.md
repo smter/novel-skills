@@ -20,6 +20,14 @@
 - [x] AGENTS.md 新增阶段闸门文件支撑规则
 - [x] Eval 评分标准 + GC Agent prompt 模板
 - [x] 长运行任务交接模板
+- [x] 珠矶提取缺口补全 (2026-05-09)
+  - 新增 `references/theory/` 5 个理论参考文件（mckee-character/dialogue/story, harmon-story-circle, zhuji-character-theory）
+  - 新增 `references/narrative-structure-guide.md` 叙事结构操作手册
+  - novel-research SKILL.md: Phase 3/4 注入理论强制调用闸门 + 参考列表扩展
+  - novel-drafting SKILL.md: COT 思维链 + Writer/Reviewer 契约理论条款
+  - lint-contract.md: 新增 15+ 维度起草自检清单
+  - 修复 character-interview-guide.md 待补充标记
+  - 修复 narrative-structure-guide.md 僵尸引用
 
 ## 进行中
 
