@@ -74,3 +74,8 @@ rtk node --import tsx --test tests/validators.test.js --test-name-pattern "skill
 - Drafting validation contract: [skills/novel-drafting/lint-contract.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-drafting/lint-contract.md:1)
 - Delivery file and export checks: [skills/novel-delivery/references/file-contract.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-delivery/references/file-contract.md:1), [skills/novel-delivery/references/export-workflow.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-delivery/references/export-workflow.md:1)
 - Research completion gate: [skills/novel-research/references/completion-gate.md](/Users/smterc/Project/写小说/novel-skills/skills/novel-research/references/completion-gate.md:1)
+
+## Superpowers plans Rule
+
+当使用`superpowers`的`brainstorming`和`writing-plans`技能生成specs和plans时
+务必采用`.agents/skills/harness-engineering/references/knowledge-layer.md`规定的渐进性披露原则，避免单个文件过大
