@@ -176,7 +176,11 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 将 Phase 2–3 确认的结论写入全部 11 个产物文件。
 
-**风格与叙事构建：** agent 在撰写 `10-research/style-research.md` 时，按 `references/style-analysis-guide.md` 的文体分析流程和风格复现宪章产出风格约束。在撰写 `30-draft/chapter-plan.md` 和 `20-story/plot-outline.md` 时，按 `references/narrative-structure-guide.md` 的叙事框架设计 → 叙事网络梳理 → 章节细化流程构建故事结构。
+**风格构建：** agent 在撰写 `10-research/style-research.md` 时，按 `references/style-analysis-guide.md` 的文体分析流程和风格复现宪章产出风格约束。
+
+**叙事构建：** agent 分两步进行 —
+1. 按 `references/narrative-structure-guide.md` 第一部分建立叙事框架（预设作者、情节结构选型、叙述视角、读者体验），产出写入 `20-story/plot-outline.md` 的叙事约束段落。**情节结构选型时，必须查阅 `references/theory/mckee-story.md` 了解幕设计原则，并用 `references/theory/harmon-story-circle.md` 的 8 阶段循环校验主角弧光完整性。**
+2. 按 `references/narrative-structure-guide.md` 第二、三部分梳理叙事网络并逐章细化，产出写入 `20-story/plot-outline.md`、`20-story/foreshadowing.md` 和 `30-draft/chapter-plan.md`。
 
 **世界观构建：** agent 在撰写 `10-research/setting-research.md` 时，按 `references/worldbuilding-guide.md` 的 7 大板块（基调与物理原则 → 自然禀赋 → 生物圈 → 世界历史 → 人文文化 → 区域差异化 → 文化符号）逐板块构建。板块一至六必填，板块七可选。
 
