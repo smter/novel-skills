@@ -6,6 +6,12 @@
       "sourceType": "github",
       "computedHash": "2f1c367b69716a8c08beea159dde9c1627db61c8c5c1fba275c7978b6fe54383"
     },
+    "harness-engineering-zh": {
+      "source": "10xchengtu/harness-engineering",
+      "sourceType": "github",
+      "skillPath": "skills/harness-engineering-zh/SKILL.md",
+      "computedHash": "e4e9862d62a396c796a91aa360408e683daa22f92993cd79793daade1e02025a"
+    },
     "novel-delivery": {
       "source": "smter/novel-skills",
       "sourceType": "github",
