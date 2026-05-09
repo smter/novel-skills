@@ -123,6 +123,8 @@ reviewer 需要检查：
 - 与前文章节的连续性
 - 与 `story-state.md` 和最近已批准 continuity state 的一致性
 - 节奏与可读性
+- 角色行为一致性：对照 `references/theory/mckee-character.md` 的六维度体系检查角色行为是否与角色卡定义一致，是否存在矛盾。确认本角色在本章中是否有可感知的弧光推进
+- 叙事结构校验：本章是否达成 `30-draft/chapter-plan.md` 中的本章目标？是否正确承接前章事件、为后章铺垫线索？
 
 当 reviewer 或 controller 只需要确认字数是否达标，而不是做完整 `Progress` / `Completion` 验证时：
 - 运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount`
