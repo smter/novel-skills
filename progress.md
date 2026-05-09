@@ -20,6 +20,12 @@
 - [x] AGENTS.md 新增阶段闸门文件支撑规则
 - [x] Eval 评分标准 + GC Agent prompt 模板
 - [x] 长运行任务交接模板
+- [x] 元叙事措辞三层防线 (2026-05-09)
+  - writer-subagent.md: 新增"不得在正文中使用章节号等元叙事指代"禁令 + 写作标准中引用事件必须用故事内参照
+  - reviewer-subagent.md: 新增元叙事措辞检查项 + Meta-Reference Checks 字段 + 修订示例
+  - check-style-drift.mts: 新增 checkMetaReferences() 检测函数，匹配章节号/前后文引述/章节指代三类模式
+  - lint-contract.md: 质量维度自检清单新增"无元叙事措辞"项
+  - validators.test.js: 新增 meta-reference phrasing 测试用例
 - [x] 珠矶提取缺口补全 (2026-05-09)
   - 新增 `references/theory/` 5 个理论参考文件（mckee-character/dialogue/story, harmon-story-circle, zhuji-character-theory）
   - 新增 `references/narrative-structure-guide.md` 叙事结构操作手册
