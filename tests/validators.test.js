@@ -2392,7 +2392,7 @@ test('drafting validator in progress mode warns on meta-reference phrasing (第�
     '他压低声音，仿佛上一章的冲突从未发生过。',
     '这是这一卷里最危险的一次试探。',
   ];
-  const paddedContent = metaContent.map((line) => line.repeat(30)).join('\n');
+  const paddedContent = metaContent.map((line) => line.repeat(20)).join('\n');
   writeFile(root, '30-draft/chapters/chapter-04.md', makeChapterContent(paddedContent, {
     chapterNumber: 4,
     title: 'Chapter 4',
