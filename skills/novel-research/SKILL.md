@@ -151,7 +151,11 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 如果用户没有角色卡，继续 C 组访谈。
 
-**角色创建管线：** agent 在创建角色时，按 `references/character-interview-guide.md` 第一部分的 char0~7 步骤逐步骤执行，角色创建完成后运行第二部分「角色审查」进行自检。
+**角色创建前置：**
+- agent 在开始角色创建前，必须阅读 `references/theory/zhuji-character-theory.md` 理解三轴解构体系（外显轴/内质轴/外延轴）
+- 在后续 char0~3 中以三轴框架引导用户访谈：char0 聚焦三轴概念设计，char1 聚焦外显轴，char2 聚焦内质轴，char3 聚焦外延轴
+
+**角色创建管线：** agent 在创建角色时，按 `references/character-interview-guide.md` 第一部分的 char0~7 步骤逐步骤执行，角色创建完成后运行第二部分「角色审查」进行自检。审查中的一致性诊断依据 `references/theory/mckee-character.md` 的六维度体系，弧光校验依据 `references/theory/harmon-story-circle.md` 的 8 阶段循环。
 
 ### C 组：边界条件
 
