@@ -2,12 +2,27 @@ import { formatFailure } from '../lib/validator-utils.mts';
 import type { LoadedDraftingProject } from '../lib/load-drafting-project.mts';
 import type { DraftingValidationMode } from './check-workflow-state.mts';
 
-interface StyleDriftWarning {
-  message: string;
-}
-
 function countMatches(content: string, pattern: RegExp): number {
   return content.match(pattern)?.length ?? 0;
+}
+
+const META_REFERENCE_PATTERNS: Array<{ name: string; pattern: RegExp }> = [
+  { name: 'chapter-number', pattern: /第[\d零一二三四五六七八九十百千]+[章节卷]/g },
+  { name: 'cross-reference', pattern: /(上文|下文|前文|后文)(所述|提到|交代)/g },
+  { name: 'section-index', pattern: /(上|下|本|这|那)(一)?(章|节|卷|回)/g },
+];
+
+function checkMetaReferences(content: string): Array<{ pattern: string; match: string }> {
+  const hits: Array<{ pattern: string; match: string }> = [];
+  for (const { name, pattern } of META_REFERENCE_PATTERNS) {
+    const matches = content.match(pattern);
+    if (matches) {
+      for (const match of matches) {
+        hits.push({ pattern: name, match });
+      }
+    }
+  }
+  return hits;
 }
 
 function perThousand(count: number, words: number): number {
@@ -68,6 +83,7 @@ export function checkStyleDrift(
   }
 
   const currentContent = currentChapter.chapterFile.content;
+  const contentSection = currentContent.split('## Content')[1]?.split(/^#/m)[0] ?? currentContent;
   const currentWords = currentChapter.chapterFile.contentWordCount;
   const currentDashCount = countMatches(currentContent, /——/g);
   const baselineDashRate = baselineChapters.reduce((sum, chapter) =>
@@ -142,6 +158,27 @@ export function checkStyleDrift(
         '- templates/chapter-review.md',
       ]));
     }
+  }
+
+  const metaHits = checkMetaReferences(contentSection);
+  if (metaHits.length > 0) {
+    const uniqueHits = [...new Set(metaHits.map((h) => h.match))];
+    warnings.push(formatFailure([
+      `Warning: Style Drift in ${chapterLabel(currentChapter.number)} contains meta-referential phrasing (第四面墙 break).`,
+      '',
+      'Why it matters:',
+      'Phrases like "第x章", "上一章", or "前文所述" break four-wall immersion. Characters and narration should reference events through story-internal cues — time, place, event name — never through the book structure.',
+      '',
+      'Reviewer focus:',
+      `Replace every meta-reference with a story-internal reference. Check whether the knowledge ledger source=chapter-XX format is leaking into narrative text.`,
+      '',
+      'Observed:',
+      `Found ${metaHits.length} meta-referential phrase(s): ${uniqueHits.join(', ')}`,
+      '',
+      'See:',
+      `- 30-draft/chapters/${chapterLabel(currentChapter.number)}.md`,
+      '- writer-subagent.md (meta-reference rule)',
+    ]));
   }
 
   return { warnings };

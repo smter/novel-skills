@@ -81,6 +81,17 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 
 从第一个缺失、审查未通过或尚未标记为通过的章节继续。
 
+## Subagent 思维链模板
+
+Writer 和 Reviewer 子代理在执行起草或审查前，按以下模板推进：
+
+1. **上下文理解** — 本章在全书的位置？本章的核心目标是什么？出场角色有哪些？
+2. **约束回顾** — 本章需要遵守的风格约束（对照 `10-research/style-research.md` 和 `references/style-analysis-guide.md` 的四层宪章）？角色声线要求（对照角色卡）？伏笔/揭示要求（对照 `20-story/foreshadowing.md`）？
+3. **执行方案** — 拟写几幕？每幕的起止和功能？每幕关键场景？
+4. **自检** — 产出是否覆盖上述所有要求？是否对照 `lint-contract.md` 的起草自检清单逐项通过？
+
+subagent 在实际产出之前，先输出以上四步的简短摘要。
+
 ## Writer 子 Agent 契约
 
 只向 writer 提供：
@@ -96,6 +107,10 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 
 writer 输出当前章节草稿，并写出当前章节的 continuity state。
 
+**Writer 硬性要求：**
+- 对话场景中，每段对话必须至少体现一种潜文本动词（暴露/操控/维护）。对照 `references/theory/mckee-dialogue.md` 的三大功能和潜文本动词体系检查。
+- 起草时对照 `references/style-analysis-guide.md` 的四层宪章（神/骨/皮/肉）逐层校验风格一致性。
+
 ## Reviewer 子 Agent 契约
 
 reviewer 需要检查：
@@ -108,6 +123,8 @@ reviewer 需要检查：
 - 与前文章节的连续性
 - 与 `story-state.md` 和最近已批准 continuity state 的一致性
 - 节奏与可读性
+- 角色行为一致性：对照 `references/theory/mckee-character.md` 的六维度体系检查角色行为是否与角色卡定义一致，是否存在矛盾。确认本角色在本章中是否有可感知的弧光推进
+- 叙事结构校验：本章是否达成 `30-draft/chapter-plan.md` 中的本章目标？是否正确承接前章事件、为后章铺垫线索？
 
 当 reviewer 或 controller 只需要确认字数是否达标，而不是做完整 `Progress` / `Completion` 验证时：
 - 运行 `node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.mts --project-root <project-root> --mode WordCount`

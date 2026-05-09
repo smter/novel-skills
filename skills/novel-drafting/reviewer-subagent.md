@@ -56,6 +56,7 @@
 - 当前 POV 是否把他人 knowledge leak 成自己的思考前提，或把 `suspected` 写成 `confirmed`
 - 是否把已消耗的一次性事件重新写成首次发生
 - 节奏与可读性
+- 是否出现元叙事措辞：对话或叙述中是否出现"第x章""第x卷""上一章""前文所述"等打破第四面墙的表述
 
 如果你或控制器只需要确认字数是否达标：
 - 优先使用正式的 `WordCount` 验证模式
@@ -86,6 +87,9 @@
 如果风格问题来自 `style-research.md`，必须把对应风格规则转写成 writer 可执行的修订项，而不是只写“风格不对”。
 如果风格问题属于后期漂移，必须说明触发信号，例如破折号滥用、解释性句子堆积、口头禅回声或重复句式。
 
+如果出现元叙事措辞，必须在修订项中引用原文并给出修改建议：
+- 元叙事措辞：第3段对话"就像第三章那样" → 改为故事内部参照，如"就像火场那次"
+
 审查文件必须包含 `## Continuity Findings`：
 - 若无问题，使用 `Clean: <结论>` 格式
 - 若有问题，使用 `Conflict: <Event Name> | source=story-state|chapter-state | issue=<slug>` 格式
@@ -109,6 +113,7 @@
 - Knowledge Boundary: pass
 - Style Adherence: pass
 - Style Drift: pass
+- Meta-Reference: pass
 
 ## Findings
 - ...

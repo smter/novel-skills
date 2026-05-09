@@ -2,10 +2,14 @@
   "name": "novel-skills",
   "private": true,
   "scripts": {
-    "test": "node --import tsx --test"
+    "test": "node --import tsx --test",
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit && node --import tsx --test tests/validators.test.js",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/node": "^24.9.1",
+    "husky": "^10.9.3",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
