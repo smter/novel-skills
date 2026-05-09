@@ -1,3 +1,25 @@
+# novel-research Interview Flow Redesign — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Restructure `skills/novel-research/SKILL.md` from a flat interview list into 6 numbered phases (scope assessment → approach exploration → incremental interview → research & files → self-check → user review gate), and update `completion-gate.md` exit rules to reference the new Phase 6 gate.
+
+**Architecture:** Single-file skill doc rewrite. The core change is reordering and wrapping existing content into phase-structured sections. No new files. The only reference file touched is `completion-gate.md` (exit rules). All other references (`interview-loop.md`, `research-workflow.md`, `file-contract.md`, `project-scaffold.md`) remain unchanged.
+
+**Tech Stack:** Markdown-only change. Verification via `npx tsc --noEmit` and `npm test`.
+
+---
+
+### Task 1: Rewrite SKILL.md — top half (overview through Phase 3)
+
+**Files:**
+- Modify: `skills/novel-research/SKILL.md:1-96` (replaces frontmatter through current 角色卡导入)
+
+- [ ] **Step 1: Replace SKILL.md from frontmatter through Phase 3**
+
+Replace lines 1–96 (the YAML frontmatter through the 角色卡导入 section) with the new content below. The replacement includes: frontmatter, 概述, 何时使用, 必需产物, Phase 1, Phase 2, Phase 3.
+
+```markdown
 ---
 name: novel-research
 description: Use when 需要为新的中文小说项目完成设定澄清、背景或世界观调研、风格约束与起草前项目脚手架搭建
@@ -32,8 +54,7 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 - `10-research/setting-research.md`
 - `10-research/style-research.md`
 - `10-research/references.md`
-- `20-story/characters/` — 每个角色一个 `.md` 文件，统一角色卡格式
-- `20-story/character-relationships.md` — 角色间双向关系
+- `20-story/characters.md`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
@@ -144,14 +165,12 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 如果用户提供角色卡路径：
 1. 运行 `<skill-root>/scripts/parse-charcard.mts --input <path> --project-root <project-root>`
-2. 读取生成的 `20-story/characters/<角色名>.md`
+2. 读取生成的 `20-story/charcard-raw/<角色名>.md`
 3. 遍历「需代理总结」区域的 system_prompt / post_history_instructions，提取对角色塑造有用的信息
-4. 将解析结果 + 代理总结整合到角色的角色卡文件
-5. 身份 / 目标 / 动机 / 冲突 / 弧光等遗留字段留为占位符，供访谈阶段补充完成
+4. 将解析结果 + 代理总结整合到 `20-story/characters.md` 的对应角色条目
+5. 若解析出的信息足以覆盖模板字段，直接填充；不足的部分在 Phase 4 补充
 
 如果用户没有角色卡，继续 C 组访谈。
-
-**角色创建管线：** agent 在创建角色时，按 `references/character-interview-guide.md` 第一部分的 char0~7 步骤逐步骤执行，角色创建完成后运行第二部分「角色审查」进行自检。
 
 ### C 组：边界条件
 
@@ -165,16 +184,40 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 ### 整体确认
 
 三组全部通过后，agent 给出覆盖所有 8 个话题 + 角色信息的整体摘要。用户确认后进入 Phase 4。
+```
 
+- [ ] **Step 2: Verify the edit applied correctly**
+
+Run: `head -5 skills/novel-research/SKILL.md`
+Expected: YAML frontmatter with `name: novel-research`
+
+Run: `rg "Phase 3: 增量访谈" skills/novel-research/SKILL.md`
+Expected: match found
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/SKILL.md
+git commit -m "feat(research): restructure SKILL.md top half — Phases 1-3"
+```
+
+---
+
+### Task 2: Rewrite SKILL.md — bottom half (Phase 4 through end)
+
+**Files:**
+- Modify: `skills/novel-research/SKILL.md` (remaining old content after the Phase 3 insertion)
+
+- [ ] **Step 1: Replace remaining old content with Phases 4-6 + preserved sections**
+
+Now replace everything after Phase 3 (the old 搜索策略, 调研转化, 完整性清单, 推进前置条件, 常见自我说服, 状态流转, 下一步 sections) with the new Phase 4–6 content plus updated preserved sections.
+
+```markdown
 ---
 
 ## Phase 4: 调研与文件撰写
 
 将 Phase 2–3 确认的结论写入全部 11 个产物文件。
-
-**风格与叙事构建：** agent 在撰写 `10-research/style-research.md` 时，按 `references/style-analysis-guide.md` 的文体分析流程和风格复现宪章产出风格约束。在撰写 `30-draft/chapter-plan.md` 和 `20-story/plot-outline.md` 时，按 `references/narrative-structure-guide.md` 的叙事框架设计 → 叙事网络梳理 → 章节细化流程构建故事结构。
-
-**世界观构建：** agent 在撰写 `10-research/setting-research.md` 时，按 `references/worldbuilding-guide.md` 的 7 大板块（基调与物理原则 → 自然禀赋 → 生物圈 → 世界历史 → 人文文化 → 区域差异化 → 文化符号）逐板块构建。板块一至六必填，板块七可选。
 
 ### 联网调研
 
@@ -198,7 +241,7 @@ description: Use when 需要为新的中文小说项目完成设定澄清、背�
 
 - 每个文件的约束必须可追溯到 Phase 3 的确认结论
 - 文件之间不得矛盾（若有，视为未完成）
-- 角色卡解析结果整合到 `20-story/characters/` 目录（目录非空），并更新 `20-story/character-relationships.md`
+- 角色卡解析结果整合到 `characters.md`
 
 ---
 
@@ -268,7 +311,104 @@ node --experimental-strip-types <skill-root>/scripts/validate-research-project.m
 ## 参考文件
 
 - 自检细则：[references/completion-gate.md](references/completion-gate.md)
-- 角色访谈方法指引：[references/character-interview-guide.md](references/character-interview-guide.md)
-- 世界观构建方法指引：[references/worldbuilding-guide.md](references/worldbuilding-guide.md)
-- 风格分析方法指引：[references/style-analysis-guide.md](references/style-analysis-guide.md)
-- 叙事结构方法指引：[references/narrative-structure-guide.md](references/narrative-structure-guide.md)
+```
+
+- [ ] **Step 2: Verify the file is complete and well-formed**
+
+Run: `wc -l skills/novel-research/SKILL.md`
+Expected: ~200-230 lines
+
+Run: `rg "Phase 6: 用户审阅闸门" skills/novel-research/SKILL.md`
+Expected: match found
+
+Run: `rg "novel-drafting" skills/novel-research/SKILL.md`
+Expected: match found (checks 下一步 preserved)
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/SKILL.md
+git commit -m "feat(research): restructure SKILL.md bottom half — Phases 4-6 + preserved sections"
+```
+
+---
+
+### Task 3: Update completion-gate.md exit rules
+
+**Files:**
+- Modify: `skills/novel-research/references/completion-gate.md:27-33`
+
+- [ ] **Step 1: Update exit rules to reference Phase 6 gate**
+
+Replace lines 27–33 (the 退出规则 section):
+
+**Old:**
+```markdown
+## 退出规则
+
+只有在清单全部通过后，才能：
+
+- set `Status` to `research_complete`
+- set `Next Allowed Skill` to `novel-drafting`
+- update `Last Updated`
+```
+
+**New:**
+```markdown
+## 退出规则
+
+清单全部通过后，进入 Phase 6（用户审阅闸门）。只有在用户明确确认后：
+
+- set `Status` to `research_complete`
+- set `Next Allowed Skill` to `novel-drafting`
+- update `Last Updated`
+```
+
+- [ ] **Step 2: Verify the edit**
+
+Run: `rg "Phase 6" skills/novel-research/references/completion-gate.md`
+Expected: match found
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/completion-gate.md
+git commit -m "docs(research): update completion-gate exit rules to reference Phase 6 user review"
+```
+
+---
+
+### Task 4: Verification
+
+**Files:**
+- No changes — read-only verification
+
+- [ ] **Step 1: Run TypeScript type check**
+
+```bash
+npx tsc --noEmit
+```
+Expected: exit code 0, no errors (only checking that SKILL.md changes didn't break any TypeScript files — this is a markdown-only change so it should pass)
+
+- [ ] **Step 2: Run test suite**
+
+```bash
+npm test
+```
+Expected: all tests pass
+
+- [ ] **Step 3: Run portability guard**
+
+```bash
+node --import tsx --test tests/validators.test.js --test-name-pattern "skill source files do not depend on repo-root shared script paths"
+```
+Expected: PASS
+
+- [ ] **Step 4: Commit if any auto-fixes were applied**
+
+Only if pre-commit hooks modified files:
+```bash
+git add -A && git commit -m "chore: auto-fixes from pre-commit hooks"
+```
+Otherwise skip.
+```

@@ -49,7 +49,25 @@ function writeDraftingBaseProject(root, overrides = {}) {
     '- Next Allowed Skill: novel-drafting',
     '- Last Updated: 2026-04-22',
   ].join('\n'));
-  writeFile(root, '20-story/characters.md', overrides.characters ?? '# Characters\n');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/test-character.md', overrides.charactersCard ?? [
+    '# Test',
+    '',
+    '## 身份定位',
+    '- **身份**：Protagonist',
+    '',
+    '## 角色档案',
+    '- **简介**：A test character',
+    '',
+    '## 情景设定',
+    'Test scenario',
+  ].join('\n'));
+  writeFile(root, '20-story/character-relationships.md', overrides.characterRelationships ?? [
+    '# 角色关系',
+    '',
+    '## Test ↔ Other',
+    '- **关系类型**：Ally',
+  ].join('\n'));
   writeFile(root, '20-story/plot-outline.md', overrides.plotOutline ?? '# Plot Outline\n');
   writeFile(root, '20-story/foreshadowing.md', overrides.foreshadowing ?? '# Foreshadowing\n');
   writeFile(root, '30-draft/chapter-plan.md', overrides.chapterPlan ?? [
@@ -274,7 +292,7 @@ test('research validator is invokable through the strip-types entrypoint', () =>
     '## Protagonist Goal',
     '找出真正主谋并让对方在公众面前失去一切。',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '不要洗白加害者，不要超自然设定。',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
@@ -332,12 +350,29 @@ test('research validator is invokable through the strip-types entrypoint', () =>
     '- Confidence: medium',
     '- Notes: 可作为前三章压力来源。',
   ].join('\n'));
-  writeFile(root, '20-story/characters.md', [
-    '# Characters',
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/lin-wen.md', [
+    '# 林闻',
     '',
-    '- Name: 林闻',
-    '- Desire: 公开真相并复仇',
-    '- Fear: 家人因此受害',
+    '## 身份定位',
+    '- **身份**：媒体从业者',
+    '- **年龄**：28',
+    '',
+    '## 角色档案',
+    '- **简介**：女主，调查记者，在伴侣死后发现他参与了伪造事故',
+    '- **欲望**：公开真相并复仇',
+    '- **恐惧**：家人因此受害',
+    '',
+    '## 情景设定',
+    '葬礼后收到匿名证据，发现至爱之人的背叛。',
+  ].join('\n'));
+  writeFile(root, '20-story/character-relationships.md', [
+    '# 角色关系',
+    '',
+    '## 林闻 ↔ 周叙',
+    '- **关系类型**：恋人→背叛者',
+    '- **关系阶段**：已故/虚假',
+    '- **状态**：周叙已死，但其伪造行为成为林闻复仇的起点。',
   ].join('\n'));
   writeFile(root, '20-story/plot-outline.md', [
     '# Plot Outline',
@@ -411,7 +446,7 @@ test('research validator passes for a complete scaffold', () => {
     '## Protagonist Goal',
     '证明父亲不是纵火案真凶，并找出真正受益者。',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '不加入超能力和命运论反转。',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', [
@@ -454,7 +489,9 @@ test('research validator passes for a complete scaffold', () => {
     '- Confidence: medium',
     '- Notes: 适合在中段逐步揭示。',
   ].join('\n'));
-  writeFile(root, '20-story/characters.md', '# Characters\n\n- Name: 沈枝\n- Goal: 为父亲翻案\n- Wound: 对故乡与亲人的长期逃避\n');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/shen-zhi.md', '# 沈枝\n\n## 身份定位\n- **身份**：记者\n\n## 角色档案\n- **简介**：女主，为父亲翻案\n- **创伤**：对故乡与亲人的长期逃避\n\n## 情景设定\n回乡奔丧，发现父亲遗物。\n');
+  writeFile(root, '20-story/character-relationships.md', '# 角色关系\n\n## 沈枝 ↔ 赵屿\n- **关系类型**：旧友\n- **关系阶段**：疏远后重逢\n');
   writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: 沈枝回乡奔丧。\n- Inciting Incident: 她发现父亲遗物里藏有失踪证词。\n- Midpoint: 她确认旧案有人篡改消防记录。\n- Crisis: 关键证人突然失踪。\n- Climax: 她在拆迁听证会上公开录音与账本。\n- Resolution: 旧案重启调查，故乡关系却再也回不到从前。\n');
   writeFile(root, '20-story/foreshadowing.md', '# Foreshadowing\n\n- Setup: 第一章出现被雨水浸坏的旧录音笔。\n- Payoff: 第八章恢复录音后揭露篡改指令。\n');
   writeFile(root, '30-draft/chapter-plan.md', [
@@ -488,14 +525,16 @@ test('research validator passes for a complete scaffold', () => {
 test('research validator rejects a generic current stage value', () => {
   const root = makeTempProject();
 
-  writeFile(root, '00-project/project-brief.md', '# Project Brief\n\n## Working Title\n《试作》\n\n## Genre/Type\n悬疑\n\n## Target Audience\n网文读者\n\n## Target Length\n中篇\n\n## Core Premise\n主角调查好友失踪。\n\n## Central Conflict\n调查会伤害现有关系。\n\n## Protagonist Goal\n找回好友。\n\n## Forbidden Content\n不要超自然。\n');
+  writeFile(root, '00-project/project-brief.md', '# Project Brief\n\n## Working Title\n《试作》\n\n## Genre/Type\n悬疑\n\n## Target Audience\n网文读者\n\n## Target Length\n中篇\n\n## Core Premise\n主角调查好友失踪。\n\n## Central Conflict\n调查会伤害现有关系。\n\n## Protagonist Goal\n找回好友。\n\n## Content Boundaries\n不要超自然。\n');
   writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 网文读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: all planned chapters drafted and approved\n- Review Pass Rule: every planned chapter review must be 通过\n');
   writeFile(root, '00-project/workflow-status.md', 'Status: research_complete\nCurrent Stage: research\nPlanned Chapters: 8\nCompleted Chapters: 0\nBlocking Issues: none\nNext Allowed Skill: novel-drafting\n');
   writeFile(root, '10-research/topic-research.md', '# Topic Research\n\n- 线人通常不会在线上直接传递完整证据。\n');
   writeFile(root, '10-research/setting-research.md', '# Setting Research\n\n- 故事发生在沿海旅游城市的淡季。\n');
   writeFile(root, '10-research/style-research.md', '# Style Research\n\n- 叙事要求冷静克制，避免戏剧化旁白。\n');
   writeFile(root, '10-research/references.md', '## Source Entry\n- Source: 采访\n- Type: interview\n- Reliability: medium\n- Notes: 提供线人行为参考。\n\n## Open Question\n- Question: 监控保留多久？\n- Status: open\n- Notes: 影响取证窗口。\n\n## Inference Note\n- Inference: 反派会先抹黑主角。\n- Basis: 同类故事压力来源。\n- Confidence: low\n- Notes: 需后续验证。\n');
-  writeFile(root, '20-story/characters.md', '# Characters\n\n- Name: 祁遥\n');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/qi-yao.md', '# 祁遥\n\n## 身份定位\n- **身份**：调查者\n\n## 角色档案\n- **简介**：主角，调查好友失踪\n');
+  writeFile(root, '20-story/character-relationships.md', '# 角色关系\n\n## 祁遥 ↔ 某角色\n- **关系类型**：待定\n');
   writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: 主角返城。\n- Midpoint: 她发现熟人撒谎。\n- Resolution: 她找到失踪者。\n');
   writeFile(root, '20-story/foreshadowing.md', '# Foreshadowing\n\n- Setup: 第一章提到坏掉的手机。\n- Payoff: 第六章恢复短信记录。\n');
   writeFile(root, '30-draft/chapter-plan.md', '# Chapter Plan\n\n## Overview\n- Total Chapters: 8\n- Target Per Chapter: 1800-2400\n\n## Chapter List\n\n### Chapter 1\n- Title: 返城\n- POV: 祁遥\n- Word Target: 1800-2400\n- Goal: 让主角接到求救信息。\n- Key Events: 返城；发现异常；决定调查。\n- Characters: 祁遥\n');
@@ -537,7 +576,7 @@ test('research validator rejects thin placeholder-like scaffolds', () => {
     '## Protagonist Goal',
     '待补充',
     '',
-    '## Forbidden Content',
+    '## Content Boundaries',
     '无',
   ].join('\n'));
   writeFile(root, '00-project/success-criteria.md', '# Success Criteria\n\n- Target Audience: 读者\n- Length Tier: novella\n- Planned Chapters: 8\n- Target Total Words: 16000-22000\n- Per-Chapter Word Range: 1800-2400\n- Completion Rule: done\n- Review Pass Rule: pass\n');
@@ -546,7 +585,9 @@ test('research validator rejects thin placeholder-like scaffolds', () => {
   writeFile(root, '10-research/setting-research.md', 'setting');
   writeFile(root, '10-research/style-research.md', 'style');
   writeFile(root, '10-research/references.md', '## Source Entry\n- Source: {{source}}\n\n## Open Question\n- Question: {{question}}\n\n## Inference Note\n- Inference: {{inference}}\n');
-  writeFile(root, '20-story/characters.md', 'characters');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/placeholder.md', 'characters');
+  writeFile(root, '20-story/character-relationships.md', 'relationships');
   writeFile(root, '20-story/plot-outline.md', '# Plot Outline\n\n## Story Spine\n- Opening: {{opening}}\n- Midpoint: {{midpoint}}\n- Resolution: {{resolution}}\n');
   writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
   writeFile(root, '30-draft/chapter-plan.md', '# Chapter Plan\n\n## Overview\n\n## Chapter List\n\n### Chapter 1\n');
@@ -573,7 +614,9 @@ test('drafting validator fails when a planned review is not passing', () => {
     'Blocking Issues: none',
     'Next Allowed Skill: novel-drafting',
   ].join('\n'));
-  writeFile(root, '20-story/characters.md', 'characters');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/test.md', '# Test\n\n## 身份定位\n- **身份**：Tester\n');
+  writeFile(root, '20-story/character-relationships.md', '# 角色关系\n');
   writeFile(root, '20-story/plot-outline.md', 'plot');
   writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
   writeFile(root, '30-draft/chapter-plan.md', [
@@ -692,7 +735,9 @@ test('drafting validator in completion mode fails when later chapters are still 
     'Blocking Issues: none',
     'Next Allowed Skill: novel-drafting',
   ].join('\n'));
-  writeFile(root, '20-story/characters.md', 'characters');
+  fs.mkdirSync(path.join(root, '20-story', 'characters'), { recursive: true });
+  writeFile(root, '20-story/characters/test.md', '# Test\n\n## 身份定位\n- **身份**：Tester\n');
+  writeFile(root, '20-story/character-relationships.md', '# 角色关系\n');
   writeFile(root, '20-story/plot-outline.md', 'plot');
   writeFile(root, '20-story/foreshadowing.md', 'foreshadowing');
   writeFile(root, '30-draft/chapter-plan.md', [
@@ -1832,7 +1877,7 @@ test('drafting reviewer docs require explicit checks for remaining research arti
   assert.match(reviewerSubagent, /10-research\/topic-research\.md/);
   assert.match(reviewerSubagent, /10-research\/setting-research\.md/);
   assert.match(reviewerSubagent, /10-research\/references\.md/);
-  assert.match(reviewerSubagent, /核心 premise|禁忌内容|Forbidden Content/);
+  assert.match(reviewerSubagent, /核心 premise|禁忌内容|Content Boundaries/);
   assert.match(reviewerSubagent, /真实性|术语|topic-research|setting-research/);
   assert.match(reviewerSubagent, /inference|open question|未验证|不确定/);
   assert.match(reviewTemplate, /Premise Alignment:\s*pass/);

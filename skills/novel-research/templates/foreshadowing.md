@@ -16,7 +16,7 @@ template: foreshadowing
 - Payoff Point: {{payoff_point}}
 - Notes: {{notes}}
 
-## Continuity Risk
+## Continuity Constraint
 
 - Risk: {{risk}}
 - Why It Matters: {{why_it_matters}}

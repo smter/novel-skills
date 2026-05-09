@@ -31,7 +31,8 @@
 - `10-research/setting-research.md`
 - `10-research/style-research.md`
 - `10-research/references.md`
-- `20-story/characters.md`
+- `20-story/characters/` — 角色卡片目录（每个角色一个 .md 文件）
+- `20-story/character-relationships.md` — 角色关系文件
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`

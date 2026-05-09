@@ -1,0 +1,1017 @@
+# 珠矶角色管线提取 — 实施计划
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** 将珠矶预设的 char0~7 角色创建管线 + 角色审查提取并融入 `character-interview-guide.md`，使其成为 agent Phase 3 访谈的操作手册。
+
+**Architecture:** 增强已有文件（不新增），按「引言→主体管线→角色审查→维度参考→附录」五段式重组。主体 char0~7 每步骤含目标/流程/输出/衔接四要素。
+
+**Tech Stack:** Markdown 文档工程，源数据取自 `ref/example/【珠矶预设化】V1.71.json` 的 21 个 prompt。
+
+---
+
+### Task 1: 重写引言部分（保留迁移）
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md:1-108`
+
+- [ ] **Step 1: 读取现有文件，提取三段原则 + 文件头部**
+
+```bash
+cat skills/novel-research/references/character-interview-guide.md
+```
+
+- [ ] **Step 2: 写入新文件头部，引言保留三条原则不动，尾部加管线入口**
+
+用以下内容替换文件开头至第一条原则结束的区域（第 1–29 行）：
+
+```markdown
+# 角色访谈指导 — Agent 操作手册
+
+本文件指导 agent 在 novel-research Phase 3 访谈中为每个角色生成完整的统一角色卡。
+
+**使用方式：** agent 按第一部分 char0~7 管线逐步骤操作，每步完成后再进入下一步。
+角色创建完成后运行第二部分「角色审查」。第三部分「访谈维度参考」供按需查阅。
+附录提供备选模板、清单和理论知识。
+
+---
+
+## 核心原则
+
+三条原则贯穿所有 char 步骤，agent 在每一步都必须遵守：
+
+### 原则一：迭代式深挖
+
+不要满足于单轮问答。对每个角色维度采用「提出开放问题 → 用户回答 → 追问行为具体性 → 用户补充 → agent 总结确认」的循环。
+
+### 原则二：行为具体性强制
+
+用户说抽象形容词（如「她很善良」）时，必须追问具体场景下的行为：
+- 「她看到受伤的动物具体会做什么？」
+- 「面对哭泣的孩子呢？」
+- 「对被打败的敌人呢？」
+
+将抽象特质转化为可写的具体行为。
+
+### 原则三：两阶段生成
+
+对需要 agent 输出的内容（如开场呈现、对话风格），采用「提案 → 选择 → 执行」：
+1. agent 根据已了解的角色信息生成 2–3 个方案（每个 2–3 句概括）
+2. 用户选择一个
+3. agent 写出完整版本
+
+---
+
+## 管线入口
+
+开始创建角色前，确认以下前置条件：
+- [ ] 用户已完成 A 组 + B 组访谈（类型/篇幅/基调/核心冲突/主角欲望）
+- [ ] 用户已完成角色卡导入（如有）或确认进入 C 组之前先建角色
+
+遇到以下情况时暂停管线，回到 Phase 3 访谈：
+- 角色核心矛盾不明确（返回 char0）
+- 角色与故事主线关系不清楚（返回 char0）
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: restructure character interview guide header with pipeline entry gate"
+```
+
+---
+
+### Task 2: 写入 char0 — 概念设计
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [111] char0宝宝一键出模块要求和思维链, [112] 风空精神分析模版, [113] 大丨模板, [114] 心理动力学网络构架, [115] char0.5人物塑造模板
+
+- [ ] **Step 1: 读取 char0 源 prompt 内容**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [111,112,113,114,115]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content']); print()
+" | head -500
+```
+
+- [ ] **Step 2: 在引言后追加 char0 章节**
+
+在文件末尾追加以下内容：
+
+```markdown
+---
+
+# 第一部分：角色创建管线
+
+管线按 char0 → char7 顺序执行。每一步不可跳过（char7 除外）。
+每个步骤标注了源 prompt 序号，供深入查阅 zhuji 原始内容。
+
+---
+
+## char0 — 概念设计
+
+> 源 prompt: [111] [112] [113] [114] [115]
+
+**目标：** 建立角色核心概念框架，产出身份定位五字段。
+
+**操作流程：**
+
+1. **模板选择：** agent 根据角色特征选择一个 char0 模板（详见附录 A）：
+   - **大丨标准化模板** — 通用的结构化角色档案格式，适用于所有类型
+   - **风空精神分析模板** — 侧重精神分析框架（镜像阶段/阉割事件/创伤真实），适用于心理复杂度高的角色
+   - **心理动力学网络构架模板** — OOC 避免强化，适用于多重内在驱动力的复杂角色
+
+2. **按模板提问，逐项覆盖：**
+   - 角色在故事中承担什么功能？（推动情节 / 制造障碍 / 提供镜像）
+   - 核心矛盾是什么？（内在冲突 / 外在冲突）
+   - 关键关系方向？（与主角/其他角色的初始关系态势）
+   - 变化弧光预期？（从不X到Y → 具体化X和Y）
+   - 七部分思维链：外显概貌 → 内质雏形 → 外延轮廓 → 潜在特质 → 语感倾向 → 关系预设 → 视觉意象
+
+3. **概念验证：** agent 用 3–5 句总结角色概念，包含以上 7 个维度，问用户「这个方向对吗？」
+
+4. **产出确认：** 用户确认后，写入以下五字段。
+
+**输出格式（写入 `20-story/characters/{角色名}.md` 的「身份定位」段落）：**
+
+```markdown
+## 身份定位
+- **身份**：{角色全名 + 在故事中的角色定位}
+- **目标**：{想达成什么，如果失败会怎样}
+- **动机**：{为什么非要这么做，深层驱动}
+- **核心冲突**：{最大的内在/外在矛盾}
+- **弧光笔记**：{预期的变化轨迹，从 X 到 Y}
+```
+
+**衔接检查（进入 char1 之前）：**
+- [ ] 身份、目标、动机、冲突、弧光五字段均已填写且无矛盾
+- [ ] 用户已确认角色概念方向
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add char0 concept design step to character interview guide"
+```
+
+---
+
+### Task 3: 写入 char1 — 外显模块
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [116] char1:外显模块(正常), [117] char1:外显模块(色情)
+
+- [ ] **Step 1: 读取 char1 源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [116,117]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content'][:1500]); print()
+"
+```
+
+- [ ] **Step 2: 在文件末尾追加 char1 章节**
+
+```markdown
+## char1 — 外显模块
+
+> 源 prompt: [116] [117]
+
+**目标：** 建立角色的物质可感知维度，包括面貌、身体、声音、气味、服装。
+
+**外显定义：** 一切可通过感官直接获取信息的角色固有属性。排除精神内核、个人能力、社会关系后，角色剩下的物质性存在。
+
+**操作流程：**
+
+1. **逐维度提问（5 个维度，每个维度追问行为具体性）：**
+   - **面容** — 「她的脸给人什么第一印象？最引人注意的是哪个特征？」
+   - **身体** — 「体型、身高、姿态？静止和运动时给人的感觉有什么不同？」
+   - **声音** — 「音色、语速、音量？说话时有什么习惯性动作？」
+   - **气味** — 「她身上有什么特殊的气味？来自什么？」
+   - **服装** — 「常穿什么？穿衣风格体现什么性格？」
+   - **反差追问** — 「有没有与性格形成反差的特征？」（如幼小身躯 + 成熟气质、温柔脸庞 + 冷酷眼神）
+
+2. **官能内容（可选）：** 如用户声明创作官能/色情内容，激活色情化外显维度——集中于视觉、触觉、听觉、嗅觉、味觉的五官感受描写。
+
+3. **行为具体性验证：** 对每个外显特征追问「这体现在什么具体行为中？」
+
+4. **生成外显摘要，用户确认。**
+
+**输出格式（写入角色卡「简介」字段的外貌部分 + 「标签」字段补充）：**
+
+```markdown
+## 角色档案
+- **简介**：{包含外貌、身体、声音、气味、服装的整合描述}
+- **标签**：{外显特征标签，如「银发赤瞳」「身形修长」}
+```
+
+**衔接检查（进入 char2 之前）：**
+- [ ] 5 个外显维度均已覆盖
+- [ ] 至少有 1 处外显与内质的反差关系（或标记为「外观即内在」）
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add char1 external module to character interview guide"
+```
+
+---
+
+### Task 4: 写入 char2 + char3 — 内质/外延模块
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [118] char2:内质模块, [119] char2:超级重力生成器, [120] char3:外延模块, [121] char3外延补充
+
+- [ ] **Step 1: 读取 char2/char3 源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [118,119,120,121]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content'][:1200]); print()
+"
+```
+
+- [ ] **Step 2: 在文件末尾追加 char2 + char3 章节**
+
+```markdown
+## char2 — 内质模块
+
+> 源 prompt: [118] [119]
+
+**目标：** 建立角色的精神内核，包括人格、驱动力、世界观体系。
+
+**内质定义：** 一切无法通过肉眼直接观测的抽象行为准则——性格、人格种类、内在品格、心理活动方式、价值取向、理想信念、潜在恐惧、情感变化、内心冲突等。
+
+**操作流程：**
+
+1. **人格类型（可选框架）：**
+   - MBTI（精力来源/认知方式/决策方式/生活方式）
+   - Enneagram（核心恐惧+核心欲望驱动的人格类型）
+   - 为每种类型标注 1–2 个具体行为示例
+
+2. **核心驱动力：**
+   - 「什么让他早上起床？他活着为了什么？」
+   - 「他不敢面对什么？」（潜在恐惧 → 行为根源）
+
+3. **压力差异：** 「他在压力下和放松时，性格表现有什么不同？」
+   - 举例：平时温和的人，压力下变得冷漠；平时话多的人，压力下沉默
+
+4. **盲点与认知差距：**
+   - 「他有什么不自知的盲点？」（别人能看到但他看不到的）
+   - 「别人对他的评价和他自己的认知有什么差距？」
+
+5. **价值体系：**
+   - 世界观（他认为这个世界是怎样的？）
+   - 价值观（什么对他最重要？他会为此放弃什么？）
+   - 爱情观/情感观（他如何处理亲密关系？）
+
+6. **生成内质摘要，用户确认。**
+
+**输出格式（写入角色卡「性格」字段 + 「深层设定」字段）：**
+
+```markdown
+## 角色档案
+- **性格**：{人格类型 + 核心驱动力 + 压力差异 + 盲点}
+
+## 深层设定
+- **核心认同**：{他如何看待自己}
+- **驱动力结构**：{什么让他行动}
+- **情感模式**：{他如何处理亲密关系}
+- **过往创伤**：{塑造了他但回避谈论的事}
+```
+
+**衔接检查（进入 char3 之前）：**
+- [ ] 至少有 3 个可写的行为差异点（压力下 vs 放松下 vs 公开场合 vs 独处）
+- [ ] 至少 1 个不自知的盲点
+
+---
+
+## char3 — 外延模块
+
+> 源 prompt: [120] [121]
+
+**目标：** 建立角色的社会属性与互动属性。
+
+**外延定义：** 角色在抽离外貌、声音、气味、内心本质等自身固有属性后，留下的社会属性与可互动属性——个人能力、他人评价、社会地位、行事逻辑、亲密关系、家庭组织、抗压能力、自我调节行为等。
+
+**操作流程：**
+
+1. **社会定位：**
+   - 「他在社会中处于什么位置？」（阶层/职业/声望）
+   - 「别人怎么看他？」（公众形象 vs 私下形象）
+
+2. **行事逻辑：**
+   - 「他做决定的方式是什么？」（理性/冲动/直觉/权衡）
+   - 「面对困境时他通常怎么做？」（迎难/逃避/求助/操控）
+
+3. **成长经历时间线：**
+   - 关键年龄段的事件（如 6 岁、12 岁、16 岁……某个转折点发生了什么？）
+   - 塑造角色的关键事件（发生了什么？谁影响了？改变了什么？）
+
+4. **补充拓展（可选）：**
+   - 恋爱史 / 教育背景 / 职业路径 / 个人成就
+   - 如不需要可跳过
+
+5. **生成外延摘要，用户确认。**
+
+**输出格式（写入角色卡「情景设定」字段 + 「深层设定」字段）：**
+
+```markdown
+## 情景设定
+{角色当前处境 + 社会定位 + 行事逻辑}
+
+## 深层设定
+- **核心认同**：{补充社会属性视角}
+```
+
+**衔接检查（进入 char4 之前）：**
+- [ ] 社会定位与行事逻辑已确定
+- [ ] 至少 2 个关键成长事件已记录
+- [ ] char2 的内质与 char3 的外延无矛盾
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add char2 interior and char3 exterior modules to interview guide"
+```
+
+---
+
+### Task 5: 写入 char4 + char5 — 特质细化 / 语料生成
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [122] char4:桐谷申元化, [123] char4:心理动力学, [124] char5:自我介绍, [125] char5:场景描述, [126] char5:特质化语料
+
+- [ ] **Step 1: 读取 char4/char5 源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [122,123,124,125,126]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content'][:1200]); print()
+"
+```
+
+- [ ] **Step 2: 在文件末尾追加 char4 + char5 章节**
+
+```markdown
+## char4 — 特质细化
+
+> 源 prompt: [122] [123]
+
+**目标：** 从 char0~3 产出中提炼 5–8 个核心特质，每个含行为示例和语言示例。
+
+**操作流程：**
+
+1. **特质提取：** agent 回顾 char0~3 产出，提取 5–8 个关键特质。
+   特质应覆盖：正面特质 / 负面特质 / 情境依赖特质（只在特定情境下表现）
+
+2. **特质追问（逐特质）：**
+   - 「{特质} 体现在什么具体行为中？」→ 追问直到有可写的场景
+   - 「{特质} 让他说出什么话？」→ 生成 1–2 句该特质下的代表性语言
+   - 「什么情境会触发/抑制这个特质？」
+
+3. **方案选择：** agent 生成两套特质化方案供用户选择：
+   - **桐谷申元化（诗意版）** — 每特质配文学性描写语言，侧重美感与情感深度
+   - **心理动力学网络构架版** — 每特质标注触发条件/防御机制/内部互动，侧重 OOC 避免
+   - 用户选择一个方向（或混合）
+
+4. **整合特质列表，用户确认。**
+
+**输出格式（写入角色卡「性格」字段）：**
+
+```markdown
+## 角色档案
+- **性格**：{char2 的人格类型 + 此处补充 5–8 个特质的完整描述}
+```
+
+每特质格式：
+```markdown
+- **{特质名}**：{1–2 句定义}
+  - 行为示例：{具体场景下的行为}
+  - 语言示例："{一句代表性台词}"
+```
+
+**衔接检查（进入 char5 之前）：**
+- [ ] 5–8 个特质，至少 1 个负面、1 个情境依赖
+- [ ] 每特质至少有 1 个行为示例
+
+---
+
+## char5 — 语料生成
+
+> 源 prompt: [124] [125] [126]
+
+**目标：** 生成角色自我介绍、场景对话示例、特质化语料。语料是角色语言模式的参考，而非真的扮演角色说话。
+
+**操作流程：**
+
+1. **自我介绍（第一人称自述）：**
+   - agent 代角色写 200–300 字自述：「以 '{角色名}' 的口吻，写一段自我介绍，展现其性格和说话风格」
+   - 原则三「两阶段生成」：提供 2 个语气方案 → 用户选择 → 写出完整版
+
+2. **场景对话（3 个场景，每个 3–5 句）：**
+   - 场景 A「说服别人时」— 对话作为行动/操控
+   - 场景 B「表达脆弱时」— 对话作为暴露/求助
+   - 场景 C「日常寒暄时」— 对话作为面具/维护
+   - 每场景附 1–2 句上下文说明
+
+3. **特质化语料生成：**
+   - 从 char4 的 5–8 个特质中选 3 个最核心的
+   - 为每个特质生成 2–3 句对话，体现该特质的语言风格
+
+4. **生成「开场呈现」：**
+   - 原则三「两阶段生成」：提供 2–3 个开场场景方案 → 用户选择 → 写出 200–400 字完整场景
+   - 「读者第一次见到她时，她正在做什么？体现了什么？」
+
+**输出格式：**
+
+写入角色卡「开场呈现」字段：
+```markdown
+## 开场呈现
+{200–400 字场景}
+```
+
+写入角色卡「对话风格」字段：
+```markdown
+## 对话风格
+<!-- 场景A：说服别人 -->
+"{3-5 句对话}"
+<!-- 场景B：表达脆弱 -->
+"{3-5 句对话}"
+<!-- 场景C：日常寒暄 -->
+"{3-5 句对话}"
+```
+
+**衔接检查（进入 char6 之前）：**
+- [ ] 角色卡「开场呈现」+「对话风格」均已填写
+- [ ] 对话风格至少有 2 个场景
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add char4 trait refinement and char5 corpus generation to interview guide"
+```
+
+---
+
+### Task 6: 写入 char6 + char7 — 关系网络 / 视觉设计
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [127] char6:一对一关系, [128] char6:关系网络梳理, [129] char7:概念设计(文生图)
+
+- [ ] **Step 1: 读取 char6/char7 源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [127,128,129]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content'][:1200]); print()
+"
+```
+
+- [ ] **Step 2: 在文件末尾追加 char6 + char7 章节**
+
+```markdown
+## char6 — 关系网络
+
+> 源 prompt: [127] [128]
+
+**目标：** 构建本角色与其他角色的完整关系网络。
+
+**输出目标文件：** `20-story/character-relationships.md`
+
+**操作流程：**
+
+1. **一对一关系分析（对每个已知角色）：**
+   - 关系类型（亲属/恋人/盟友/敌对/利益/师徒/……）
+   - 关系动态（支配/平等/依赖/竞争/……）
+   - 张力点（信任问题/利益冲突/情感纠葛/……）
+   - 演变轨迹（如何开始 → 关键转折 → 当前状态 → 预期走向）
+
+2. **小团体分析：**
+   - 本角色属于哪些群体/阵营？
+   - 群体内各成员与本角色的关系态势
+   - 群体稳定性（紧密/松散/随时可能分裂）
+
+3. **关系冲突分析：**
+   - 是否存在三角关系/双重忠诚/角色冲突？
+   - 哪些关系可能在故事中发生质变？
+
+4. **写入 `character-relationships.md`**（每对关系一条目）：
+
+```markdown
+## {角色A} ↔ {角色B}
+- **关系类型**：{类型}
+- **关系动态**：{动态}
+- **张力点**：{张力}
+- **演变轨迹**：{轨迹}
+- **备注**：{补充}
+```
+
+**衔接检查（进入 char7 之前）：**
+- [ ] 至少与 1 个其他角色的关系已建立
+- [ ] 关系条目已写入 `character-relationships.md`
+
+---
+
+## char7 — 概念设计（视觉）
+
+> 源 prompt: [129]
+
+**目标：** 角色视觉概念 AI 生图提示。**本步骤可跳过，不阻塞管线。**
+
+**操作流程：**
+
+1. 如用户需要角色插图：agent 根据 char1 外显信息生成生图提示
+2. 提示应包含：整体印象 + 关键视觉特征 + 风格方向 + 场景氛围
+
+**输出格式（写入角色卡「创作者备注」字段）：**
+
+```markdown
+## 创作者备注
+**视觉概念提示：** {生图提示词}
+```
+
+**不可阻塞：** 如用户不要求，直接跳过进入第二部分「角色审查」。
+
+---
+
+> **管线完成。** char0~7 全部执行后，角色卡应已覆盖：身份定位、简介、性格、标签、情景设定、开场呈现、对话风格、深层设定。
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add char6 relationship network and char7 visual design to interview guide"
+```
+
+---
+
+### Task 7: 写入第二部分（角色审查）+ 第三部分（访谈维度参考）
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+
+**源 prompt:** [130] 角色审查模块
+
+- [ ] **Step 1: 读取角色审查源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+p = data['prompts'][130]
+print(f'=== [{130}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+print(p['content'][:2000])
+"
+```
+
+- [ ] **Step 2: 在文件末尾追加第二部分 + 第三部分**
+
+```markdown
+---
+
+# 第二部分：角色审查
+
+> 源 prompt: [130]  
+> 前置依赖：`references/theory/mckee-character.md`（子项目四产出，如尚未完成则标注「待补充」）
+
+**执行时机：** char0~7 完成后对角色进行全面诊断。
+
+**审查流程：**
+
+### 一、一致性诊断
+
+检查角色各维度间是否存在矛盾：
+- 外显（char1）vs 内质（char2）是否一致？反差是否有解释？
+- 内质（char2）vs 外延（char3）是否一致？行事逻辑与人格是否匹配？
+- 特质（char4）之间是否有冲突？冲突是否有内在逻辑？
+- 语料（char5）是否符合已定义的特质？
+
+**诊断结果格式：**
+```markdown
+### 一致性诊断
+- **矛盾发现**：{具体矛盾描述，定位到对应 char_step}
+- **解释/修复**：{如果不矛盾，给出解释；如果矛盾，给出修改建议}
+```
+
+### 二、深度与维度诊断
+
+检查角色是否为圆形角色（而非扁平角色）：
+- 角色是否有内在矛盾？（完美/全好/全坏 → 扁平，需要补充）
+- 角色在不同情境下表现是否有变化？（无变化 → 扁平）
+- 角色是否有不可预测但可理解的行为？（没有 → 需要补充）
+- 角色的选择是否有代价？（没有 → 需要补充）
+
+**诊断结果格式：**
+```markdown
+### 深度与维度诊断
+- **当前层次**：{扁平/半圆形/圆形，说明依据}
+- **缺失维度**：{哪些 char_step 需补充}
+- **建议**：{具体补充策略}
+```
+
+### 三、漏洞优化
+
+- 必要维度是否空白？（char0~5 必填字段是否都填了？）
+- 模糊定义是否具体化？（「他很强大」→ 追问具体怎么强大）
+- 标签化特征是否有行为支撑？（「傲娇」→ 追问她傲的时候做什么、娇的时候做什么）
+
+**诊断结果格式：**
+```markdown
+### 漏洞优化
+- **空维度**：{列出未覆盖的维度}
+- **模糊项**：{列出需要具体化的描述}
+- **标签项**：{列出无行为支撑的标签}
+```
+
+**审查结论：**
+- 如任一诊断阶段发现问题但无法在此会话中修复 → 返回对应 char_step 修订
+- 如三项诊断全部通过 → 角色完成，可进入下一个角色或继续 C 组访谈
+
+---
+
+# 第三部分：访谈维度参考
+
+以下是现有访谈问题模板，按对应 char_step 编号重新归位。agent 在对应步骤中可将以下问题作为备选话术。
+
+### 身份定位 → char0
+
+- 「他在故事中承担什么角色？推动情节还是制造障碍？」
+- 「他想要达成什么？如果失败会怎样？」
+- 「他为什么非要这么做？不做行不行？」
+- 「他身上最大的矛盾是什么？」
+- 「他在故事中会经历怎样的变化？」
+
+### 外貌与气质 → char1
+
+- 「她的外表给人什么第一印象？」
+- 「有没有与性格形成反差的特征？」（如幼小身躯 + 成熟气质）
+- 「如果有读者插画，最想强调哪个身体特征？」
+
+### 性格与内在 → char2
+
+- 「用三个形容词描述他，然后为每个词举一个具体行为」
+- 「他在压力下和放松时，性格表现有什么不同？」
+- 「他有什么不自知的盲点？」
+- 「别人对他的评价和他自己的认知有什么差距？」
+
+### 语言风格 → char5
+
+- 「她怎么说话？语速快慢？用词文雅还是粗糙？」
+- 「有什么口头禅或标志性句式？」
+- 「在不同人面前语气会变吗？对上级、对朋友、对敌人分别怎么说？」
+- 「情绪激动时语言会如何变化？会沉默还是会爆发？」
+
+### 行为细节 → char4
+
+- 「紧张时的小动作是什么？」
+- 「独处时和在别人面前有什么区别？」
+- 「有什么日常习惯或仪式？」
+
+### 情景设定 → char3
+
+- 「故事开始时，她处于什么处境？」
+- 「她所处的环境如何塑造了她？」
+
+### 开场呈现 → char5
+
+- 「如果读者第一次见到她，她正在做什么？这个场景体现了她的什么特质？」
+- → 生成 2–3 个开场场景方案供用户选择 ※
+- → 用户选择后，写出 200–400 字的完整场景 ※
+
+### 对话示例 → char5
+
+让角色在以下三个场景中说几句话：
+- **说服别人时**（对话作为行动/操控）
+- **表达脆弱时**（对话作为暴露/求助）
+- **日常寒暄时**（对话作为面具/维护）
+
+为每个场景生成 3–5 句对话，附简要上下文说明。
+
+### 深层设定 → char2 + char3（可选）
+
+- 核心认同（他如何看待自己？）
+- 驱动力结构（什么让他早上起床？）
+- 情感模式（他如何处理亲密关系？）
+- 过往创伤（有什么塑造了他但回避谈论的事？）
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: add role review module and interview dimension reference to interview guide"
+```
+
+---
+
+### Task 8: 写入附录 A–D + 更新 SKILL.md
+
+**Files:**
+- Modify: `skills/novel-research/references/character-interview-guide.md`（追加）
+- Modify: `skills/novel-research/SKILL.md`（更新 Phase 3 描述 + 参考文件）
+
+**源 prompt:** [69] 珠矶理论体系, [81] 人物模版制作, [131] 人物塑造模块
+
+- [ ] **Step 1: 读取附录相关源 prompt**
+
+```bash
+python3 -c "
+import json
+with open('ref/example/【珠矶预设化】V1.71.json','r') as f:
+    data = json.load(f)
+for i in [69,81,131]:
+    p = data['prompts'][i]
+    print(f'=== [{i}] {p[\"name\"]} ({len(p[\"content\"])} chars) ===')
+    print(p['content'][:2000]); print()
+"
+```
+
+- [ ] **Step 2: 追加四个附录 + 管线末页**
+
+```markdown
+---
+
+# 附录
+
+## 附录 A：char0 备选模板详述
+
+### 模板1：大丨标准化模板
+
+**适用场景：** 所有角色类型，快速启动。
+
+**框架结构：**
+```
+〇. Profile（基本档案 → 姓名/性别/年龄/外观）
+一. 身份定位（Role/Goal/Motivation/Conflict/Arc）
+二. 性格分析（人格类型 + 核心特质 + 压力行为 + 认知盲点）
+三. 语言风格（语速/句式/口头禅/情绪变化）
+四. 社会关系（身份/地位/行事逻辑/关键关系）
+五. 背景故事（成长经历/关键事件/深层创伤）
+六. 语料库（自我介绍/场景对话/特质化语料）
+```
+
+**判断标准：** 默认首选。用户没有特殊要求时使用此模板。
+
+### 模板2：风空精神分析模板
+
+**适用场景：** 心理复杂度高、需要深度内在逻辑的角色。
+
+**框架结构：**
+```
+精神分析融合框架：
+- 镜像阶段经历（自我形成期关键事件）
+- 阉割事件（超我/象征界奠基）
+- 创伤性真实（无法被符号化的核心创伤）
+- 防御机制系统（主要防御/情境防御/崩溃点）
+- 驱动力结构（力比多经济/客体关系/自恋构造）
+```
+
+**判断标准：** 用户强调「内心复杂」「心理创伤」「矛盾人格」时选用。
+
+### 模板3：心理动力学网络构架
+
+**适用场景：** 需避免 OOC、多重内在驱动力交织的角色。
+
+**框架结构：**
+```
+心理动力学网络：
+- 表层行为模式（可观察的行动倾向）
+- 深层驱动力（每个行为的心理根源）
+- 冲突系统（内在冲突/外在冲突/冲突互动）
+- 防御机制（功能/表现/触发条件）
+- 特质互动网络（特质 A 如何触发/抑制特质 B）
+```
+
+**判断标准：** 用户强调「不能 OOC」「行为一致性」「驱动复杂」时选用。
+
+---
+
+## 附录 B：生成清单
+
+角色访谈完成后，agent 对照以下清单逐项确认：
+
+| # | 字段 | char_step | 必填 | 检查 |
+|---|---|---|---|---|
+| 1 | 身份、目标、动机、核心冲突、弧光笔记 | char0 | ✓ | [ ] |
+| 2 | 简介（含外貌描述） | char1 | ✓ | [ ] |
+| 3 | 性格（人格类型 + 核心特质） | char2 + char4 | ✓ | [ ] |
+| 4 | 标签 | char1 + char4 | ✓ | [ ] |
+| 5 | 情景设定 | char3 | ✓ | [ ] |
+| 6 | 开场呈现 | char5 | ✓ | [ ] |
+| 7 | 对话风格（至少 2 个场景） | char5 | ✓ | [ ] |
+| 8 | 深层设定 | char2 + char3 | 可选 | [ ] |
+| 9 | 角色扮演指令 | 仅导入 | 不出现在访谈生成 | [ ] |
+| 10 | 角色关系（写入 character-relationships.md） | char6 | ✓ | [ ] |
+
+---
+
+## 附录 C：珠矶角色理论（prompt 69 精华）
+
+**前置说明：** 以下提炼自珠矶自有角色理论体系（prompt 69）。agent 在遇到复杂角色、用户提出深层心理问题时可按需查阅，非必读。
+
+### 角色创作的核心原则
+
+1. **模块化设定** — 确保各模块（外显/内质/外延）内部逻辑自洽，模块间相互支撑
+2. **具体化、情境化描述** — 使用精确、引导性的语言，避免抽象标签
+3. **行为驱动** — 每个特质必须能在具体情境中转化为可写的行为
+
+### 三轴解构
+
+- **外显轴** — 物质可感知属性（面貌/身体/声音/气味/服装）
+- **内质轴** — 精神不可见属性（人格/驱动力/价值观/情感/冲突）
+- **外延轴** — 社会互动属性（能力/关系/地位/行事逻辑/抗压）
+
+三轴应当相互支撑而非独立存在。外显反映内质，外延体现内质与外显的整合。
+
+---
+
+## 附录 D：人物塑造补充模块
+
+> 源 prompt: [131] [81]
+
+**快速通道：** 对于次要角色或用户明确表示「不需要深度创建」的角色，可使用以下简化版人物模板（char0.5），跳过完整的 char0~7 管线。
+
+```
+简化版人物模板：
+- 姓名/年龄/定位
+- 核心特质（3 个，各附 1 句行为示例）
+- 语言风格（1 句话描述 + 1 句示例）
+- 与主角的关系
+```
+
+**使用条件：** 用户明确表示该角色是功能性配角，不需要完整创建。
+
+---
+
+> **全文结束。** agent 在 novel-research Phase 3 访谈中按此文档操作。
+> 如遇阻塞，回到 SKILL.md Phase 3 流程，确认访谈进度后再继续。
+```
+
+- [ ] **Step 3: 更新 SKILL.md Phase 3 描述**
+
+在 `skills/novel-research/SKILL.md` 的 Phase 3 章节中找到角色创建相关描述，确认已引用 `character-interview-guide.md`。
+当前 SKILL.md 第 115 行附近已有角色访谈流程。在 Phase 3 开头（第 115 行后 `### C 组：边界条件` 之前）插入一句管线引用：
+
+编辑位置：第 115 行后（「如果用户没有角色卡，继续 C 组访谈」之后，`### C 组` 之前）
+
+```markdown
+**角色创建管线：** agent 在创建角色时，按 `references/character-interview-guide.md` 第一部分的 char0~7 步骤逐步骤执行，角色创建完成后运行第二部分「角色审查」进行自检。
+```
+
+确认 `## 参考文件` 章节（第 265 行）包含 `character-interview-guide.md` 的引用（当前已有）。
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md skills/novel-research/SKILL.md
+git commit -m "docs: add appendices and update SKILL.md Phase 3 pipeline reference"
+```
+
+---
+
+### Task 9: 完整性验证
+
+**Files:**
+- Verify: `skills/novel-research/references/character-interview-guide.md`
+
+- [ ] **Step 1: 结构完整性检查**
+
+```bash
+echo "=== Checking section headers ==="
+grep -n "^#" skills/novel-research/references/character-interview-guide.md
+```
+
+预期输出应包含以下章节标题：
+- `# 角色访谈指导 — Agent 操作手册`
+- `## 核心原则`
+- `## 管线入口`
+- `# 第一部分：角色创建管线`
+- `## char0 — 概念设计` 到 `## char7 — 概念设计（视觉）`
+- `# 第二部分：角色审查`
+- `# 第三部分：访谈维度参考`
+- `# 附录`
+- `## 附录 A` 到 `## 附录 D`
+
+- [ ] **Step 2: 必填字段覆盖检查**
+
+```bash
+echo "=== Checking required fields coverage ==="
+grep -c "身份定位" skills/novel-research/references/character-interview-guide.md
+grep -c "简介" skills/novel-research/references/character-interview-guide.md
+grep -c "开场呈现" skills/novel-research/references/character-interview-guide.md
+grep -c "对话风格" skills/novel-research/references/character-interview-guide.md
+```
+
+预期：每字段至少出现 1 次。
+
+- [ ] **Step 3: 源 prompt 溯源检查**
+
+```bash
+echo "=== Checking source prompt references ==="
+rg -o '\[11[1-9]\]|\[12[0-9]\]|\[13[0-1]\]|\[69\]|\[81\]' skills/novel-research/references/character-interview-guide.md | sort -u
+```
+
+预期输出全部 21 个源 prompt 序号（69, 81, 111–131）。
+
+- [ ] **Step 4: 无占位符检查**
+
+```bash
+grep -n "TODO\|TBD\|FIXME" skills/novel-research/references/character-interview-guide.md
+```
+
+预期：无匹配（仅「待补充」可能出现——那是角色审查的前置依赖标记，非占位符）。
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add skills/novel-research/references/character-interview-guide.md
+git commit -m "docs: verify character interview guide completeness"
+```
+
+---
+
+### Task 10: 全量验证
+
+**Files:**
+- Verify: `skills/novel-research/references/character-interview-guide.md`
+- Verify: `skills/novel-research/SKILL.md`
+
+- [ ] **Step 1: TypeScript 编译检查**
+
+```bash
+rtk npx tsc --noEmit
+```
+
+- [ ] **Step 2: 测试套件**
+
+```bash
+rtk npm test
+```
+
+- [ ] **Step 3: 端口性回归测试**
+
+```bash
+rtk node --import tsx --test tests/validators.test.js --test-name-pattern "skill source files do not depend on repo-root shared script paths"
+```
+
+- [ ] **Step 4: 文档交叉引用检查**
+
+```bash
+echo "=== Cross-reference: SKILL.md → character-interview-guide.md ==="
+grep "character-interview-guide" skills/novel-research/SKILL.md
+```
+
+预期：至少 1 处匹配（Phase 3 + 参考文件 两处）。
+
+- [ ] **Step 5: Commit**
+
+```bash
+git commit -m "chore: final validation for character pipeline extraction"
+```

@@ -15,7 +15,8 @@ The project must contain:
 - `10-research/setting-research.md`
 - `10-research/style-research.md`
 - `10-research/references.md`
-- `20-story/characters.md`
+- `20-story/characters/` — 每个角色一个 `.md` 文件，统一角色卡格式
+- `20-story/character-relationships.md` — 角色间双向关系
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
@@ -31,7 +32,7 @@ The project must contain:
 - `## Core Premise`
 - `## Central Conflict`
 - `## Protagonist Goal`
-- `## Forbidden Content`
+- `## Content Boundaries`
 
 `00-project/success-criteria.md` must contain at least:
 

@@ -16,6 +16,6 @@ template: style-research
 ## Guidance
 
 - Strengths to Emulate: {{strengths_to_emulate}}
-- Weaknesses to Avoid: {{weaknesses_to_avoid}}
+- Style Guardrails: {{weaknesses_to_avoid}}
 - Terminology Rules: {{terminology_rules}}
 - Sentence Rhythm Notes: {{sentence_rhythm_notes}}

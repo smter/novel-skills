@@ -24,7 +24,7 @@ description: Use when 中文小说项目已经具备调研文件，并需要按�
 - `00-project/workflow-status.md` 的 status 为 `research_complete` 或 `draft_blocked`
 - `00-project/workflow-status.md` 的 current stage 与起草阶段兼容
 - `00-project/success-criteria.md`
-- `20-story/characters.md`
+- `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/chapter-plan.md`
@@ -86,7 +86,8 @@ node --experimental-strip-types <skill-root>/scripts/validate-drafting-project.m
 只向 writer 提供：
 - `00-project/project-brief.md`
 - `10-research/style-research.md`
-- `20-story/characters.md`
+- 此外，Writer 在需要处理风格一致性时可查阅 `references/style-analysis-guide.md` 的风格复现宪章。
+- `20-story/characters/`
 - `20-story/plot-outline.md`
 - `20-story/foreshadowing.md`
 - `30-draft/continuity/story-state.md`
@@ -102,6 +103,7 @@ reviewer 需要检查：
 - 是否符合当前章节目标
 - 是否符合整体大纲
 - 人物一致性
+- 风格一致性（如有明确风格约束，对照 `style-research.md` 和 `style-analysis-guide.md` 的风格四层框架检查）
 - 是否出现不允许的提前揭示
 - 与前文章节的连续性
 - 与 `story-state.md` 和最近已批准 continuity state 的一致性
@@ -169,14 +171,13 @@ reviewer 还必须确认当前章节的 `30-draft/continuity/chapter-XX-state.md
 
 只有在上述检查都通过后，才能设置 `draft_complete`。
 
-## 风险信号
+## 推进前置条件
 
-- "这一章差不多了，继续吧"
-- "审查看到了问题，但后面再改也行"
-- "这个揭示很精彩，提前放出来也没关系"
-- "第三次重试应该已经够继续了"
-
-出现以上说法都意味着：不要推进流程。
+推进流程前必须确认：
+- 有具体、明确的章节完成证据（非模糊的"差不多了"）
+- 当前章节审查意见已全部解决（非"后面再改"）
+- 伏笔揭示时序与大纲一致（非提前放出）
+- 重试次数未超限额（当前章节重试上限：3 次）
 
 ## 常见自我说服
 

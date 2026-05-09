@@ -179,15 +179,13 @@ EPUB 导出应校验：
 - write `50-delivery/output/delivery-warnings.md`
 - allow `delivery_complete`
 
-## 风险信号
+## 导出强制步骤
 
-- "先导一次看看再说"
-- "大多数机器应该都装了 Pandoc"
-- "我把所有章节读出来自己拼一个 `book.md` 就行"
-- "skill 里说要组装 `book.md`，所以我应该先手动拼接书稿"
-- "虽然默认 PDF 路径是浏览器打印，但我先去修 TeX 吧"
-
-这些都意味着：不要跳过导出关键检查。
+导出前必须执行（不可跳过）：
+- 运行导出脚本，不手工拼装书稿
+- 显式检查 Pandoc 可用性
+- 使用 Chromium 打印路径导出 PDF
+- 按脚本流程组装 `book.md`，不手工拼接
 
 ## 常见自我说服
 

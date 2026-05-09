@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import {
   createValidator,
   finish,
@@ -21,7 +24,6 @@ const requiredFiles = [
   '00-project/project-brief.md',
   '00-project/success-criteria.md',
   '00-project/workflow-status.md',
-  '20-story/characters.md',
   '20-story/plot-outline.md',
   '20-story/foreshadowing.md',
   '30-draft/chapter-plan.md',
@@ -111,6 +113,11 @@ function main(): void {
 
   for (const relativePath of requiredFilesForMode) {
     requireFile(state, relativePath);
+  }
+
+  const charactersDir = path.join(args['project-root'], '20-story', 'characters');
+  if (!fs.existsSync(charactersDir) || fs.readdirSync(charactersDir).filter((f: string) => f.endsWith('.md')).length === 0) {
+    state.errors.push('[角色数据缺失] 20-story/characters/ 目录不存在或为空（需至少一个角色卡 .md 文件）。\n  请先完成 novel-research 阶段的角色访谈或角色卡导入。');
   }
 
   const project = loadDraftingProject(args['project-root']);
