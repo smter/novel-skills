@@ -475,7 +475,7 @@
 # 第二部分：角色审查
 
 > 源 prompt: [130]  
-> 前置依赖：`references/theory/mckee-character.md`（子项目四产出，如尚未完成则标注「待补充」）
+> **审查依据：** 对照 `references/theory/mckee-character.md` 的六维度诊断体系和圆形/扁平人物标准进行审查。
 
 **执行时机：** char0~7 完成后对角色进行全面诊断。
 
